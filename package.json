@@ -1,0 +1,31 @@
+{
+  "name": "bin-bank",
+  "version": "1.0.0",
+  "description": "- Violin Mulya Putra  -  24/534192/TK/59201\r - Ghaisan Rifqi Kamiel  -  24/540091/TK/59899\r - Muhammad Falah Aufa Anggara  -  24/540500/TK/59995\r - Naufal Dzaky  -  24/543697/TK/60431",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/GhaisaniCan/bin-bank.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/GhaisaniCan/bin-bank/issues"
+  },
+  "homepage": "https://github.com/GhaisaniCan/bin-bank#readme",
+  "dependencies": {
+    "cors": "^2.8.6",
+    "dotenv": "^18.0.2",
+    "express": "^5.2.1",
+    "mongodb": "^7.6.0",
+    "mongoose": "^9.10.1"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.14"
+  }
+}
