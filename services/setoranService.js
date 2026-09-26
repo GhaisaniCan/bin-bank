@@ -25,17 +25,12 @@ function pastikanObjectId(nilai, namaField) {
   return nilai;
 }
 
-// Penyesuaian ke repo kelompok: model JenisSampah (Modul B) saat ini memakai
-// nama field `harga_per_kg`, sedangkan docs/KESEPAKATAN-SKEMA.md menyepakati
-// `hargaPerKg`. Keduanya diterima di sini supaya modul ini tidak memaksa
-// Anggota 2 mengubah model miliknya, dan tetap jalan bila nanti di-rename.
+// Model JenisSampah memakai harga_per_kg, kontrak skema memakai hargaPerKg.
 function ambilHargaPerKg(jenis) {
   const nilai = jenis.hargaPerKg !== undefined ? jenis.hargaPerKg : jenis.harga_per_kg;
   return Number(nilai);
 }
 
-// Memeriksa satu per satu baris timbangan yang dikirim petugas,
-// sebelum harga jenis sampah diambil dari database.
 function validasiRincianMasukan(rincian) {
   if (!Array.isArray(rincian) || rincian.length === 0) {
     throw new AppError("Rincian setoran minimal berisi satu jenis sampah", 400);
@@ -59,8 +54,6 @@ function validasiRincianMasukan(rincian) {
   });
 }
 
-// Mengambil harga yang berlaku saat ini, lalu menyalinnya ke dalam setoran.
-// Setelah disalin, perubahan harga oleh admin tidak lagi mengubah setoran ini.
 async function susunRincianBerharga(rincianMasukan) {
   const JenisSampah = ambilModel("JenisSampah");
 
@@ -77,7 +70,6 @@ async function susunRincianBerharga(rincianMasukan) {
       );
     }
 
-    // Jenis sampah yang sudah dinonaktifkan tidak boleh dipakai untuk setoran baru.
     if (jenis.aktif === false) {
       throw new AppError(`Jenis sampah "${jenis.nama}" sudah tidak aktif`, 400);
     }
@@ -110,9 +102,6 @@ async function pastikanNasabahTerdaftar(nasabahId) {
   return nasabah;
 }
 
-// Fitur 4 + Fitur 5.
-// Setoran disimpan dan saldo ditambah di dalam satu transaksi database,
-// sehingga tidak mungkin setoran tercatat tanpa saldo nasabah bertambah.
 async function catatSetoran({ nasabah, petugas, tanggal, rincian, catatan }) {
   pastikanObjectId(nasabah, "ID nasabah");
   pastikanObjectId(petugas, "ID petugas");
@@ -183,7 +172,6 @@ async function catatSetoran({ nasabah, petugas, tanggal, rincian, catatan }) {
   }
 }
 
-// Fitur 4 (bagian daftar). Dipakai petugas dan admin untuk melihat setoran tercatat.
 async function daftarSetoran({ nasabah, dari, sampai, status, halaman, limit } = {}) {
   const filter = {};
 
@@ -213,8 +201,6 @@ async function daftarSetoran({ nasabah, dari, sampai, status, halaman, limit } =
       if (Number.isNaN(tanggalSampai.getTime())) {
         throw new AppError("Format tanggal 'sampai' tidak valid", 400);
       }
-      // Batas akhir dibuat inklusif supaya sampai=2026-09-23 ikut memuat
-      // setoran yang dicatat pada hari itu.
       tanggalSampai.setHours(23, 59, 59, 999);
       filter.tanggal.$lte = tanggalSampai;
     }
@@ -258,7 +244,6 @@ async function detailSetoran(setoranId, pengguna) {
     throw new AppError("Setoran tidak ditemukan", 404);
   }
 
-  // Nasabah hanya boleh membuka setoran miliknya sendiri.
   if (pengguna?.role === "nasabah" && String(setoran.nasabah?._id) !== String(pengguna.id)) {
     throw new AppError("Anda tidak berhak mengakses setoran ini", 403);
   }

@@ -3,20 +3,6 @@ const BukuBesar = require("../models/BukuBesar");
 const AppError = require("../utils/AppError");
 const { bulatkanRupiah } = require("../utils/angka");
 
-// Satu-satunya pintu masuk perubahan saldo nasabah.
-//
-// Aturan yang dijaga di sini:
-// 1. Saldo di dokumen User dan catatan di BukuBesar selalu berubah bersamaan,
-//    di dalam satu transaksi database, sehingga tidak mungkin saldo bertambah
-//    tanpa catatan, atau sebaliknya.
-// 2. Saldo tidak pernah dihitung ulang dari nol. Perubahan memakai $inc supaya
-//    dua transaksi yang berjalan bersamaan tidak saling menimpa.
-// 3. Saldo tidak boleh minus. Pengurangan hanya berhasil bila saldo mencukupi.
-//
-// Modul lain memanggil credit()/debit(), bukan mengubah User.saldo sendiri.
-
-// Model User dan JenisSampah dipegang anggota lain. Diambil lewat registry
-// Mongoose supaya modul ini tidak terikat pada nama file mereka.
 function ambilModel(namaModel) {
   try {
     return mongoose.model(namaModel);
@@ -52,8 +38,6 @@ async function catatMutasi(
   const nominal = pastikanJumlahValid(jumlah);
   const User = ambilModel("User");
 
-  // Filter dipasang di query, bukan dicek di aplikasi, supaya pengecekan saldo
-  // dan pengurangannya terjadi dalam satu operasi atomik.
   const filter = { _id: nasabahId, role: "nasabah" };
   if (tipe === "DEBIT") {
     filter.saldo = { $gte: nominal };
@@ -92,20 +76,6 @@ async function catatMutasi(
   return { catatan, saldoTerkini: nasabah.saldo };
 }
 
-// ---------------------------------------------------------------------------
-// Lapisan kompatibilitas untuk Modul D (services/penarikanService.js).
-//
-// Kontrak di docs/KESEPAKATAN-SKEMA.md: credit/debit dipanggil dengan satu objek
-// argumen + session, misalnya credit({ nasabahId, jumlah, sumber, referensiId,
-// keterangan }, session). Modul D yang sudah lebih dulu masuk ke main memanggil
-// dengan gaya posisional: debit(nasabahId, jumlah, keterangan, { tipe, id }).
-//
-// Supaya penggabungan ini tidak memaksa Anggota 4 menulis ulang modulnya,
-// kedua gaya panggilan diterima. Gaya posisional membuka transaksinya sendiri.
-// Setelah Modul D pindah ke gaya kontrak, seluruh blok kompatibilitas di bawah
-// (termasuk getSaldo dan getRiwayat) boleh dihapus.
-// ---------------------------------------------------------------------------
-
 function gayaKontrak(argumenPertama) {
   return (
     argumenPertama !== null &&
@@ -114,15 +84,11 @@ function gayaKontrak(argumenPertama) {
   );
 }
 
-// Modul D memakai referensi berbentuk { tipe: "penarikan", id }, sedangkan
-// BukuBesar menyimpannya sebagai sumber ("PENARIKAN") + referensiId.
 function terjemahkanReferensi(referensi, sumberBawaan) {
   const tipe = referensi && referensi.tipe ? String(referensi.tipe).toUpperCase() : sumberBawaan;
   return { sumber: tipe, referensiId: referensi ? referensi.id : undefined };
 }
 
-// Pemanggil gaya lama tidak membawa session, jadi transaksinya dibuka di sini.
-// Mutasi saldo tetap tidak pernah terjadi di luar transaksi.
 async function jalankanDalamTransaksi(argumen) {
   const session = await mongoose.startSession();
   try {
@@ -136,7 +102,9 @@ async function jalankanDalamTransaksi(argumen) {
   }
 }
 
-// Menambah saldo nasabah. Dipakai saat setoran tercatat.
+// Dua gaya panggilan diterima: ({ nasabahId, jumlah, ... }, session) sesuai
+// kontrak skema, atau (nasabahId, jumlah, keterangan, referensi) seperti yang
+// dipakai penarikanService. Gaya kedua membuka transaksinya sendiri.
 async function credit(...argumen) {
   const [pertama, kedua, ketiga, keempat] = argumen;
 
@@ -159,7 +127,6 @@ async function credit(...argumen) {
   });
 }
 
-// Mengurangi saldo nasabah. Dipakai saat pengajuan penarikan disetujui admin.
 async function debit(...argumen) {
   const [pertama, kedua, ketiga, keempat] = argumen;
 
@@ -182,7 +149,6 @@ async function debit(...argumen) {
   });
 }
 
-// Saldo terkini nasabah, dibaca dari dokumen User.
 async function ambilSaldo(nasabahId, session) {
   const User = ambilModel("User");
   const kueri = User.findOne({ _id: nasabahId, role: "nasabah" }).select("saldo");
@@ -198,8 +164,6 @@ async function ambilSaldo(nasabahId, session) {
   return nasabah.saldo ?? 0;
 }
 
-// Nama lama yang dipakai Modul D. getSaldo membaca User.saldo (bukan lagi
-// menjumlah ulang buku besar), getRiwayat mengembalikan mutasi terbaru dulu.
 async function getSaldo(nasabahId) {
   return ambilSaldo(nasabahId);
 }

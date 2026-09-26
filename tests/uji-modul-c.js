@@ -1,13 +1,6 @@
-// Smoke test Modul C: dijalankan di MongoDB in-memory (replica set) supaya
-// transaksi database benar-benar terpakai, bukan hanya diasumsikan jalan.
 const mongoose = require("mongoose");
 const { MongoMemoryReplSet } = require("mongodb-memory-server");
 
-// Path relatif dari folder tests/ ke file modul.
-
-// Model milik anggota lain (Modul A dan B) di-require langsung dari repo,
-// bukan dibuat tiruan, supaya uji ini sekalian membuktikan Modul C benar-benar
-// cocok dengan model yang dipakai kelompok — termasuk `harga_per_kg`.
 function daftarkanModelPihakLain() {
   require("../models/User");
   require("../models/JenisSampah");
@@ -267,9 +260,6 @@ async function main() {
 
   console.log("\nLapisan kompatibilitas — panggilan gaya lama Modul D");
 
-  // services/penarikanService.js memanggil ledgerService dengan gaya posisional
-  // dan tanpa session. Uji di bawah memastikan penggabungan tidak mematahkan
-  // fitur penarikan milik Anggota 4.
   await cek("getSaldo gaya lama membaca saldo terkini", async () => {
     const saldo = await ledgerService.getSaldo(nasabah._id);
     const terbaru = await User.findById(nasabah._id);

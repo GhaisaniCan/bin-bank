@@ -1,8 +1,5 @@
 const mongoose = require("mongoose");
 
-// Rincian satu baris timbangan di dalam sebuah setoran.
-// hargaPerKg dan namaSampah sengaja disalin (snapshot) saat setoran dicatat,
-// supaya perubahan harga di kemudian hari tidak mengubah nilai setoran lama.
 const rincianSetoranSchema = new mongoose.Schema(
   {
     jenisSampah: {
@@ -72,8 +69,6 @@ const setoranSchema = new mongoose.Schema(
       required: [true, "total nilai wajib diisi"],
       min: [0, "total nilai tidak boleh negatif"],
     },
-    // TERCATAT = setoran sah. DIBATALKAN dipakai fitur pendukung "Pembatalan Setoran";
-    // setoran tidak pernah dihapus, hanya ditandai.
     status: {
       type: String,
       enum: {
@@ -90,7 +85,6 @@ const setoranSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-// Dipakai endpoint daftar setoran: filter nasabah + urut tanggal terbaru.
 setoranSchema.index({ nasabah: 1, tanggal: -1 });
 
 module.exports = mongoose.model("Setoran", setoranSchema);

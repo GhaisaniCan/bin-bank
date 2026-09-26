@@ -1,9 +1,6 @@
 const setoranService = require("../services/setoranService");
 const AppError = require("../utils/AppError");
 
-// Middleware authenticate (Modul A) menaruh data pengguna dari JWT di req.user.
-// Bentuknya dinormalkan di sini supaya controller ini tetap jalan baik
-// req.user berisi { id, role } maupun dokumen User utuh.
 function ambilPengguna(req) {
   const pengguna = req.user || {};
   return {
@@ -34,7 +31,6 @@ function kirimError(res, error) {
   return res.status(500).json({ sukses: false, pesan: "Terjadi kesalahan pada server" });
 }
 
-// POST /api/setoran  (peran: petugas)
 async function catatSetoran(req, res) {
   try {
     const petugas = ambilPengguna(req);
@@ -69,7 +65,6 @@ async function catatSetoran(req, res) {
   }
 }
 
-// GET /api/setoran  (peran: petugas, admin)
 async function daftarSetoran(req, res) {
   try {
     const { nasabah, dari, sampai, status, halaman, limit } = req.query;
@@ -93,7 +88,6 @@ async function daftarSetoran(req, res) {
   }
 }
 
-// GET /api/setoran/:id  (peran: petugas, admin, dan nasabah pemilik setoran)
 async function detailSetoran(req, res) {
   try {
     const setoran = await setoranService.detailSetoran(req.params.id, ambilPengguna(req));
