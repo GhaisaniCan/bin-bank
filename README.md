@@ -40,8 +40,8 @@ middlewares/    : Menangani autentikasi, otorisasi role, dan error handling
 models/         : Mendefinisikan schema MongoDB menggunakan Mongoose
 postman/        : Kumpulan skrip pengujian Postman Collection
 routes/         : Mengatur lalu lintas endpoint URL dan menyisipkan middleware
-services/       : Menangani logika bisnis utama (database & transaksi)
-tests/          : Skrip pengujian terotomatisasi (opsional)
+services/       : Menangani logika bisnis utama aplikasi
+tests/          : Skrip pengujian
 utils/          : Fungsi bantuan (helper) seperti formatter angka
 server.js       : Entry point aplikasi
 ```
