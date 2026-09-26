@@ -5,6 +5,11 @@ const userSchema = new mongoose.Schema({
   email: { type: String, required: true, unique: true },
   password: { type: String, required: true },
   role: { type: String, enum: ["petugas", "nasabah", "admin"], required: true },
+  // Saldo terkini nasabah (Fitur 5, docs/KESEPAKATAN-SKEMA.md bagian 1).
+  // HANYA boleh diubah lewat services/ledgerService.js, tidak langsung dari
+  // controller mana pun, supaya setiap perubahan saldo selalu punya catatan
+  // di BukuBesar dan pengecekan saldo penarikan tetap atomik.
+  saldo: { type: Number, default: 0, min: [0, "saldo tidak boleh negatif"] },
 }, { timestamps: true })
 
 module.exports = mongoose.model("User", userSchema)

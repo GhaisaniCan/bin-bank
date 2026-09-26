@@ -1,2 +1,54 @@
-node_modules
+# ---------- Dependency ----------
+node_modules/
+
+# ---------- Rahasia ----------
+# .env berisi MONGO_URI dan JWT_SECRET asli, jangan pernah di-commit.
+# Yang masuk repo hanya .env.example (template tanpa nilai).
 .env
+.env.*
+!.env.example
+
+# ---------- Log ----------
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# ---------- Hasil uji ----------
+coverage/
+.nyc_output/
+
+# ---------- Berkas sistem operasi ----------
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+Thumbs.db
+desktop.ini
+
+# ---------- Editor / IDE ----------
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# ---------- Berkas referensi kelompok ----------
+# PDF, gambar, dan RTF pembagian tugas: bahan bacaan, bukan kode.
+file beda/
+*.rtf
+
+# ---------- Artefak salinan Finder macOS ----------
+# Menyalin folder ke lokasi yang sudah punya nama sama menghasilkan
+# "controllers copy", "models copy", dst. Jangan sampai ikut ter-commit.
+* copy/
+* copy.*
+* copy [0-9]*
+
+# ---------- Berkas sementara ----------
+tmp/
+temp/
+*.tmp
