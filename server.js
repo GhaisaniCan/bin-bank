@@ -15,6 +15,9 @@ app.use("/auth", authController)
 //-------------------- idk what im doing dont mind me ---------------------
 const jenisSampahController = require("./controllers/jenisSampahController")
 app.use("/jenis-sampah", jenisSampahController)
+
+const laporanRoutes = require("./routes/laporanRoutes")
+app.use("/laporan", laporanRoutes)
 //-------------------- idk what im doing dont mind me ---------------------
 
 const penarikanController = require("./controllers/penarikanController")
