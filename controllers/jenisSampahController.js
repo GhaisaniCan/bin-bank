@@ -1,50 +1,93 @@
-const express = require('express');
-const router = express.Router();
-const JenisSampah = require('../models/JenisSampah');
+const JenisSampah = require("../models/JenisSampah");
 
-// auth stuff
-const authenticate = require('../middlewares/authenticate');
-const authorize = require('../middlewares/authorize');
-
-
-// GET
-router.get('/', authenticate, async (req, res) => {
+async function tambahJenisSampah(req, res) {
   try {
-    const data = await JenisSampah.find();
-    res.status(200).json({ message: "Data berhasil diambil", data: data });
+    const { nama, hargaPerKg } = req.body;
+    const jenisBaru = await JenisSampah.create({ nama, hargaPerKg });
+    
+    return res.status(201).json({
+      sukses: true,
+      pesan: "Jenis sampah berhasil ditambahkan",
+      data: jenisBaru
+    });
   } catch (error) {
-    res.status(500).json({ message: "Terjadi kesalahan", error: error.message });
+    return res.status(500).json({ sukses: false, pesan: error.message });
   }
-});
+}
 
-
-// POST
-router.post('/', authenticate, authorize('admin'), async (req, res) => {
+async function dapatkanJenisSampah(req, res) {
   try {
-    const { nama, harga_per_kg } = req.body;
-    const sampahBaru = new JenisSampah({ nama, harga_per_kg });
-    await sampahBaru.save();
-    res.status(201).json({ message: "Jenis sampah berhasil ditambahkan", data: sampahBaru });
+    // Menampilkan semua jenis sampah, baik yang aktif maupun tidak (opsional: bisa difilter di query)
+    const daftarSampah = await JenisSampah.find().sort({ createdAt: -1 });
+    
+    return res.status(200).json({
+      sukses: true,
+      pesan: "Daftar jenis sampah berhasil diambil",
+      data: daftarSampah
+    });
   } catch (error) {
-    res.status(400).json({ message: "Gagal menambahkan data", error: error.message });
+    return res.status(500).json({ sukses: false, pesan: error.message });
   }
-});
+}
 
-
-// PUT
-router.put('/:id', authenticate, authorize('admin'), async (req, res) => {
+async function ubahJenisSampah(req, res) {
   try {
-    const { nama, harga_per_kg } = req.body;
+    const { id } = req.params;
+    const { nama, hargaPerKg } = req.body;
+
     const sampahDiperbarui = await JenisSampah.findByIdAndUpdate(
-      req.params.id,
-      { nama, harga_per_kg },
-      { returnDocument: 'after' } 
+      id,
+      { nama, hargaPerKg },
+      { new: true, runValidators: true }
     );
-    if (!sampahDiperbarui) return res.status(404).json({ message: "Data tidak ditemukan" });
-    res.status(200).json({ message: "Harga berhasil diperbarui", data: sampahDiperbarui });
-  } catch (error) {
-    res.status(400).json({ message: "Gagal memperbarui harga" });
-  }
-});
 
-module.exports = router;
+    if (!sampahDiperbarui) {
+      return res.status(404).json({ sukses: false, pesan: "Jenis sampah tidak ditemukan" });
+    }
+
+    return res.status(200).json({
+      sukses: true,
+      pesan: "Data jenis sampah berhasil diperbarui",
+      data: sampahDiperbarui
+    });
+  } catch (error) {
+    return res.status(500).json({ sukses: false, pesan: error.message });
+  }
+}
+
+async function ubahStatus(req, res) {
+  try {
+    const { id } = req.params;
+    const { aktif } = req.body; 
+
+    if (typeof aktif !== "boolean") {
+      return res.status(400).json({ sukses: false, pesan: "Status aktif harus boolean (true/false)" });
+    }
+
+    const sampahDiperbarui = await JenisSampah.findByIdAndUpdate(
+      id,
+      { aktif },
+      { new: true }
+    );
+
+    if (!sampahDiperbarui) {
+      return res.status(404).json({ sukses: false, pesan: "Jenis sampah tidak ditemukan" });
+    }
+
+    const pesanStatus = aktif ? "diaktifkan" : "dinonaktifkan";
+    return res.status(200).json({
+      sukses: true,
+      pesan: `Jenis sampah berhasil ${pesanStatus}`,
+      data: sampahDiperbarui
+    });
+  } catch (error) {
+    return res.status(500).json({ sukses: false, pesan: error.message });
+  }
+}
+
+module.exports = {
+  tambahJenisSampah,
+  dapatkanJenisSampah,
+  ubahJenisSampah,
+  ubahStatus
+};
