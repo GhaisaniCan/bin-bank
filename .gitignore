@@ -1,2 +1,28 @@
 node_modules
+
 .env
+.env.*
+!.env.example
+
+logs
+*.log
+npm-debug.log*
+coverage
+.nyc_output
+
+.DS_Store
+._*
+Thumbs.db
+
+.vscode
+.idea
+*.swp
+
+file beda/
+*.rtf
+* copy/
+* copy.*
+
+tmp
+temp
+*.tmp

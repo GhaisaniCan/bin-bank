@@ -17,8 +17,13 @@ const jenisSampahController = require("./controllers/jenisSampahController")
 app.use("/jenis-sampah", jenisSampahController)
 //-------------------- idk what im doing dont mind me ---------------------
 
-app.get("/ping", (req, res) => res.json({ "data": "pong" }))
-app.listen(5001, () => console.log("Server is up and running"))
-
 const penarikanController = require("./controllers/penarikanController")
 app.use("/penarikan", penarikanController)
+
+const setoranRoutes = require("./routes/setoranRoutes")
+app.use("/setoran", setoranRoutes)
+
+app.get("/ping", (req, res) => res.json({ "data": "pong" }))
+
+const PORT = process.env.PORT || 5001
+app.listen(PORT, () => console.log(`Server is up and running on port ${PORT}`))

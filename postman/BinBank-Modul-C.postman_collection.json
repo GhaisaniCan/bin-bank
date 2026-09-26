@@ -1,0 +1,280 @@
+{
+  "info": {
+    "name": "BinBank — Modul C: Setoran & Buku Besar (Anggota 3)",
+    "description": "Pengujian Fitur 4 (Pencatatan Setoran) dan Fitur 5 (Akumulasi Saldo Otomatis). Isi dulu variable tokenPetugas, tokenAdmin, nasabahId, jenisSampahId1, dan jenisSampahId2 pada environment.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "baseUrl", "value": "http://localhost:5001" },
+    { "key": "tokenPetugas", "value": "" },
+    { "key": "tokenAdmin", "value": "" },
+    { "key": "tokenNasabah", "value": "" },
+    { "key": "nasabahId", "value": "" },
+    { "key": "jenisSampahId1", "value": "" },
+    { "key": "jenisSampahId2", "value": "" },
+    { "key": "setoranId", "value": "" }
+  ],
+  "item": [
+    {
+      "name": "01 — Catat setoran (berhasil)",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" },
+          { "key": "Authorization", "value": "Bearer {{tokenPetugas}}" }
+        ],
+        "url": { "raw": "{{baseUrl}}/setoran", "host": ["{{baseUrl}}"], "path": ["setoran"] },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"nasabah\": \"{{nasabahId}}\",\n  \"rincian\": [\n    { \"jenisSampah\": \"{{jenisSampahId1}}\", \"berat\": 2.5 },\n    { \"jenisSampah\": \"{{jenisSampahId2}}\", \"berat\": 1.2 }\n  ],\n  \"catatan\": \"Setoran pagi\"\n}"
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status 201', () => pm.response.to.have.status(201));",
+              "const body = pm.response.json();",
+              "pm.test('Setoran tersimpan', () => pm.expect(body.data.setoran._id).to.be.a('string'));",
+              "pm.test('Nilai dihitung server', () => {",
+              "  const rincian = body.data.setoran.rincian;",
+              "  const totalNilai = rincian.reduce((a, b) => a + b.subtotal, 0);",
+              "  pm.expect(body.data.setoran.totalNilai).to.eql(totalNilai);",
+              "});",
+              "pm.test('Harga disalin ke setoran', () => pm.expect(body.data.setoran.rincian[0].hargaPerKg).to.be.a('number'));",
+              "pm.test('Buku besar tercatat KREDIT', () => pm.expect(body.data.catatanBukuBesar.tipe).to.eql('KREDIT'));",
+              "pm.test('Saldo = saldoSetelah di buku besar', () => pm.expect(body.data.saldoTerkini).to.eql(body.data.catatanBukuBesar.saldoSetelah));",
+              "pm.collectionVariables.set('setoranId', body.data.setoran._id);"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "02 — Catat setoran gagal: berat 0",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" },
+          { "key": "Authorization", "value": "Bearer {{tokenPetugas}}" }
+        ],
+        "url": { "raw": "{{baseUrl}}/setoran", "host": ["{{baseUrl}}"], "path": ["setoran"] },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"nasabah\": \"{{nasabahId}}\",\n  \"rincian\": [\n    { \"jenisSampah\": \"{{jenisSampahId1}}\", \"berat\": 0 }\n  ]\n}"
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status 400', () => pm.response.to.have.status(400));",
+              "pm.test('Pesan menyebut berat', () => pm.expect(pm.response.json().pesan).to.include('Berat'));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "03 — Catat setoran gagal: rincian kosong",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" },
+          { "key": "Authorization", "value": "Bearer {{tokenPetugas}}" }
+        ],
+        "url": { "raw": "{{baseUrl}}/setoran", "host": ["{{baseUrl}}"], "path": ["setoran"] },
+        "body": { "mode": "raw", "raw": "{\n  \"nasabah\": \"{{nasabahId}}\",\n  \"rincian\": []\n}" }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": ["pm.test('Status 400', () => pm.response.to.have.status(400));"]
+          }
+        }
+      ]
+    },
+    {
+      "name": "04 — Catat setoran gagal: nasabah tidak ada",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" },
+          { "key": "Authorization", "value": "Bearer {{tokenPetugas}}" }
+        ],
+        "url": { "raw": "{{baseUrl}}/setoran", "host": ["{{baseUrl}}"], "path": ["setoran"] },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"nasabah\": \"000000000000000000000000\",\n  \"rincian\": [\n    { \"jenisSampah\": \"{{jenisSampahId1}}\", \"berat\": 1 }\n  ]\n}"
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": ["pm.test('Status 404', () => pm.response.to.have.status(404));"]
+          }
+        }
+      ]
+    },
+    {
+      "name": "05 — Catat setoran ditolak: peran nasabah",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" },
+          { "key": "Authorization", "value": "Bearer {{tokenNasabah}}" }
+        ],
+        "url": { "raw": "{{baseUrl}}/setoran", "host": ["{{baseUrl}}"], "path": ["setoran"] },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"nasabah\": \"{{nasabahId}}\",\n  \"rincian\": [\n    { \"jenisSampah\": \"{{jenisSampahId1}}\", \"berat\": 1 }\n  ]\n}"
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": ["pm.test('Status 403', () => pm.response.to.have.status(403));"]
+          }
+        }
+      ]
+    },
+    {
+      "name": "06 — Catat setoran ditolak: tanpa token",
+      "request": {
+        "method": "POST",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "url": { "raw": "{{baseUrl}}/setoran", "host": ["{{baseUrl}}"], "path": ["setoran"] },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"nasabah\": \"{{nasabahId}}\",\n  \"rincian\": [\n    { \"jenisSampah\": \"{{jenisSampahId1}}\", \"berat\": 1 }\n  ]\n}"
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": ["pm.test('Status 401', () => pm.response.to.have.status(401));"]
+          }
+        }
+      ]
+    },
+    {
+      "name": "07 — Daftar setoran (petugas)",
+      "request": {
+        "method": "GET",
+        "header": [{ "key": "Authorization", "value": "Bearer {{tokenPetugas}}" }],
+        "url": {
+          "raw": "{{baseUrl}}/setoran?halaman=1&limit=10",
+          "host": ["{{baseUrl}}"],
+          "path": ["setoran"],
+          "query": [
+            { "key": "halaman", "value": "1" },
+            { "key": "limit", "value": "10" }
+          ]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status 200', () => pm.response.to.have.status(200));",
+              "const body = pm.response.json();",
+              "pm.test('Data berupa array', () => pm.expect(body.data).to.be.an('array'));",
+              "pm.test('Ada info paginasi', () => pm.expect(body.paginasi.halaman).to.eql(1));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "08 — Daftar setoran filter nasabah + tanggal (admin)",
+      "request": {
+        "method": "GET",
+        "header": [{ "key": "Authorization", "value": "Bearer {{tokenAdmin}}" }],
+        "url": {
+          "raw": "{{baseUrl}}/setoran?nasabah={{nasabahId}}&dari=2026-09-01&sampai=2026-09-30",
+          "host": ["{{baseUrl}}"],
+          "path": ["setoran"],
+          "query": [
+            { "key": "nasabah", "value": "{{nasabahId}}" },
+            { "key": "dari", "value": "2026-09-01" },
+            { "key": "sampai", "value": "2026-09-30" }
+          ]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status 200', () => pm.response.to.have.status(200));",
+              "const body = pm.response.json();",
+              "pm.test('Semua data milik nasabah yang difilter', () => {",
+              "  body.data.forEach((setoran) => pm.expect(setoran.nasabah._id).to.eql(pm.collectionVariables.get('nasabahId')));",
+              "});"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "09 — Detail setoran",
+      "request": {
+        "method": "GET",
+        "header": [{ "key": "Authorization", "value": "Bearer {{tokenPetugas}}" }],
+        "url": {
+          "raw": "{{baseUrl}}/setoran/{{setoranId}}",
+          "host": ["{{baseUrl}}"],
+          "path": ["setoran", "{{setoranId}}"]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status 200', () => pm.response.to.have.status(200));",
+              "pm.test('ID sesuai', () => pm.expect(pm.response.json().data._id).to.eql(pm.collectionVariables.get('setoranId')));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "10 — Detail setoran: ID tidak ditemukan",
+      "request": {
+        "method": "GET",
+        "header": [{ "key": "Authorization", "value": "Bearer {{tokenPetugas}}" }],
+        "url": {
+          "raw": "{{baseUrl}}/setoran/000000000000000000000000",
+          "host": ["{{baseUrl}}"],
+          "path": ["setoran", "000000000000000000000000"]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": ["pm.test('Status 404', () => pm.response.to.have.status(404));"]
+          }
+        }
+      ]
+    }
+  ]
+}
