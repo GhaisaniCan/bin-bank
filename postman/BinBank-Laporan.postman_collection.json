@@ -1,26 +1,30 @@
 {
   "info": {
-    "name": "BinBank — Uji Laporan (Modul B)",
-    "description": "Pengujian Endpoint GET /laporan khusus role Admin.",
+    "name": "BinBank — Uji Jenis Sampah (Modul B)",
+    "description": "Pengujian CRUD dan Soft Delete Jenis Sampah.",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "variable": [
     { "key": "baseUrl", "value": "http://localhost:5001" },
-    { "key": "tokenAdmin", "value": "" },
-    { "key": "tokenPetugas", "value": "" }
+    { "key": "tokenAdmin", "value": "" }
   ],
   "item": [
     {
-      "name": "01 — Dapatkan Laporan (Keseluruhan)",
+      "name": "01 — Tambah Jenis Sampah",
       "request": {
-        "method": "GET",
+        "method": "POST",
         "header": [
           { "key": "Authorization", "value": "Bearer {{tokenAdmin}}" }
         ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"nama\": \"Kardus Bekas\",\n  \"hargaPerKg\": 2500\n}",
+          "options": { "raw": { "language": "json" } }
+        },
         "url": {
-          "raw": "{{baseUrl}}/laporan",
+          "raw": "{{baseUrl}}/jenis-sampah",
           "host": ["{{baseUrl}}"],
-          "path": ["laporan"]
+          "path": ["jenis-sampah"]
         }
       },
       "event": [
@@ -29,34 +33,28 @@
           "script": {
             "type": "text/javascript",
             "exec": [
-              "pm.test('Status 200', () => pm.response.to.have.status(200));",
+              "pm.test('Status 201 Created', () => pm.response.to.have.status(201));",
               "const body = pm.response.json();",
-              "pm.test('Data berhasil dikelompokkan', () => {",
-              "    pm.expect(body.data).to.have.property('setoran');",
-              "    pm.expect(body.data).to.have.property('penarikan');",
-              "    pm.expect(body.data).to.have.property('saldo');",
-              "});",
-              "pm.test('Total nilai berbentuk angka', () => pm.expect(body.data.setoran.totalNilai).to.be.a('number'));"
+              "pm.test('Status sukses: true', () => pm.expect(body).to.have.property('sukses', true));",
+              "if (body.sukses && body.data && body.data._id) {",
+              "    pm.environment.set('jenisSampahId', body.data._id);",
+              "}"
             ]
           }
         }
       ]
     },
     {
-      "name": "02 — Dapatkan Laporan (Filter Tanggal)",
+      "name": "02 — Lihat Daftar Jenis Sampah",
       "request": {
         "method": "GET",
         "header": [
           { "key": "Authorization", "value": "Bearer {{tokenAdmin}}" }
         ],
         "url": {
-          "raw": "{{baseUrl}}/laporan?dari=2026-09-01&sampai=2026-09-30",
+          "raw": "{{baseUrl}}/jenis-sampah",
           "host": ["{{baseUrl}}"],
-          "path": ["laporan"],
-          "query": [
-            { "key": "dari", "value": "2026-09-01" },
-            { "key": "sampai", "value": "2026-09-30" }
-          ]
+          "path": ["jenis-sampah"]
         }
       },
       "event": [
@@ -65,24 +63,30 @@
           "script": {
             "type": "text/javascript",
             "exec": [
-              "pm.test('Status 200', () => pm.response.to.have.status(200));",
-              "pm.test('Respon memiliki pesan sukses', () => pm.expect(pm.response.json().sukses).to.eql(true));"
+              "pm.test('Status 200 OK', () => pm.response.to.have.status(200));",
+              "const body = pm.response.json();",
+              "pm.test('Data berupa array', () => pm.expect(body.data).to.be.an('array'));"
             ]
           }
         }
       ]
     },
     {
-      "name": "03 — Dapatkan Laporan (Ditolak: Bukan Admin)",
+      "name": "03 — Ubah Harga & Nama (PUT)",
       "request": {
-        "method": "GET",
+        "method": "PUT",
         "header": [
-          { "key": "Authorization", "value": "Bearer {{tokenPetugas}}" }
+          { "key": "Authorization", "value": "Bearer {{tokenAdmin}}" }
         ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"nama\": \"Kardus Bekas Premium\",\n  \"hargaPerKg\": 3000\n}",
+          "options": { "raw": { "language": "json" } }
+        },
         "url": {
-          "raw": "{{baseUrl}}/laporan",
+          "raw": "{{baseUrl}}/jenis-sampah/{{jenisSampahId}}",
           "host": ["{{baseUrl}}"],
-          "path": ["laporan"]
+          "path": ["jenis-sampah", "{{jenisSampahId}}"]
         }
       },
       "event": [
@@ -91,7 +95,41 @@
           "script": {
             "type": "text/javascript",
             "exec": [
-              "pm.test('Status 403 Forbidden', () => pm.response.to.have.status(403));"
+              "pm.test('Status 200 OK', () => pm.response.to.have.status(200));",
+              "const body = pm.response.json();",
+              "pm.test('Harga berhasil diubah', () => pm.expect(body.data.hargaPerKg).to.eql(3000));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "04 — Nonaktifkan Status (PATCH)",
+      "request": {
+        "method": "PATCH",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{tokenAdmin}}" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"aktif\": false\n}",
+          "options": { "raw": { "language": "json" } }
+        },
+        "url": {
+          "raw": "{{baseUrl}}/jenis-sampah/{{jenisSampahId}}/status",
+          "host": ["{{baseUrl}}"],
+          "path": ["jenis-sampah", "{{jenisSampahId}}", "status"]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status 200 OK', () => pm.response.to.have.status(200));",
+              "const body = pm.response.json();",
+              "pm.test('Status aktif menjadi false', () => pm.expect(body.data.aktif).to.eql(false));"
             ]
           }
         }

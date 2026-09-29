@@ -33,17 +33,50 @@ Aplikasi ini memiliki tiga peran pengguna dengan hak akses yang berbeda, yaitu:
 
 ## Struktur Folder
 
-```text
-config/         : Konfigurasi server dan koneksi database
-controllers/    : Menangani logika pemrosesan request dan response API
-middlewares/    : Menangani autentikasi, otorisasi role, dan error handling
-models/         : Mendefinisikan schema MongoDB menggunakan Mongoose
-postman/        : Kumpulan skrip pengujian Postman Collection
-routes/         : Mengatur lalu lintas endpoint URL dan menyisipkan middleware
-services/       : Menangani logika bisnis utama aplikasi
-tests/          : Skrip pengujian
-utils/          : Fungsi bantuan (helper) seperti formatter angka
-server.js       : Entry point aplikasi
+## Struktur Folder dan File
+
+```
+bin-bank/
+├── config/
+│   └── db.js                        # Koneksi ke MongoDB Atlas
+├── controllers/                     # Menangani request dan response API
+│   ├── authController.js            # Register, login, profil
+│   ├── jenisSampahController.js     # CRUD jenis sampah dan harga
+│   ├── laporanController.js         # laporan setoran dan penarikan
+│   ├── penarikanController.js       # Saldo, riwayat, pengajuan, dan pemrosesan penarikan
+│   └── setoranController.js         # Pencatatan dan riwayat setoran
+├── middlewares/
+│   ├── authenticate.js              # Verifikasi token JWT
+│   └── authorize.js                 # Pembatasan akses berdasarkan role
+├── models/                          # Schema Mongoose
+│   ├── BukuBesar.js                 # Ledger mutasi kredit/debit
+│   ├── JenisSampah.js               # Katalog jenis sampah dan harga per kg
+│   ├── Penarikan.js                 # Pengajuan dan status penarikan
+│   ├── Setoran.js                   # Transaksi setoran beserta rincian
+│   └── User.js                      # Akun pengguna (petugas, nasabah, admin)
+├── postman/                         # Contoh Postman Collection (Modul C: setoran)
+│   └── BinBank-Modul-C.postman_collection.json
+├── routes/                          # Definisi endpoint dan penyisipan middleware
+│   ├── jenisSampahRoutes.js
+│   ├── laporanRoutes.js
+│   └── setoranRoutes.js
+├── services/                        # Logika bisnis utama
+│   ├── authService.js
+│   ├── laporanService.js
+│   ├── ledgerService.js             # Pencatatan mutasi saldo
+│   ├── penarikanService.js
+│   └── setoranService.js
+├── tests/
+│   └── uji-modul-c.js               # Skrip pengujian Modul C (setoran)
+├── utils/
+│   ├── AppError.js                  # Kelas error kustom
+│   └── angka.js                     # Helper format angka
+├── .env.example                     # Contoh variabel environment
+├── .gitignore                       # File yang diabaikan Git (node_modules, .env)
+├── README.md                        # Dokumentasi proyek
+├── package-lock.json                # Versi dependency yang dikunci
+├── package.json                     # Dependency dan script npm
+└── server.js                        # Entry point aplikasi
 ```
 
 ## Cara Menjalankan Aplikasi
@@ -167,3 +200,6 @@ Untuk menjaga konsistensi dan keteraturan proses pengembangan, setiap anggota ke
 - **Pull Request:** setelah pekerjaan selesai, buat Pull Request dari branch fitur menuju branch `main`.
 - **Code Review:** setiap Pull Request diharapkan memperoleh review dari minimal satu anggota kelompok lainnya sebelum dilakukan merge.
 - **Keamanan konfigurasi:** file `.env` **tidak diperbolehkan untuk di-commit** ke repository. Pastikan file tersebut telah tercantum dalam `.gitignore`.
+
+## Link Laporan
+[Laporan M1](https://drive.google.com/drive/folders/17cAvS_kADuyAK6d_yNE4U3xiEHBzJa7F?usp=sharing)
