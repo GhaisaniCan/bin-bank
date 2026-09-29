@@ -4,11 +4,16 @@ const jenisSampahSchema = new mongoose.Schema({
   nama: {
     type: String,
     required: true,
-    unique: true // Mencegah pencatatan jenis sampah yang sama dua kali
+    unique: true
   },
-  harga_per_kg: {
+  hargaPerKg: {
     type: Number,
-    required: true
+    required: true,
+    min: [0, "harga per kg tidak boleh negatif"]
+  },
+  aktif: {
+    type: Boolean,
+    default: true
   }
 }, { timestamps: true });
 
