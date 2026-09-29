@@ -2,7 +2,14 @@ const mongoose = require("mongoose")
 
 const penarikanSchema = new mongoose.Schema({
   nasabah: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
-  jumlah: { type: Number, required: true },
+  jumlah: {
+  type: Number,
+  required: true,
+  validate: {
+    validator: (nilai) => nilai > 0,
+    message: "jumlah penarikan harus lebih dari 0",
+  },
+},
   metode: { type: String, enum: ["tunai", "e-wallet"], required: true },
   status: {
     type: String,
