@@ -167,3 +167,6 @@ Untuk menjaga konsistensi dan keteraturan proses pengembangan, setiap anggota ke
 - **Pull Request:** setelah pekerjaan selesai, buat Pull Request dari branch fitur menuju branch `main`.
 - **Code Review:** setiap Pull Request diharapkan memperoleh review dari minimal satu anggota kelompok lainnya sebelum dilakukan merge.
 - **Keamanan konfigurasi:** file `.env` **tidak diperbolehkan untuk di-commit** ke repository. Pastikan file tersebut telah tercantum dalam `.gitignore`.
+
+## Link Laporan
+[Laporan M1](https://drive.google.com/drive/folders/17cAvS_kADuyAK6d_yNE4U3xiEHBzJa7F?usp=sharing)
