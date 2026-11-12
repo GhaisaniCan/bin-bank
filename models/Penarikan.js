@@ -22,6 +22,7 @@ const penarikanSchema = new mongoose.Schema({
   diprosesPada: { type: Date },
   dikonfirmasiOleh: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
   dikonfirmasiPada: { type: Date },
+  catatanKonfirmasi: { type: String, trim: true },
   catatan: { type: String },
 }, { timestamps: true })
 

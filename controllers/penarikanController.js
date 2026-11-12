@@ -15,6 +15,17 @@ router.get("/", authenticate, authorize("petugas", "admin"), async (req, res) =>
   }
 })
 
+// Nasabah melihat daftar pengajuan penarikan miliknya sendiri
+router.get("/saya", authenticate, authorize("nasabah"), async (req, res) => {
+  try {
+    const { status, halaman, limit } = req.query
+    const hasil = await penarikanService.daftarPenarikanSaya(req.user.id, { status, halaman, limit })
+    res.status(200).json({ message: "Daftar pengajuan berhasil diambil", ...hasil })
+  } catch (err) {
+    res.status(400).json({ message: err.message })
+  }
+})
+
 // Nasabah cek saldo sendiri
 router.get("/saldo", authenticate, authorize("nasabah"), async (req, res) => {
   try {
@@ -60,7 +71,8 @@ router.patch("/:id/proses", authenticate, authorize("petugas", "admin"), async (
 // Petugas/admin menandai penarikan disetujui sebagai selesai (dana sudah diserahkan)
 router.patch("/:id/selesai", authenticate, authorize("petugas", "admin"), async (req, res) => {
   try {
-    const data = await penarikanService.selesaikanPenarikan(req.params.id, req.user.id)
+    const { catatan } = req.body
+    const data = await penarikanService.selesaikanPenarikan(req.params.id, req.user.id, catatan)
     res.status(200).json({ message: "Penarikan ditandai selesai", data })
   } catch (err) {
     res.status(400).json({ message: err.message })

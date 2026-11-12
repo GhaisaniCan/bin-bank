@@ -146,12 +146,13 @@ Mencatat proses pencairan saldo oleh nasabah.
 | `jumlah`       | Number   | Nominal saldo yang ditarik                                     |
 | `metode`       | String   | Metode penarikan: `tunai` atau `e-wallet`                      |
 | `namaEwallet`  | String   | Nama e-wallet tujuan (wajib bila metode `e-wallet`)            |
-| `nomorEwallet` | String   | Nomor e-wallet tujuan, 8 sampai 15 digit (wajib bila metode `e-wallet`) |
+| `nomorEwallet` | String   | Nomor e-wallet tujuan, isian bebas (wajib bila metode `e-wallet`) |
 | `status`       | String   | `diajukan`, `disetujui`, `ditolak`, atau `selesai`             |
 | `diprosesOleh` | ObjectId | Relasi ke model User (Petugas/Admin yang menyetujui atau menolak) |
 | `diprosesPada` | Date     | Waktu pengajuan disetujui atau ditolak                         |
 | `dikonfirmasiOleh` | ObjectId | Relasi ke model User (Petugas/Admin yang menandai selesai) |
 | `dikonfirmasiPada` | Date     | Waktu penarikan ditandai selesai                           |
+| `catatanKonfirmasi` | String  | Catatan opsional saat ditandai selesai (misal: referensi transfer) |
 | `catatan`      | String   | Alasan penolakan atau catatan transfer                         |
 
 ### 5. BukuBesar (Ledger)
@@ -199,12 +200,13 @@ Buku besar mutasi keuangan (ACID Transaction) yang tidak bisa dihapus.
 ### Modul D (Saldo & Penarikan)
 | Method | Endpoint                  | Deskripsi                                           | Autentikasi                  |
 | ------ | -------------------------- | ------------------------------------------------------ | ------------------------------- |
-| GET    | `/penarikan`              | Daftar penarikan (filter `?status=`, `?nasabah=`, `?dari=`, `?sampai=`, `?halaman=`, `?limit=`) | **Petugas**, **Admin** |
-| GET    | `/penarikan/saldo`        | Cek saldo milik nasabah sendiri                     | **Nasabah**                     |
+| GET    | `/penarikan`              | Daftar penarikan, bawaan status `diajukan` (`?status=` diajukan/disetujui/ditolak/selesai/semua, `?nasabah=`, `?dari=`, `?sampai=`, `?halaman=`, `?limit=`) | **Petugas**, **Admin** |
+| GET    | `/penarikan/saya`         | Daftar pengajuan penarikan milik nasabah sendiri (`?status=`, `?halaman=`, `?limit=`) | **Nasabah** |
+| GET    | `/penarikan/saldo`        | Cek saldo, saldo tertahan, dan saldo tersedia milik nasabah sendiri | **Nasabah** |
 | GET    | `/penarikan/riwayat`      | Riwayat mutasi buku besar milik nasabah             | **Nasabah**                     |
-| POST   | `/penarikan/ajukan`       | Mengajukan penarikan (`jumlah`, `metode`); untuk `e-wallet` wajib `namaEwallet` dan `nomorEwallet` | **Nasabah** |
-| PATCH  | `/penarikan/:id/proses`   | Menyetujui (status `disetujui`, saldo didebit) atau menolak (`ditolak`) pengajuan | **Petugas**, **Admin** |
-| PATCH  | `/penarikan/:id/selesai`  | Menandai penarikan `disetujui` sebagai `selesai` (dana sudah diserahkan) | **Petugas**, **Admin** |
+| POST   | `/penarikan/ajukan`       | Mengajukan penarikan (`jumlah` bilangan bulat, `metode`); untuk `e-wallet` wajib `namaEwallet` dan `nomorEwallet`; tidak boleh melebihi saldo tersedia | **Nasabah** |
+| PATCH  | `/penarikan/:id/proses`   | Menyetujui (`keputusan: setuju`, saldo didebit) atau menolak (`keputusan: tolak`, `catatan` alasan wajib) pengajuan | **Petugas**, **Admin** |
+| PATCH  | `/penarikan/:id/selesai`  | Menandai penarikan `disetujui` sebagai `selesai` (dana sudah diserahkan; `catatan` opsional) | **Petugas**, **Admin** |
 | GET    | `/nasabah/:id/saldo`      | Melihat saldo seorang nasabah                       | **Petugas**, **Admin**          |
 | GET    | `/nasabah/:id/riwayat`    | Melihat riwayat mutasi seorang nasabah              | **Petugas**, **Admin**          |
 
@@ -216,7 +218,7 @@ diajukan --(proses: setuju)--> disetujui --(selesai)--> selesai
     +--(proses: tolak)--> ditolak
 ```
 
-Saldo nasabah didebit saat penarikan disetujui. Status `selesai` hanya dapat dicapai dari `disetujui`, dan setiap perubahan status mencatat petugas serta waktunya.
+Saldo tersedia adalah saldo dikurangi total pengajuan berstatus `diajukan`, dan pengajuan tidak boleh melebihi saldo tersedia. Saldo nasabah didebit saat penarikan disetujui; persetujuan dan pencatatan buku besar berjalan dalam satu transaksi. Status `selesai` hanya dapat dicapai dari `disetujui`, dan setiap perubahan status mencatat petugas serta waktunya.
 
 ## Autentikasi
 
