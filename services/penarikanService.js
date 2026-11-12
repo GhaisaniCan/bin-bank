@@ -6,18 +6,29 @@ const STATUS_VALID = ["diajukan", "disetujui", "ditolak", "selesai"]
 const LIMIT_BAWAAN = 20
 const LIMIT_MAKSIMAL = 100
 
-async function ajukanPenarikan(nasabahId, jumlah, metode) {
+async function ajukanPenarikan(nasabahId, jumlah, metode, namaEwallet, nomorEwallet) {
+  const data = { nasabah: nasabahId, jumlah, metode, status: "diajukan" }
+
+  if (metode === "e-wallet") {
+    const nama = typeof namaEwallet === "string" ? namaEwallet.trim() : ""
+    const nomor = typeof nomorEwallet === "string" ? nomorEwallet.replace(/[\s-]/g, "") : ""
+
+    if (!nama) throw new Error("Nama e-wallet wajib diisi")
+    if (!nomor) throw new Error("Nomor e-wallet wajib diisi")
+    if (!/^\d{8,15}$/.test(nomor)) {
+      throw new Error("Nomor e-wallet harus berupa 8 sampai 15 digit angka")
+    }
+
+    data.namaEwallet = nama
+    data.nomorEwallet = nomor
+  }
+
   const saldo = await ledgerService.getSaldo(nasabahId)
   if (saldo < jumlah) {
     throw new Error("Saldo tidak mencukupi untuk penarikan ini")
   }
 
-  const penarikan = await Penarikan.create({
-    nasabah: nasabahId,
-    jumlah,
-    metode,
-    status: "diajukan",
-  })
+  const penarikan = await Penarikan.create(data)
   return penarikan
 }
 
@@ -44,7 +55,7 @@ async function prosesPenarikan(penarikanId, keputusan, petugasId, catatan) {
       `Penarikan ${penarikan.metode}`,
       { tipe: "penarikan", id: penarikan._id }
     )
-    penarikan.status = "selesai"
+    penarikan.status = "disetujui"
   } else if (keputusan === "tolak") {
     penarikan.status = "ditolak"
   } else {
@@ -52,8 +63,30 @@ async function prosesPenarikan(penarikanId, keputusan, petugasId, catatan) {
   }
 
   penarikan.diprosesOleh = petugasId
+  penarikan.diprosesPada = new Date()
   penarikan.catatan = catatan
   await penarikan.save()
+  return penarikan
+}
+
+// Konfirmasi dana diserahkan
+async function selesaikanPenarikan(penarikanId, petugasId) {
+  if (!mongoose.isValidObjectId(penarikanId)) {
+    throw new Error("ID penarikan tidak valid")
+  }
+
+  const penarikan = await Penarikan.findOneAndUpdate(
+    { _id: penarikanId, status: "disetujui" },
+    { status: "selesai", dikonfirmasiOleh: petugasId, dikonfirmasiPada: new Date() },
+    { returnDocument: "after" }
+  )
+
+  if (!penarikan) {
+    const ada = await Penarikan.exists({ _id: penarikanId })
+    if (!ada) throw new Error("Data penarikan tidak ditemukan")
+    throw new Error("Hanya penarikan berstatus disetujui yang dapat ditandai selesai")
+  }
+
   return penarikan
 }
 
@@ -121,4 +154,11 @@ async function daftarPenarikan({ status, nasabah, dari, sampai, halaman, limit }
   }
 }
 
-module.exports = { ajukanPenarikan, getSaldoNasabah, getRiwayatNasabah, prosesPenarikan, daftarPenarikan }
+module.exports = {
+  ajukanPenarikan,
+  getSaldoNasabah,
+  getRiwayatNasabah,
+  prosesPenarikan,
+  selesaikanPenarikan,
+  daftarPenarikan,
+}

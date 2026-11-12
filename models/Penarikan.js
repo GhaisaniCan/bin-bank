@@ -11,12 +11,17 @@ const penarikanSchema = new mongoose.Schema({
   },
 },
   metode: { type: String, enum: ["tunai", "e-wallet"], required: true },
+  namaEwallet: { type: String, trim: true },
+  nomorEwallet: { type: String, trim: true },
   status: {
     type: String,
     enum: ["diajukan", "disetujui", "ditolak", "selesai"],
     default: "diajukan",
   },
   diprosesOleh: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
+  diprosesPada: { type: Date },
+  dikonfirmasiOleh: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
+  dikonfirmasiPada: { type: Date },
   catatan: { type: String },
 }, { timestamps: true })
 
