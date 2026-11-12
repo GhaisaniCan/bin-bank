@@ -10,7 +10,7 @@ router.post("/register", async (req, res) => {
     const user = await authService.register(nama, email, password, role)
     res.status(201).json({ message: "Registrasi berhasil", data: user })
   } catch (err) {
-    res.status(400).json({ message: err.message })
+    res.status(err.statusCode || 400).json({ message: err.message })
   }
 })
 

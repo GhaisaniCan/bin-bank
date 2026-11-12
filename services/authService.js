@@ -1,8 +1,12 @@
 const bcrypt = require("bcrypt")
 const jwt = require("jsonwebtoken")
 const User = require("../models/User")
+const AppError = require("../utils/AppError")
 
 async function register(nama, email, password, role) {
+  if ((await User.estimatedDocumentCount()) > 0) {
+    throw new AppError("Registrasi publik ditutup, minta admin membuat akun", 403)
+  }
   const hashedPassword = await bcrypt.hash(password, 10)
   const user = await User.create({ nama, email, password: hashedPassword, role })
   return user
@@ -14,6 +18,8 @@ async function login(email, password) {
 
   const isMatch = await bcrypt.compare(password, user.password)
   if (!isMatch) throw new Error("Password salah")
+
+  if (user.aktif === false) throw new Error("Akun dinonaktifkan, hubungi admin")
 
   const token = jwt.sign(
     { id: user._id, role: user.role },
