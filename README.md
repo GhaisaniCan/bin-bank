@@ -108,7 +108,7 @@ Menyimpan data otentikasi dan identitas pengguna.
 | Field      | Tipe   | Keterangan                                                     |
 | ---------- | ------ | ---------------------------------------------------------------- |
 | `nama`     | String | Nama pengguna, wajib diisi                                       |
-| `email`    | String | Email pengguna, wajib diisi dan bersifat unik                    |
+| `email`    | String | Email pengguna, wajib diisi, unik, dan disimpan huruf kecil      |
 | `password` | String | Password pengguna, wajib diisi dan disimpan dalam bentuk hash    |
 | `role`     | String | Peran pengguna: `petugas`, `nasabah`, atau `admin`               |
 | `saldo`    | Number | Akumulasi saldo (default 0), tidak boleh negatif                 |
@@ -174,11 +174,11 @@ Buku besar mutasi keuangan (ACID Transaction) yang tidak bisa dihapus.
 | Method | Endpoint              | Deskripsi                                                                  | Autentikasi                  |
 | ------ | --------------------- | -------------------------------------------------------------------------- | ---------------------------- |
 | POST   | `/auth/register`      | Membuat admin pertama; ditolak (403) bila database sudah berisi akun       | Tidak diperlukan             |
-| POST   | `/auth/login`         | Melakukan login dan mendapatkan token JWT; akun nonaktif ditolak           | Tidak diperlukan             |
+| POST   | `/auth/login`         | Login dan mendapatkan token JWT (berlaku 8 jam); email atau password salah dijawab dengan pesan yang sama; akun nonaktif ditolak | Tidak diperlukan |
 | GET    | `/auth/profile`       | Menampilkan profil pengguna yang sedang login                              | Semua Role                   |
 | PATCH  | `/auth/password`      | Mengganti password sendiri (`passwordLama`, `passwordBaru`); mengembalikan token baru | Semua Role        |
-| GET    | `/users`              | Daftar akun (filter `?role=`); Petugas hanya melihat nasabah               | **Admin**, **Petugas**       |
-| POST   | `/users`              | Membuat akun; Petugas hanya boleh membuat akun nasabah                     | **Admin**, **Petugas**       |
+| GET    | `/users`              | Daftar akun (filter `?role=`, `?cari=` nama atau email); Petugas hanya melihat nasabah | **Admin**, **Petugas** |
+| POST   | `/users`              | Membuat akun (email harus berformat valid); Petugas hanya boleh membuat akun nasabah | **Admin**, **Petugas** |
 | PATCH  | `/users/:id/password` | Mereset password pengguna (`passwordBaru`, minimal 8 karakter)             | **Admin**                    |
 | PATCH  | `/users/:id/status`   | Mengaktifkan atau menonaktifkan akun (`aktif`: `true` atau `false`)        | **Admin**                    |
 

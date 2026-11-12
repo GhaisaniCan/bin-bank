@@ -8,7 +8,7 @@ function buatToken(user) {
   return jwt.sign(
     { id: user._id, role: user.role, wajibGantiPassword: user.wajibGantiPassword === true },
     process.env.JWT_SECRET,
-    { expiresIn: "1d" }
+    { expiresIn: "8h" }
   )
 }
 
@@ -30,11 +30,13 @@ async function register(nama, email, password, role) {
 
 // Login
 async function login(email, password) {
-  const user = await User.findOne({ email })
-  if (!user) throw new Error("Email tidak ditemukan")
+  if (typeof email !== "string" || typeof password !== "string" || !email || !password) {
+    throw new Error("Email dan password wajib diisi")
+  }
 
-  const isMatch = await bcrypt.compare(password, user.password)
-  if (!isMatch) throw new Error("Password salah")
+  const user = await User.findOne({ email: email.trim().toLowerCase() })
+  const cocok = user ? await bcrypt.compare(password, user.password) : false
+  if (!cocok) throw new Error("Email atau password salah")
 
   if (user.aktif === false) throw new Error("Akun dinonaktifkan, hubungi admin")
 
