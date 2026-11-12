@@ -24,6 +24,20 @@ router.get("/riwayat", authenticate, authorize("nasabah"), async (req, res) => {
   }
 })
 
+// Petugas/admin melihat daftar pengajuan penarikan
+router.get("/", authenticate, authorize("petugas", "admin"), async (req, res) => {
+  try {
+    const hasil = await penarikanService.daftarPenarikan(req.query)
+    res.status(200).json({
+      message: "Daftar penarikan berhasil diambil",
+      data: hasil.data,
+      paginasi: hasil.paginasi,
+    })
+  } catch (err) {
+    res.status(400).json({ message: err.message })
+  }
+})
+
 // Nasabah mengajukan penarikan saldo
 router.post("/ajukan", authenticate, authorize("nasabah"), async (req, res) => {
   try {
