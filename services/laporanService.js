@@ -3,6 +3,8 @@ const Setoran = require("../models/Setoran");
 const Penarikan = require("../models/Penarikan");
 const User = require("../models/User");
 
+const STATUS_PENARIKAN = ["diajukan", "disetujui", "ditolak", "selesai"];
+
 async function getRekapLaporan(query) {
   const { dari, sampai } = query;
   
@@ -58,10 +60,59 @@ async function getRekapLaporan(query) {
     }
   ]);
 
+  // 4. Rekap Setoran per jenis sampah (Hanya yang berstatus TERCATAT)
+  const setoranPerJenis = await Setoran.aggregate([
+    { $match: { status: "TERCATAT", ...filterTanggalSetoran } },
+    { $unwind: "$rincian" },
+    {
+      $group: {
+        _id: "$rincian.jenisSampah",
+        namaSampah: { $first: "$rincian.namaSampah" },
+        totalBerat: { $sum: "$rincian.berat" },
+        totalNilai: { $sum: "$rincian.subtotal" },
+        jumlahTransaksi: { $sum: 1 }
+      }
+    },
+    { $sort: { totalBerat: -1 } },
+    {
+      $project: {
+        _id: 0,
+        jenisSampah: "$_id",
+        namaSampah: 1,
+        totalBerat: 1,
+        totalNilai: 1,
+        jumlahTransaksi: 1
+      }
+    }
+  ]);
+
+  // 5. Rekap Penarikan per status (semua status selalu tampil)
+  const penarikanStatusMentah = await Penarikan.aggregate([
+    { $match: { ...filterTanggal } },
+    {
+      $group: {
+        _id: "$status",
+        totalTransaksi: { $sum: 1 },
+        totalNominal: { $sum: "$jumlah" }
+      }
+    }
+  ]);
+
+  const penarikanPerStatus = STATUS_PENARIKAN.map((status) => {
+    const ditemukan = penarikanStatusMentah.find((item) => item._id === status);
+    return {
+      status,
+      totalTransaksi: ditemukan ? ditemukan.totalTransaksi : 0,
+      totalNominal: ditemukan ? ditemukan.totalNominal : 0
+    };
+  });
+
   return {
     setoran: rekapSetoran[0] || { totalTransaksi: 0, totalBerat: 0, totalNilai: 0 },
     penarikan: rekapPenarikan[0] || { totalTransaksi: 0, totalNominal: 0 },
-    saldo: rekapSaldo[0] || { totalNasabah: 0, totalUangMengendap: 0 }
+    saldo: rekapSaldo[0] || { totalNasabah: 0, totalUangMengendap: 0 },
+    setoranPerJenis,
+    penarikanPerStatus
   };
 }
 
