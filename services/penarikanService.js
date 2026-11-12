@@ -132,8 +132,8 @@ async function getSaldoNasabah(nasabahId) {
   return { saldo, saldoTertahan: tertahan, saldoTersedia: saldo - tertahan }
 }
 
-async function getRiwayatNasabah(nasabahId) {
-  return ledgerService.getRiwayat(nasabahId)
+async function getRiwayatNasabah(nasabahId, opsi) {
+  return ledgerService.getRiwayatHalaman(nasabahId, opsi)
 }
 
 // Pemrosesan

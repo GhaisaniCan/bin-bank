@@ -189,13 +189,13 @@ Buku besar mutasi keuangan (ACID Transaction) yang tidak bisa dihapus.
 | POST   | `/jenis-sampah`           | Menambah jenis sampah baru                                  | **Admin**                    |
 | PUT    | `/jenis-sampah/:id`       | Mengubah detail harga sampah                                | **Admin**                    |
 | PATCH  | `/jenis-sampah/:id/status`| Mengubah status aktif jenis sampah                          | **Admin**                    |
-| GET    | `/laporan`                | Rekap setoran, penarikan, saldo, setoran per jenis sampah, dan penarikan per status (filter `dari`, `sampai`) | **Admin**             |
+| GET    | `/laporan`                | Rekap setoran, penarikan, saldo, setoran per jenis sampah, dan penarikan per status (filter `dari`, `sampai`; `dari` tidak boleh setelah `sampai`) | **Admin** |
 
 ### Modul C (Setoran)
 | Method | Endpoint              | Deskripsi                                                                                  | Autentikasi                                   |
 | ------ | --------------------- | ------------------------------------------------------------------------------------------ | --------------------------------------------- |
-| POST   | `/setoran`            | Mencatat setoran nasabah baru                                                              | **Petugas**                                   |
-| GET    | `/setoran`            | Daftar riwayat setoran (filter `nasabah`, `dari`, `sampai`, `status`, `halaman`, `limit`)  | **Petugas**, **Admin**                        |
+| POST   | `/setoran`            | Mencatat setoran nasabah baru (tanggal diisi otomatis oleh server)                         | **Petugas**                                   |
+| GET    | `/setoran`            | Daftar riwayat setoran (filter `nasabah`, `dari`, `sampai`, `status`, `halaman`, `limit`; `dari` tidak boleh setelah `sampai`) | **Petugas**, **Admin** |
 | GET    | `/setoran/:id`        | Melihat detail rincian satu setoran                                                        | **Petugas**, **Admin**, **Nasabah** (miliknya)|
 | PATCH  | `/setoran/:id/batal`  | Membatalkan setoran dengan `alasan`; saldo nasabah dikoreksi lewat buku besar              | **Admin**                                     |
 
@@ -205,12 +205,12 @@ Buku besar mutasi keuangan (ACID Transaction) yang tidak bisa dihapus.
 | GET    | `/penarikan`              | Daftar penarikan, bawaan status `diajukan` (`?status=` diajukan/disetujui/ditolak/selesai/semua, `?nasabah=`, `?dari=`, `?sampai=`, `?halaman=`, `?limit=`) | **Petugas**, **Admin** |
 | GET    | `/penarikan/saya`         | Daftar pengajuan penarikan milik nasabah sendiri (`?status=`, `?halaman=`, `?limit=`) | **Nasabah** |
 | GET    | `/penarikan/saldo`        | Cek saldo, saldo tertahan, dan saldo tersedia milik nasabah sendiri | **Nasabah** |
-| GET    | `/penarikan/riwayat`      | Riwayat mutasi buku besar milik nasabah             | **Nasabah**                     |
+| GET    | `/penarikan/riwayat`      | Riwayat mutasi buku besar milik nasabah (`?halaman=`, `?limit=`) | **Nasabah** |
 | POST   | `/penarikan/ajukan`       | Mengajukan penarikan (`jumlah` bilangan bulat, `metode`); untuk `e-wallet` wajib `namaEwallet` dan `nomorEwallet`; tidak boleh melebihi saldo tersedia | **Nasabah** |
 | PATCH  | `/penarikan/:id/proses`   | Menyetujui (`keputusan: setuju`, saldo didebit) atau menolak (`keputusan: tolak`, `catatan` alasan wajib) pengajuan | **Petugas**, **Admin** |
 | PATCH  | `/penarikan/:id/selesai`  | Menandai penarikan `disetujui` sebagai `selesai` (dana sudah diserahkan; `catatan` opsional) | **Petugas**, **Admin** |
 | GET    | `/nasabah/:id/saldo`      | Melihat saldo seorang nasabah                       | **Petugas**, **Admin**          |
-| GET    | `/nasabah/:id/riwayat`    | Melihat riwayat mutasi seorang nasabah              | **Petugas**, **Admin**          |
+| GET    | `/nasabah/:id/riwayat`    | Melihat riwayat mutasi seorang nasabah (`?halaman=`, `?limit=`) | **Petugas**, **Admin** |
 
 ### Alur Status Penarikan
 

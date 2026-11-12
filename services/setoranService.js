@@ -102,17 +102,11 @@ async function pastikanNasabahTerdaftar(nasabahId) {
   return nasabah;
 }
 
-async function catatSetoran({ nasabah, petugas, tanggal, rincian, catatan }) {
+async function catatSetoran({ nasabah, petugas, rincian, catatan }) {
   pastikanObjectId(nasabah, "ID nasabah");
   pastikanObjectId(petugas, "ID petugas");
 
-  let tanggalSetoran = new Date();
-  if (tanggal !== undefined && tanggal !== null && tanggal !== "") {
-    tanggalSetoran = new Date(tanggal);
-    if (Number.isNaN(tanggalSetoran.getTime())) {
-      throw new AppError("Format tanggal tidak valid", 400);
-    }
-  }
+  const tanggalSetoran = new Date();
 
   const rincianMasukan = validasiRincianMasukan(rincian);
   await pastikanNasabahTerdaftar(nasabah);
@@ -189,20 +183,25 @@ async function daftarSetoran({ nasabah, dari, sampai, status, halaman, limit } =
 
   if (dari || sampai) {
     filter.tanggal = {};
+    let tanggalDari;
+    let tanggalSampai;
     if (dari) {
-      const tanggalDari = new Date(dari);
+      tanggalDari = new Date(dari);
       if (Number.isNaN(tanggalDari.getTime())) {
         throw new AppError("Format tanggal 'dari' tidak valid", 400);
       }
       filter.tanggal.$gte = tanggalDari;
     }
     if (sampai) {
-      const tanggalSampai = new Date(sampai);
+      tanggalSampai = new Date(sampai);
       if (Number.isNaN(tanggalSampai.getTime())) {
         throw new AppError("Format tanggal 'sampai' tidak valid", 400);
       }
       tanggalSampai.setHours(23, 59, 59, 999);
       filter.tanggal.$lte = tanggalSampai;
+    }
+    if (tanggalDari && tanggalSampai && tanggalDari > tanggalSampai) {
+      throw new AppError("Tanggal 'dari' tidak boleh setelah tanggal 'sampai'", 400);
     }
   }
 
