@@ -19,9 +19,9 @@ Bank sampah tingkat RW pada umumnya masih melakukan pencatatan setoran nasabah s
 
 Aplikasi ini memiliki tiga peran pengguna dengan hak akses yang berbeda, yaitu:
 
-- **Petugas:** bertanggung jawab memasukkan data hasil penimbangan dan setoran sampah nasabah, serta mendaftarkan akun nasabah.
+- **Petugas:** bertanggung jawab memasukkan data hasil penimbangan dan setoran sampah nasabah, mendaftarkan akun nasabah, serta memproses penarikan saldo.
 - **Nasabah:** dapat melihat informasi saldo dan mengajukan penarikan saldo.
-- **Admin:** bertanggung jawab mengelola harga jenis sampah dan akun pengguna, serta mengakses laporan rekapitulasi.
+- **Admin:** bertanggung jawab mengelola harga jenis sampah, akun pengguna, dan pembatalan setoran, serta mengakses laporan rekapitulasi.
 
 ## Teknologi yang Digunakan
 
@@ -30,8 +30,6 @@ Aplikasi ini memiliki tiga peran pengguna dengan hak akses yang berbeda, yaitu:
 - **JWT (jsonwebtoken):** digunakan untuk autentikasi berbasis token.
 - **bcrypt:** digunakan untuk melakukan hashing terhadap password pengguna.
 - **Postman:** untuk pengujian API secara otomatis.
-
-## Struktur Folder
 
 ## Struktur Folder dan File
 
@@ -43,8 +41,8 @@ bin-bank/
 │   ├── authController.js            # Registrasi admin pertama, login, profil, ganti password
 │   ├── jenisSampahController.js     # CRUD jenis sampah dan harga
 │   ├── laporanController.js         # laporan setoran dan penarikan
-│   ├── penarikanController.js       # Saldo, riwayat, pengajuan, dan pemrosesan penarikan
-│   └── setoranController.js         # Pencatatan dan riwayat setoran
+│   ├── penarikanController.js       # Saldo, riwayat, pengajuan, pemrosesan, dan penyelesaian penarikan
+│   └── setoranController.js         # Pencatatan, riwayat, dan pembatalan setoran
 ├── middlewares/
 │   ├── authenticate.js              # Verifikasi token JWT
 │   └── authorize.js                 # Pembatasan akses berdasarkan role
@@ -56,16 +54,19 @@ bin-bank/
 │   └── User.js                      # Akun pengguna (petugas, nasabah, admin)
 ├── postman/                         # Postman Collection
 │   ├── BinBank-Akun.postman_collection.json
+│   ├── BinBank-Laporan.postman_collection.json
 │   └── BinBank-Modul-C.postman_collection.json
 ├── routes/                          # Definisi endpoint dan penyisipan middleware
 │   ├── jenisSampahRoutes.js
 │   ├── laporanRoutes.js
+│   ├── nasabahRoutes.js             # Saldo dan riwayat nasabah untuk petugas/admin
 │   ├── setoranRoutes.js
 │   └── userRoutes.js                # Manajemen akun pengguna
 ├── services/                        # Logika bisnis utama
 │   ├── authService.js
 │   ├── laporanService.js
 │   ├── ledgerService.js             # Pencatatan mutasi saldo
+│   ├── nasabahService.js
 │   ├── penarikanService.js
 │   ├── setoranService.js
 │   └── userService.js
@@ -134,6 +135,9 @@ Mencatat riwayat transaksi penyetoran sampah oleh nasabah.
 | `totalNilai` | Number   | Total akumulasi nilai/uang dari setoran                        |
 | `status`     | String   | Status setoran: `TERCATAT` atau `DIBATALKAN`                   |
 | `catatan`    | String   | Catatan tambahan opsional                                      |
+| `alasanBatal` | String  | Alasan pembatalan (terisi bila status `DIBATALKAN`)            |
+| `dibatalkanOleh` | ObjectId | Relasi ke model User (Admin yang membatalkan)              |
+| `dibatalkanPada` | Date  | Waktu setoran dibatalkan                                       |
 
 ### 4. Penarikan
 Mencatat proses pencairan saldo oleh nasabah.
@@ -142,8 +146,14 @@ Mencatat proses pencairan saldo oleh nasabah.
 | `nasabah`      | ObjectId | Relasi ke model User (Nasabah yang menarik saldo)              |
 | `jumlah`       | Number   | Nominal saldo yang ditarik                                     |
 | `metode`       | String   | Metode penarikan: `tunai` atau `e-wallet`                      |
+| `namaEwallet`  | String   | Nama e-wallet tujuan (wajib bila metode `e-wallet`)            |
+| `nomorEwallet` | String   | Nomor e-wallet tujuan, isian bebas (wajib bila metode `e-wallet`) |
 | `status`       | String   | `diajukan`, `disetujui`, `ditolak`, atau `selesai`             |
-| `diprosesOleh` | ObjectId | Relasi ke model User (Petugas/Admin yang memproses)            |
+| `diprosesOleh` | ObjectId | Relasi ke model User (Petugas/Admin yang menyetujui atau menolak) |
+| `diprosesPada` | Date     | Waktu pengajuan disetujui atau ditolak                         |
+| `dikonfirmasiOleh` | ObjectId | Relasi ke model User (Petugas/Admin yang menandai selesai) |
+| `dikonfirmasiPada` | Date     | Waktu penarikan ditandai selesai                           |
+| `catatanKonfirmasi` | String  | Catatan opsional saat ditandai selesai (misal: referensi transfer) |
 | `catatan`      | String   | Alasan penolakan atau catatan transfer                         |
 
 ### 5. BukuBesar (Ledger)
@@ -173,27 +183,44 @@ Buku besar mutasi keuangan (ACID Transaction) yang tidak bisa dihapus.
 | PATCH  | `/users/:id/status`   | Mengaktifkan atau menonaktifkan akun (`aktif`: `true` atau `false`)        | **Admin**                    |
 
 ### Modul B (Harga & Laporan)
-| Method | Endpoint              | Deskripsi                                           | Autentikasi                  |
-| ------ | ---------------------- | ------------------------------------------------------ | ------------------------------- |
-| GET    | `/jenis-sampah`       | Melihat daftar katalog harga sampah                 | Bebas                           |
-| POST   | `/jenis-sampah`       | Menambah jenis sampah baru                          | **Admin**                       |
-| PUT    | `/jenis-sampah/:id`   | Mengubah detail harga sampah                        | **Admin**                       |
-| GET    | `/laporan`            | Melihat rekapitulasi setoran & penarikan            | **Admin**                       |
+| Method | Endpoint                  | Deskripsi                                                   | Autentikasi                  |
+| ------ | ------------------------- | ----------------------------------------------------------- | ---------------------------- |
+| GET    | `/jenis-sampah`           | Melihat daftar katalog harga sampah                         | Semua Role (login)           |
+| POST   | `/jenis-sampah`           | Menambah jenis sampah baru                                  | **Admin**                    |
+| PUT    | `/jenis-sampah/:id`       | Mengubah detail harga sampah                                | **Admin**                    |
+| PATCH  | `/jenis-sampah/:id/status`| Mengubah status aktif jenis sampah                          | **Admin**                    |
+| GET    | `/laporan`                | Rekap setoran, penarikan, saldo, setoran per jenis sampah, dan penarikan per status (filter `dari`, `sampai`) | **Admin**             |
 
 ### Modul C (Setoran)
-| Method | Endpoint           | Deskripsi                                           | Autentikasi                  |
-| ------ | ------------------- | ------------------------------------------------------ | ------------------------------- |
-| POST   | `/setoran`         | Mencatat setoran nasabah baru                       | **Petugas**                     |
-| GET    | `/setoran`         | Melihat daftar riwayat setoran                      | **Petugas**, **Admin**          |
-| GET    | `/setoran/:id`     | Melihat detail rincian satu setoran                 | **Petugas**, **Admin**          |
+| Method | Endpoint              | Deskripsi                                                                                  | Autentikasi                                   |
+| ------ | --------------------- | ------------------------------------------------------------------------------------------ | --------------------------------------------- |
+| POST   | `/setoran`            | Mencatat setoran nasabah baru                                                              | **Petugas**                                   |
+| GET    | `/setoran`            | Daftar riwayat setoran (filter `nasabah`, `dari`, `sampai`, `status`, `halaman`, `limit`)  | **Petugas**, **Admin**                        |
+| GET    | `/setoran/:id`        | Melihat detail rincian satu setoran                                                        | **Petugas**, **Admin**, **Nasabah** (miliknya)|
+| PATCH  | `/setoran/:id/batal`  | Membatalkan setoran dengan `alasan`; saldo nasabah dikoreksi lewat buku besar              | **Admin**                                     |
 
 ### Modul D (Saldo & Penarikan)
 | Method | Endpoint                  | Deskripsi                                           | Autentikasi                  |
 | ------ | -------------------------- | ------------------------------------------------------ | ------------------------------- |
-| GET    | `/penarikan/saldo`        | Cek saldo milik nasabah sendiri                     | **Nasabah**                     |
+| GET    | `/penarikan`              | Daftar penarikan, bawaan status `diajukan` (`?status=` diajukan/disetujui/ditolak/selesai/semua, `?nasabah=`, `?dari=`, `?sampai=`, `?halaman=`, `?limit=`) | **Petugas**, **Admin** |
+| GET    | `/penarikan/saya`         | Daftar pengajuan penarikan milik nasabah sendiri (`?status=`, `?halaman=`, `?limit=`) | **Nasabah** |
+| GET    | `/penarikan/saldo`        | Cek saldo, saldo tertahan, dan saldo tersedia milik nasabah sendiri | **Nasabah** |
 | GET    | `/penarikan/riwayat`      | Riwayat mutasi buku besar milik nasabah             | **Nasabah**                     |
-| POST   | `/penarikan/ajukan`       | Mengajukan permohonan penarikan dana                | **Nasabah**                     |
-| PATCH  | `/penarikan/:id/proses`   | Menyetujui atau menolak pengajuan penarikan         | **Petugas**, **Admin**          |
+| POST   | `/penarikan/ajukan`       | Mengajukan penarikan (`jumlah` bilangan bulat, `metode`); untuk `e-wallet` wajib `namaEwallet` dan `nomorEwallet`; tidak boleh melebihi saldo tersedia | **Nasabah** |
+| PATCH  | `/penarikan/:id/proses`   | Menyetujui (`keputusan: setuju`, saldo didebit) atau menolak (`keputusan: tolak`, `catatan` alasan wajib) pengajuan | **Petugas**, **Admin** |
+| PATCH  | `/penarikan/:id/selesai`  | Menandai penarikan `disetujui` sebagai `selesai` (dana sudah diserahkan; `catatan` opsional) | **Petugas**, **Admin** |
+| GET    | `/nasabah/:id/saldo`      | Melihat saldo seorang nasabah                       | **Petugas**, **Admin**          |
+| GET    | `/nasabah/:id/riwayat`    | Melihat riwayat mutasi seorang nasabah              | **Petugas**, **Admin**          |
+
+### Alur Status Penarikan
+
+```
+diajukan --(proses: setuju)--> disetujui --(selesai)--> selesai
+    |
+    +--(proses: tolak)--> ditolak
+```
+
+Saldo tersedia adalah saldo dikurangi total pengajuan berstatus `diajukan`, dan pengajuan tidak boleh melebihi saldo tersedia. Saldo nasabah didebit saat penarikan disetujui; persetujuan dan pencatatan buku besar berjalan dalam satu transaksi. Status `selesai` hanya dapat dicapai dari `disetujui`, dan setiap perubahan status mencatat petugas serta waktunya.
 
 ## Autentikasi
 

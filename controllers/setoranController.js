@@ -102,4 +102,23 @@ async function detailSetoran(req, res) {
   }
 }
 
-module.exports = { catatSetoran, daftarSetoran, detailSetoran };
+async function batalkanSetoran(req, res) {
+  try {
+    const admin = ambilPengguna(req);
+    const hasil = await setoranService.batalkanSetoran(req.params.id, req.body.alasan, admin.id);
+
+    return res.status(200).json({
+      sukses: true,
+      pesan: "Setoran berhasil dibatalkan dan saldo nasabah dikoreksi",
+      data: {
+        setoran: hasil.setoran,
+        saldoTerkini: hasil.saldoTerkini,
+        catatanBukuBesar: hasil.catatanBukuBesar,
+      },
+    });
+  } catch (error) {
+    return kirimError(res, error);
+  }
+}
+
+module.exports = { catatSetoran, daftarSetoran, detailSetoran, batalkanSetoran };

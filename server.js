@@ -12,6 +12,9 @@ app.use(express.json())
 const authController = require("./controllers/authController")
 app.use("/auth", authController)
 
+const userRoutes = require("./routes/userRoutes")
+app.use("/users", userRoutes)
+
 //-------------------- idk what im doing dont mind me ---------------------
 const jenisSampahRoutes = require("./routes/jenisSampahRoutes");
 app.use("/jenis-sampah", jenisSampahRoutes);
@@ -26,8 +29,8 @@ app.use("/penarikan", penarikanController)
 const setoranRoutes = require("./routes/setoranRoutes")
 app.use("/setoran", setoranRoutes)
 
-const userRoutes = require("./routes/userRoutes")
-app.use("/users", userRoutes)
+const nasabahRoutes = require("./routes/nasabahRoutes")
+app.use("/nasabah", nasabahRoutes)
 
 app.get("/ping", (req, res) => res.json({ "data": "pong" }))
 
