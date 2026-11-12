@@ -10,7 +10,7 @@ router.post("/register", async (req, res) => {
     const user = await authService.register(nama, email, password, role)
     res.status(201).json({ message: "Registrasi berhasil", data: user })
   } catch (err) {
-    res.status(400).json({ message: err.message })
+    res.status(err.statusCode || 400).json({ message: err.message })
   }
 })
 
@@ -26,6 +26,16 @@ router.post("/login", async (req, res) => {
 
 router.get("/profile", authenticate, (req, res) => {
   res.json({ message: "Ini profil kamu", user: req.user })
+})
+
+router.patch("/password", authenticate, async (req, res) => {
+  try {
+    const { passwordLama, passwordBaru } = req.body
+    const data = await authService.gantiPassword(req.user.id, passwordLama, passwordBaru)
+    res.status(200).json({ message: "Password berhasil diganti", data })
+  } catch (err) {
+    res.status(err.statusCode || 400).json({ message: err.message })
+  }
 })
 
 router.get("/admin-only", authenticate, authorize("admin"), (req, res) => {

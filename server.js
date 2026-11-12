@@ -12,6 +12,9 @@ app.use(express.json())
 const authController = require("./controllers/authController")
 app.use("/auth", authController)
 
+const userRoutes = require("./routes/userRoutes")
+app.use("/users", userRoutes)
+
 //-------------------- idk what im doing dont mind me ---------------------
 const jenisSampahRoutes = require("./routes/jenisSampahRoutes");
 app.use("/jenis-sampah", jenisSampahRoutes);
