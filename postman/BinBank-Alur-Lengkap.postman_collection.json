@@ -1,0 +1,2038 @@
+{
+  "info": {
+    "name": "BinBank — Alur Lengkap (Nasabah, Petugas, Admin)",
+    "description": "Satu kali jalan dari atas ke bawah (Runner) menguji alur terbaru: login, ganti password wajib, setoran, penarikan, laporan, akses. Isi variabel adminEmail dan adminPassword (akun admin yang sudah ada). Akun uji dibuat baru tiap run lewat variabel run.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          "if (!pm.collectionVariables.get('run')) pm.collectionVariables.set('run', Date.now().toString());"
+        ]
+      }
+    }
+  ],
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:5001"
+    },
+    {
+      "key": "adminEmail",
+      "value": ""
+    },
+    {
+      "key": "adminPassword",
+      "value": ""
+    },
+    {
+      "key": "run",
+      "value": ""
+    },
+    {
+      "key": "tokenAdmin",
+      "value": ""
+    },
+    {
+      "key": "tokenPetugas",
+      "value": ""
+    },
+    {
+      "key": "tokenNasabah",
+      "value": ""
+    },
+    {
+      "key": "petugasId",
+      "value": ""
+    },
+    {
+      "key": "nasabahId",
+      "value": ""
+    },
+    {
+      "key": "jenisSampahId1",
+      "value": ""
+    },
+    {
+      "key": "jenisSampahId2",
+      "value": ""
+    },
+    {
+      "key": "setoranId",
+      "value": ""
+    },
+    {
+      "key": "setoranId2",
+      "value": ""
+    },
+    {
+      "key": "penarikanId1",
+      "value": ""
+    },
+    {
+      "key": "penarikanId2",
+      "value": ""
+    }
+  ],
+  "item": [
+    {
+      "name": "00 — Persiapan",
+      "item": [
+        {
+          "name": "Ping server",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/ping",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "ping"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Login admin",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/auth/login",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "login"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"{{adminEmail}}\",\n  \"password\": \"{{adminPassword}}\"\n}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                  "pm.collectionVariables.set('tokenAdmin', pm.response.json().data.token);"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "01 — Admin menyiapkan data",
+      "item": [
+        {
+          "name": "Tambah jenis sampah 1 (Plastik, 3000/kg)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenAdmin}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/jenis-sampah",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "jenis-sampah"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nama\": \"Plastik {{run}}\",\n  \"hargaPerKg\": 3000\n}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 201', () => pm.response.to.have.status(201));",
+                  "pm.collectionVariables.set('jenisSampahId1', pm.response.json().data._id);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Tambah jenis sampah 2 (Kertas, 5000/kg)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenAdmin}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/jenis-sampah",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "jenis-sampah"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nama\": \"Kertas {{run}}\",\n  \"hargaPerKg\": 5000\n}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 201', () => pm.response.to.have.status(201));",
+                  "pm.collectionVariables.set('jenisSampahId2', pm.response.json().data._id);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Buat akun petugas",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenAdmin}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/users",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "users"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nama\": \"Petugas Uji\",\n  \"email\": \"petugas.{{run}}@binbank.test\",\n  \"password\": \"sementara123\",\n  \"role\": \"petugas\"\n}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 201', () => pm.response.to.have.status(201));",
+                  "pm.collectionVariables.set('petugasId', pm.response.json().data.id);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Daftar pengguna (filter petugas)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenAdmin}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/users?role=petugas",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "users"
+              ],
+              "query": [
+                {
+                  "key": "role",
+                  "value": "petugas"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "02 — Login dan ganti password wajib",
+      "item": [
+        {
+          "name": "Login petugas (password sementara)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/auth/login",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "login"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"petugas.{{run}}@binbank.test\",\n  \"password\": \"sementara123\"\n}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                  "pm.collectionVariables.set('tokenPetugas', pm.response.json().data.token);",
+                  "pm.test('Wajib ganti password', () => pm.expect(pm.response.json().data.user.wajibGantiPassword).to.eql(true));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Ganti password petugas",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenPetugas}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/auth/password",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "password"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"passwordLama\": \"sementara123\",\n  \"passwordBaru\": \"petugasBaru123\"\n}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Login petugas (password baru)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/auth/login",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "login"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"petugas.{{run}}@binbank.test\",\n  \"password\": \"petugasBaru123\"\n}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                  "pm.collectionVariables.set('tokenPetugas', pm.response.json().data.token);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Login gagal (password salah)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/auth/login",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "login"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"petugas.{{run}}@binbank.test\",\n  \"password\": \"salah\"\n}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 401', () => pm.response.to.have.status(401));"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "03 — Petugas mendaftarkan nasabah",
+      "item": [
+        {
+          "name": "Daftarkan nasabah",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenPetugas}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/users",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "users"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nama\": \"Nasabah Uji\",\n  \"email\": \"nasabah.{{run}}@binbank.test\",\n  \"password\": \"sementara123\",\n  \"role\": \"nasabah\"\n}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 201', () => pm.response.to.have.status(201));",
+                  "pm.collectionVariables.set('nasabahId', pm.response.json().data.id);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Cari nasabah",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenPetugas}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/users?role=nasabah&cari=Nasabah Uji",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "users"
+              ],
+              "query": [
+                {
+                  "key": "role",
+                  "value": "nasabah"
+                },
+                {
+                  "key": "cari",
+                  "value": "Nasabah Uji"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Petugas membuat akun admin (ditolak)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenPetugas}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/users",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "users"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nama\": \"X\",\n  \"email\": \"x.{{run}}@binbank.test\",\n  \"password\": \"sementara123\",\n  \"role\": \"admin\"\n}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 403', () => pm.response.to.have.status(403));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Login nasabah (password sementara)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/auth/login",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "login"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"nasabah.{{run}}@binbank.test\",\n  \"password\": \"sementara123\"\n}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                  "pm.collectionVariables.set('tokenNasabah', pm.response.json().data.token);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Ganti password nasabah",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenNasabah}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/auth/password",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "password"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"passwordLama\": \"sementara123\",\n  \"passwordBaru\": \"nasabahBaru123\"\n}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Login nasabah (password baru)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/auth/login",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "login"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"nasabah.{{run}}@binbank.test\",\n  \"password\": \"nasabahBaru123\"\n}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                  "pm.collectionVariables.set('tokenNasabah', pm.response.json().data.token);"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "04 — Setoran",
+      "item": [
+        {
+          "name": "Daftar harga (nasabah)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenNasabah}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/jenis-sampah",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "jenis-sampah"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Catat setoran 1 (total 13.500)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenPetugas}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/setoran",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "setoran"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nasabah\": \"{{nasabahId}}\",\n  \"rincian\": [\n    {\n      \"jenisSampah\": \"{{jenisSampahId1}}\",\n      \"berat\": 2.5\n    },\n    {\n      \"jenisSampah\": \"{{jenisSampahId2}}\",\n      \"berat\": 1.2\n    }\n  ],\n  \"catatan\": \"Setoran pagi\"\n}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 201', () => pm.response.to.have.status(201));",
+                  "pm.collectionVariables.set('setoranId', pm.response.json().data.setoran._id);",
+                  "pm.test('Total nilai 13500', () => pm.expect(pm.response.json().data.setoran.totalNilai).to.eql(13500));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Rincian setoran (nasabah)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenNasabah}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/setoran/{{setoranId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "setoran",
+                "{{setoranId}}"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Daftar setoran (petugas)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenPetugas}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/setoran?nasabah={{nasabahId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "setoran"
+              ],
+              "query": [
+                {
+                  "key": "nasabah",
+                  "value": "{{nasabahId}}"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Nasabah mencatat setoran (ditolak)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenNasabah}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/setoran",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "setoran"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nasabah\": \"{{nasabahId}}\",\n  \"rincian\": []\n}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 403', () => pm.response.to.have.status(403));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Profil nasabah: saldo (petugas)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenPetugas}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/nasabah/{{nasabahId}}/saldo",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "nasabah",
+                "{{nasabahId}}",
+                "saldo"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Profil nasabah: riwayat (petugas)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenPetugas}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/nasabah/{{nasabahId}}/riwayat?halaman=1&limit=10",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "nasabah",
+                "{{nasabahId}}",
+                "riwayat"
+              ],
+              "query": [
+                {
+                  "key": "halaman",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "10"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "05 — Nasabah: saldo dan pengajuan",
+      "item": [
+        {
+          "name": "Cek saldo",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenNasabah}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/penarikan/saldo",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "penarikan",
+                "saldo"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Saldo 13500', () => pm.expect(pm.response.json().data.saldo).to.eql(13500));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Riwayat mutasi",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenNasabah}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/penarikan/riwayat?halaman=1&limit=10",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "penarikan",
+                "riwayat"
+              ],
+              "query": [
+                {
+                  "key": "halaman",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "10"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Ajukan tunai 5.000",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenNasabah}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/penarikan/ajukan",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "penarikan",
+                "ajukan"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"jumlah\": 5000,\n  \"metode\": \"tunai\"\n}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 201', () => pm.response.to.have.status(201));",
+                  "pm.collectionVariables.set('penarikanId1', pm.response.json().data._id);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Ajukan e-wallet 3.000",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenNasabah}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/penarikan/ajukan",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "penarikan",
+                "ajukan"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"jumlah\": 3000,\n  \"metode\": \"e-wallet\",\n  \"namaEwallet\": \"GoPay\",\n  \"nomorEwallet\": \"081234567890\"\n}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 201', () => pm.response.to.have.status(201));",
+                  "pm.collectionVariables.set('penarikanId2', pm.response.json().data._id);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Cek saldo tersedia (tertahan 8.000)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenNasabah}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/penarikan/saldo",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "penarikan",
+                "saldo"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Saldo tersedia 5500', () => pm.expect(pm.response.json().data.saldoTersedia).to.eql(5500));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Ajukan melebihi saldo tersedia (ditolak)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenNasabah}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/penarikan/ajukan",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "penarikan",
+                "ajukan"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"jumlah\": 6000,\n  \"metode\": \"tunai\"\n}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 400', () => pm.response.to.have.status(400));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Ajukan e-wallet tanpa nomor (ditolak)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenNasabah}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/penarikan/ajukan",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "penarikan",
+                "ajukan"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"jumlah\": 1000,\n  \"metode\": \"e-wallet\",\n  \"namaEwallet\": \"GoPay\"\n}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 400', () => pm.response.to.have.status(400));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Pengajuan saya",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenNasabah}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/penarikan/saya",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "penarikan",
+                "saya"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "06 — Petugas memproses penarikan",
+      "item": [
+        {
+          "name": "Antrean penarikan (default diajukan)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenPetugas}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/penarikan",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "penarikan"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Setujui pengajuan 1",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenPetugas}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/penarikan/{{penarikanId1}}/proses",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "penarikan",
+                "{{penarikanId1}}",
+                "proses"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"keputusan\": \"setuju\"\n}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Setujui ulang pengajuan 1 (ditolak)",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenPetugas}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/penarikan/{{penarikanId1}}/proses",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "penarikan",
+                "{{penarikanId1}}",
+                "proses"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"keputusan\": \"setuju\"\n}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 400', () => pm.response.to.have.status(400));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Tolak pengajuan 2 tanpa alasan (ditolak)",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenPetugas}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/penarikan/{{penarikanId2}}/proses",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "penarikan",
+                "{{penarikanId2}}",
+                "proses"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"keputusan\": \"tolak\"\n}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 400', () => pm.response.to.have.status(400));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Tolak pengajuan 2 dengan alasan",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenPetugas}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/penarikan/{{penarikanId2}}/proses",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "penarikan",
+                "{{penarikanId2}}",
+                "proses"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"keputusan\": \"tolak\",\n  \"catatan\": \"Nomor e-wallet tidak valid\"\n}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Tandai pengajuan 1 selesai",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenPetugas}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/penarikan/{{penarikanId1}}/selesai",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "penarikan",
+                "{{penarikanId1}}",
+                "selesai"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"catatan\": \"Dana diserahkan tunai\"\n}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Cek saldo akhir nasabah (8.500)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenNasabah}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/penarikan/saldo",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "penarikan",
+                "saldo"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Saldo 8500', () => pm.expect(pm.response.json().data.saldo).to.eql(8500));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Riwayat penarikan semua status",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenPetugas}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/penarikan?status=semua",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "penarikan"
+              ],
+              "query": [
+                {
+                  "key": "status",
+                  "value": "semua"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "07 — Admin: laporan dan pembatalan",
+      "item": [
+        {
+          "name": "Catat setoran 2 (3.000)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenPetugas}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/setoran",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "setoran"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nasabah\": \"{{nasabahId}}\",\n  \"rincian\": [\n    {\n      \"jenisSampah\": \"{{jenisSampahId1}}\",\n      \"berat\": 1\n    }\n  ]\n}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 201', () => pm.response.to.have.status(201));",
+                  "pm.collectionVariables.set('setoranId2', pm.response.json().data.setoran._id);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Batalkan setoran 2 tanpa alasan (ditolak)",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenAdmin}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/setoran/{{setoranId2}}/batal",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "setoran",
+                "{{setoranId2}}",
+                "batal"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 400', () => pm.response.to.have.status(400));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Batalkan setoran 2",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenAdmin}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/setoran/{{setoranId2}}/batal",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "setoran",
+                "{{setoranId2}}",
+                "batal"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"alasan\": \"Salah input berat\"\n}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Laporan rekap",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenAdmin}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/laporan",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "laporan"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Nonaktifkan akun nasabah",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenAdmin}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/users/{{nasabahId}}/status",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "users",
+                "{{nasabahId}}",
+                "status"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"aktif\": false\n}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Login nasabah nonaktif (ditolak)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/auth/login",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "login"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"nasabah.{{run}}@binbank.test\",\n  \"password\": \"nasabahBaru123\"\n}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 401', () => pm.response.to.have.status(401));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Aktifkan kembali akun nasabah",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenAdmin}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/users/{{nasabahId}}/status",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "users",
+                "{{nasabahId}}",
+                "status"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"aktif\": true\n}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "08 — Pengecekan akses",
+      "item": [
+        {
+          "name": "Tanpa token (401)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/penarikan/saldo",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "penarikan",
+                "saldo"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 401', () => pm.response.to.have.status(401));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Nasabah ke laporan (403)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenNasabah}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/laporan",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "laporan"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 403', () => pm.response.to.have.status(403));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Petugas ke laporan (403)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenPetugas}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/laporan",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "laporan"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 403', () => pm.response.to.have.status(403));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Petugas ke saldo nasabah (403)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenPetugas}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/penarikan/saldo",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "penarikan",
+                "saldo"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 403', () => pm.response.to.have.status(403));"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
