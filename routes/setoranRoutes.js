@@ -9,5 +9,6 @@ const router = express.Router();
 router.post("/", authenticate, authorize("petugas"), setoranController.catatSetoran);
 router.get("/", authenticate, authorize("petugas", "admin"), setoranController.daftarSetoran);
 router.get("/:id", authenticate, setoranController.detailSetoran);
+router.patch("/:id/batal", authenticate, authorize("admin"), setoranController.batalkanSetoran);
 
 module.exports = router;
