@@ -19,7 +19,7 @@ Bank sampah tingkat RW pada umumnya masih melakukan pencatatan setoran nasabah s
 
 Aplikasi ini memiliki tiga peran pengguna dengan hak akses yang berbeda, yaitu:
 
-- **Petugas:** bertanggung jawab memasukkan data hasil penimbangan dan setoran sampah nasabah, serta mendaftarkan akun nasabah.
+- **Petugas:** bertanggung jawab memasukkan data hasil penimbangan dan setoran sampah nasabah, mendaftarkan akun nasabah, serta memproses penarikan saldo.
 - **Nasabah:** dapat melihat informasi saldo dan mengajukan penarikan saldo.
 - **Admin:** bertanggung jawab mengelola harga jenis sampah, akun pengguna, dan pembatalan setoran, serta mengakses laporan rekapitulasi.
 
@@ -31,8 +31,6 @@ Aplikasi ini memiliki tiga peran pengguna dengan hak akses yang berbeda, yaitu:
 - **bcrypt:** digunakan untuk melakukan hashing terhadap password pengguna.
 - **Postman:** untuk pengujian API secara otomatis.
 
-## Struktur Folder
-
 ## Struktur Folder dan File
 
 ```
@@ -40,10 +38,10 @@ bin-bank/
 ├── config/
 │   └── db.js                        # Koneksi ke MongoDB Atlas
 ├── controllers/                     # Menangani request dan response API
-│   ├── authController.js            # Registrasi admin pertama, login, profil
+│   ├── authController.js            # Registrasi admin pertama, login, profil, ganti password
 │   ├── jenisSampahController.js     # CRUD jenis sampah dan harga
 │   ├── laporanController.js         # laporan setoran dan penarikan
-│   ├── penarikanController.js       # Saldo, riwayat, pengajuan, dan pemrosesan penarikan
+│   ├── penarikanController.js       # Saldo, riwayat, pengajuan, pemrosesan, dan penyelesaian penarikan
 │   └── setoranController.js         # Pencatatan, riwayat, dan pembatalan setoran
 ├── middlewares/
 │   ├── authenticate.js              # Verifikasi token JWT
@@ -115,6 +113,7 @@ Menyimpan data otentikasi dan identitas pengguna.
 | `role`     | String | Peran pengguna: `petugas`, `nasabah`, atau `admin`               |
 | `saldo`    | Number | Akumulasi saldo (default 0), tidak boleh negatif                 |
 | `aktif`    | Boolean | Status akun (default true); akun nonaktif tidak dapat login     |
+| `wajibGantiPassword` | Boolean | Penanda password awal/sementara (default false); bila true, pengguna hanya dapat mengganti password |
 
 ### 2. JenisSampah
 Menyimpan katalog harga dan jenis sampah yang diterima.
@@ -147,8 +146,14 @@ Mencatat proses pencairan saldo oleh nasabah.
 | `nasabah`      | ObjectId | Relasi ke model User (Nasabah yang menarik saldo)              |
 | `jumlah`       | Number   | Nominal saldo yang ditarik                                     |
 | `metode`       | String   | Metode penarikan: `tunai` atau `e-wallet`                      |
+| `namaEwallet`  | String   | Nama e-wallet tujuan (wajib bila metode `e-wallet`)            |
+| `nomorEwallet` | String   | Nomor e-wallet tujuan, isian bebas (wajib bila metode `e-wallet`) |
 | `status`       | String   | `diajukan`, `disetujui`, `ditolak`, atau `selesai`             |
-| `diprosesOleh` | ObjectId | Relasi ke model User (Petugas/Admin yang memproses)            |
+| `diprosesOleh` | ObjectId | Relasi ke model User (Petugas/Admin yang menyetujui atau menolak) |
+| `diprosesPada` | Date     | Waktu pengajuan disetujui atau ditolak                         |
+| `dikonfirmasiOleh` | ObjectId | Relasi ke model User (Petugas/Admin yang menandai selesai) |
+| `dikonfirmasiPada` | Date     | Waktu penarikan ditandai selesai                           |
+| `catatanKonfirmasi` | String  | Catatan opsional saat ditandai selesai (misal: referensi transfer) |
 | `catatan`      | String   | Alasan penolakan atau catatan transfer                         |
 
 ### 5. BukuBesar (Ledger)
@@ -171,6 +176,7 @@ Buku besar mutasi keuangan (ACID Transaction) yang tidak bisa dihapus.
 | POST   | `/auth/register`      | Membuat admin pertama; ditolak (403) bila database sudah berisi akun       | Tidak diperlukan             |
 | POST   | `/auth/login`         | Melakukan login dan mendapatkan token JWT; akun nonaktif ditolak           | Tidak diperlukan             |
 | GET    | `/auth/profile`       | Menampilkan profil pengguna yang sedang login                              | Semua Role                   |
+| PATCH  | `/auth/password`      | Mengganti password sendiri (`passwordLama`, `passwordBaru`); mengembalikan token baru | Semua Role        |
 | GET    | `/users`              | Daftar akun (filter `?role=`); Petugas hanya melihat nasabah               | **Admin**, **Petugas**       |
 | POST   | `/users`              | Membuat akun; Petugas hanya boleh membuat akun nasabah                     | **Admin**, **Petugas**       |
 | PATCH  | `/users/:id/password` | Mereset password pengguna (`passwordBaru`, minimal 8 karakter)             | **Admin**                    |
@@ -183,7 +189,7 @@ Buku besar mutasi keuangan (ACID Transaction) yang tidak bisa dihapus.
 | POST   | `/jenis-sampah`           | Menambah jenis sampah baru                                  | **Admin**                    |
 | PUT    | `/jenis-sampah/:id`       | Mengubah detail harga sampah                                | **Admin**                    |
 | PATCH  | `/jenis-sampah/:id/status`| Mengubah status aktif jenis sampah                          | **Admin**                    |
-| GET    | `/laporan`                | Melihat rekapitulasi setoran & penarikan (filter `dari`, `sampai`) | **Admin**             |
+| GET    | `/laporan`                | Rekap setoran, penarikan, saldo, setoran per jenis sampah, dan penarikan per status (filter `dari`, `sampai`) | **Admin**             |
 
 ### Modul C (Setoran)
 | Method | Endpoint              | Deskripsi                                                                                  | Autentikasi                                   |
@@ -194,15 +200,27 @@ Buku besar mutasi keuangan (ACID Transaction) yang tidak bisa dihapus.
 | PATCH  | `/setoran/:id/batal`  | Membatalkan setoran dengan `alasan`; saldo nasabah dikoreksi lewat buku besar              | **Admin**                                     |
 
 ### Modul D (Saldo & Penarikan)
-| Method | Endpoint                  | Deskripsi                                                                                     | Autentikasi                  |
-| ------ | ------------------------- | --------------------------------------------------------------------------------------------- | ---------------------------- |
-| GET    | `/penarikan/saldo`        | Cek saldo milik nasabah sendiri                                                               | **Nasabah**                  |
-| GET    | `/penarikan/riwayat`      | Riwayat mutasi buku besar milik nasabah                                                       | **Nasabah**                  |
-| POST   | `/penarikan/ajukan`       | Mengajukan permohonan penarikan dana                                                          | **Nasabah**                  |
-| GET    | `/penarikan`              | Daftar pengajuan penarikan (filter `status`, `nasabah`, `dari`, `sampai`, `halaman`, `limit`) | **Petugas**, **Admin**       |
-| PATCH  | `/penarikan/:id/proses`   | Menyetujui atau menolak pengajuan penarikan                                                   | **Petugas**, **Admin**       |
-| GET    | `/nasabah/:id/saldo`      | Cek saldo seorang nasabah                                                                     | **Petugas**, **Admin**       |
-| GET    | `/nasabah/:id/riwayat`    | Riwayat mutasi buku besar seorang nasabah                                                     | **Petugas**, **Admin**       |
+| Method | Endpoint                  | Deskripsi                                           | Autentikasi                  |
+| ------ | -------------------------- | ------------------------------------------------------ | ------------------------------- |
+| GET    | `/penarikan`              | Daftar penarikan, bawaan status `diajukan` (`?status=` diajukan/disetujui/ditolak/selesai/semua, `?nasabah=`, `?dari=`, `?sampai=`, `?halaman=`, `?limit=`) | **Petugas**, **Admin** |
+| GET    | `/penarikan/saya`         | Daftar pengajuan penarikan milik nasabah sendiri (`?status=`, `?halaman=`, `?limit=`) | **Nasabah** |
+| GET    | `/penarikan/saldo`        | Cek saldo, saldo tertahan, dan saldo tersedia milik nasabah sendiri | **Nasabah** |
+| GET    | `/penarikan/riwayat`      | Riwayat mutasi buku besar milik nasabah             | **Nasabah**                     |
+| POST   | `/penarikan/ajukan`       | Mengajukan penarikan (`jumlah` bilangan bulat, `metode`); untuk `e-wallet` wajib `namaEwallet` dan `nomorEwallet`; tidak boleh melebihi saldo tersedia | **Nasabah** |
+| PATCH  | `/penarikan/:id/proses`   | Menyetujui (`keputusan: setuju`, saldo didebit) atau menolak (`keputusan: tolak`, `catatan` alasan wajib) pengajuan | **Petugas**, **Admin** |
+| PATCH  | `/penarikan/:id/selesai`  | Menandai penarikan `disetujui` sebagai `selesai` (dana sudah diserahkan; `catatan` opsional) | **Petugas**, **Admin** |
+| GET    | `/nasabah/:id/saldo`      | Melihat saldo seorang nasabah                       | **Petugas**, **Admin**          |
+| GET    | `/nasabah/:id/riwayat`    | Melihat riwayat mutasi seorang nasabah              | **Petugas**, **Admin**          |
+
+### Alur Status Penarikan
+
+```
+diajukan --(proses: setuju)--> disetujui --(selesai)--> selesai
+    |
+    +--(proses: tolak)--> ditolak
+```
+
+Saldo tersedia adalah saldo dikurangi total pengajuan berstatus `diajukan`, dan pengajuan tidak boleh melebihi saldo tersedia. Saldo nasabah didebit saat penarikan disetujui; persetujuan dan pencatatan buku besar berjalan dalam satu transaksi. Status `selesai` hanya dapat dicapai dari `disetujui`, dan setiap perubahan status mencatat petugas serta waktunya.
 
 ## Autentikasi
 
@@ -211,6 +229,8 @@ Setelah berhasil melakukan login, pengguna akan memperoleh **JWT token**. Token 
 ```text
 Authorization: Bearer <token>
 ```
+
+Akun yang baru dibuat lewat `POST /users` atau yang passwordnya direset admin memiliki penanda wajib ganti password. Selama penanda itu aktif, token hanya dapat dipakai untuk `PATCH /auth/password`; endpoint lain dijawab 403. Setelah password berhasil diganti, respons memberi token baru tanpa pembatasan.
 
 ## Aturan Kontribusi
 

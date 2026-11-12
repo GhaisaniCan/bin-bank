@@ -26,6 +26,9 @@ app.use("/penarikan", penarikanController)
 const setoranRoutes = require("./routes/setoranRoutes")
 app.use("/setoran", setoranRoutes)
 
+const nasabahRoutes = require("./routes/nasabahRoutes")
+app.use("/nasabah", nasabahRoutes)
+
 app.get("/ping", (req, res) => res.json({ "data": "pong" }))
 
 const PORT = process.env.PORT || 5001
