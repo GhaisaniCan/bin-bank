@@ -81,6 +81,17 @@ const setoranSchema = new mongoose.Schema(
       type: String,
       trim: true,
     },
+    alasanBatal: {
+      type: String,
+      trim: true,
+    },
+    dibatalkanOleh: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+    },
+    dibatalkanPada: {
+      type: Date,
+    },
   },
   { timestamps: true }
 );

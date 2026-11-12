@@ -251,4 +251,71 @@ async function detailSetoran(setoranId, pengguna) {
   return setoran;
 }
 
-module.exports = { catatSetoran, daftarSetoran, detailSetoran };
+async function batalkanSetoran(setoranId, alasan, adminId) {
+  pastikanObjectId(setoranId, "ID setoran");
+
+  const alasanBersih = typeof alasan === "string" ? alasan.trim() : "";
+  if (!alasanBersih) {
+    throw new AppError("Alasan pembatalan wajib diisi", 400);
+  }
+
+  const session = await mongoose.startSession();
+  try {
+    let hasil;
+
+    await session.withTransaction(async () => {
+      const setoran = await Setoran.findOneAndUpdate(
+        { _id: setoranId, status: "TERCATAT" },
+        {
+          status: "DIBATALKAN",
+          alasanBatal: alasanBersih,
+          dibatalkanOleh: adminId,
+          dibatalkanPada: new Date(),
+        },
+        { returnDocument: "after", session }
+      );
+
+      if (!setoran) {
+        const ada = await Setoran.exists({ _id: setoranId }).session(session);
+        if (ada) {
+          throw new AppError("Setoran ini sudah dibatalkan", 409);
+        }
+        throw new AppError("Setoran tidak ditemukan", 404);
+      }
+
+      let mutasi;
+      try {
+        mutasi = await ledgerService.debit(
+          {
+            nasabahId: setoran.nasabah,
+            jumlah: setoran.totalNilai,
+            sumber: "PEMBATALAN_SETORAN",
+            referensiId: setoran._id,
+            keterangan: `Pembatalan setoran ${setoran.totalBerat} kg: ${alasanBersih}`,
+          },
+          session
+        );
+      } catch (error) {
+        if (error instanceof AppError && error.statusCode === 400) {
+          throw new AppError(
+            "Setoran tidak dapat dibatalkan karena saldo nasabah tidak mencukupi untuk dikoreksi",
+            409
+          );
+        }
+        throw error;
+      }
+
+      hasil = {
+        setoran,
+        catatanBukuBesar: mutasi.catatan,
+        saldoTerkini: mutasi.saldoTerkini,
+      };
+    });
+
+    return hasil;
+  } finally {
+    await session.endSession();
+  }
+}
+
+module.exports = { catatSetoran, daftarSetoran, detailSetoran, batalkanSetoran };

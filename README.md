@@ -21,7 +21,7 @@ Aplikasi ini memiliki tiga peran pengguna dengan hak akses yang berbeda, yaitu:
 
 - **Petugas:** bertanggung jawab memasukkan data hasil penimbangan dan setoran sampah nasabah, mendaftarkan akun nasabah, serta memproses penarikan saldo.
 - **Nasabah:** dapat melihat informasi saldo dan mengajukan penarikan saldo.
-- **Admin:** bertanggung jawab mengelola harga jenis sampah dan akun pengguna, membatalkan setoran, serta mengakses laporan rekapitulasi.
+- **Admin:** bertanggung jawab mengelola harga jenis sampah, akun pengguna, dan pembatalan setoran, serta mengakses laporan rekapitulasi.
 
 ## Teknologi yang Digunakan
 
@@ -40,7 +40,7 @@ bin-bank/
 ├── controllers/                     # Menangani request dan response API
 │   ├── authController.js            # Registrasi admin pertama, login, profil, ganti password
 │   ├── jenisSampahController.js     # CRUD jenis sampah dan harga
-│   ├── laporanController.js         # Laporan setoran dan penarikan
+│   ├── laporanController.js         # laporan setoran dan penarikan
 │   ├── penarikanController.js       # Saldo, riwayat, pengajuan, pemrosesan, dan penyelesaian penarikan
 │   └── setoranController.js         # Pencatatan, riwayat, dan pembatalan setoran
 ├── middlewares/
@@ -54,6 +54,7 @@ bin-bank/
 │   └── User.js                      # Akun pengguna (petugas, nasabah, admin)
 ├── postman/                         # Postman Collection
 │   ├── BinBank-Akun.postman_collection.json
+│   ├── BinBank-Laporan.postman_collection.json
 │   └── BinBank-Modul-C.postman_collection.json
 ├── routes/                          # Definisi endpoint dan penyisipan middleware
 │   ├── jenisSampahRoutes.js
@@ -134,9 +135,9 @@ Mencatat riwayat transaksi penyetoran sampah oleh nasabah.
 | `totalNilai` | Number   | Total akumulasi nilai/uang dari setoran                        |
 | `status`     | String   | Status setoran: `TERCATAT` atau `DIBATALKAN`                   |
 | `catatan`    | String   | Catatan tambahan opsional                                      |
-| `alasanBatal`    | String   | Alasan pembatalan (terisi saat dibatalkan)                 |
+| `alasanBatal` | String  | Alasan pembatalan (terisi bila status `DIBATALKAN`)            |
 | `dibatalkanOleh` | ObjectId | Relasi ke model User (Admin yang membatalkan)              |
-| `dibatalkanPada` | Date     | Waktu pembatalan                                           |
+| `dibatalkanPada` | Date  | Waktu setoran dibatalkan                                       |
 
 ### 4. Penarikan
 Mencatat proses pencairan saldo oleh nasabah.
@@ -182,20 +183,21 @@ Buku besar mutasi keuangan (ACID Transaction) yang tidak bisa dihapus.
 | PATCH  | `/users/:id/status`   | Mengaktifkan atau menonaktifkan akun (`aktif`: `true` atau `false`)        | **Admin**                    |
 
 ### Modul B (Harga & Laporan)
-| Method | Endpoint              | Deskripsi                                           | Autentikasi                  |
-| ------ | ---------------------- | ------------------------------------------------------ | ------------------------------- |
-| GET    | `/jenis-sampah`       | Melihat daftar katalog harga sampah                 | Bebas                           |
-| POST   | `/jenis-sampah`       | Menambah jenis sampah baru                          | **Admin**                       |
-| PUT    | `/jenis-sampah/:id`   | Mengubah detail harga sampah                        | **Admin**                       |
-| GET    | `/laporan`            | Rekap setoran, penarikan, saldo, setoran per jenis sampah, dan penarikan per status (filter `?dari=&sampai=`) | **Admin** |
+| Method | Endpoint                  | Deskripsi                                                   | Autentikasi                  |
+| ------ | ------------------------- | ----------------------------------------------------------- | ---------------------------- |
+| GET    | `/jenis-sampah`           | Melihat daftar katalog harga sampah                         | Semua Role (login)           |
+| POST   | `/jenis-sampah`           | Menambah jenis sampah baru                                  | **Admin**                    |
+| PUT    | `/jenis-sampah/:id`       | Mengubah detail harga sampah                                | **Admin**                    |
+| PATCH  | `/jenis-sampah/:id/status`| Mengubah status aktif jenis sampah                          | **Admin**                    |
+| GET    | `/laporan`                | Rekap setoran, penarikan, saldo, setoran per jenis sampah, dan penarikan per status (filter `dari`, `sampai`) | **Admin**             |
 
 ### Modul C (Setoran)
-| Method | Endpoint           | Deskripsi                                           | Autentikasi                  |
-| ------ | ------------------- | ------------------------------------------------------ | ------------------------------- |
-| POST   | `/setoran`         | Mencatat setoran nasabah baru                       | **Petugas**                     |
-| GET    | `/setoran`         | Melihat daftar riwayat setoran                      | **Petugas**, **Admin**          |
-| GET    | `/setoran/:id`     | Melihat detail rincian satu setoran                 | **Petugas**, **Admin**          |
-| PATCH  | `/setoran/:id/batal` | Membatalkan setoran (`alasan`); saldo nasabah dikurangi lewat buku besar | **Admin**     |
+| Method | Endpoint              | Deskripsi                                                                                  | Autentikasi                                   |
+| ------ | --------------------- | ------------------------------------------------------------------------------------------ | --------------------------------------------- |
+| POST   | `/setoran`            | Mencatat setoran nasabah baru                                                              | **Petugas**                                   |
+| GET    | `/setoran`            | Daftar riwayat setoran (filter `nasabah`, `dari`, `sampai`, `status`, `halaman`, `limit`)  | **Petugas**, **Admin**                        |
+| GET    | `/setoran/:id`        | Melihat detail rincian satu setoran                                                        | **Petugas**, **Admin**, **Nasabah** (miliknya)|
+| PATCH  | `/setoran/:id/batal`  | Membatalkan setoran dengan `alasan`; saldo nasabah dikoreksi lewat buku besar              | **Admin**                                     |
 
 ### Modul D (Saldo & Penarikan)
 | Method | Endpoint                  | Deskripsi                                           | Autentikasi                  |
