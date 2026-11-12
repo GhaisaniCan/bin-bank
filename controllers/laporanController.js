@@ -1,4 +1,5 @@
 const laporanService = require("../services/laporanService");
+const AppError = require("../utils/AppError");
 
 async function dapatkanLaporan(req, res) {
   try {
@@ -10,6 +11,10 @@ async function dapatkanLaporan(req, res) {
       data: data
     });
   } catch (error) {
+    if (error instanceof AppError) {
+      return res.status(error.statusCode).json({ sukses: false, pesan: error.message });
+    }
+
     console.error("[laporanController]", error);
     return res.status(500).json({ 
       sukses: false, 

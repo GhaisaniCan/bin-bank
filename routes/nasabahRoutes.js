@@ -22,8 +22,9 @@ router.get("/:id/saldo", authenticate, authorize("petugas", "admin"), async (req
 // Riwayat nasabah
 router.get("/:id/riwayat", authenticate, authorize("petugas", "admin"), async (req, res) => {
   try {
-    const data = await nasabahService.riwayatNasabah(req.params.id)
-    res.status(200).json({ message: "Riwayat berhasil diambil", data })
+    const { halaman, limit } = req.query
+    const hasil = await nasabahService.riwayatNasabah(req.params.id, { halaman, limit })
+    res.status(200).json({ message: "Riwayat berhasil diambil", data: hasil.data, paginasi: hasil.paginasi })
   } catch (err) {
     kirimError(res, err)
   }

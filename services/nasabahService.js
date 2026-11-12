@@ -17,10 +17,10 @@ async function saldoNasabah(id) {
 }
 
 // Riwayat nasabah
-async function riwayatNasabah(id) {
+async function riwayatNasabah(id, opsi) {
   pastikanIdValid(id)
   await ledgerService.getSaldo(id)
-  return ledgerService.getRiwayat(id)
+  return ledgerService.getRiwayatHalaman(id, opsi)
 }
 
 module.exports = { saldoNasabah, riwayatNasabah }

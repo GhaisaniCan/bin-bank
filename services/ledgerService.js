@@ -3,6 +3,9 @@ const BukuBesar = require("../models/BukuBesar");
 const AppError = require("../utils/AppError");
 const { bulatkanRupiah } = require("../utils/angka");
 
+const LIMIT_BAWAAN = 20;
+const LIMIT_MAKSIMAL = 100;
+
 function ambilModel(namaModel) {
   try {
     return mongoose.model(namaModel);
@@ -172,4 +175,31 @@ async function getRiwayat(nasabahId) {
   return BukuBesar.find({ nasabah: nasabahId }).sort({ createdAt: -1 });
 }
 
-module.exports = { credit, debit, ambilSaldo, getSaldo, getRiwayat };
+async function getRiwayatHalaman(nasabahId, { halaman, limit } = {}) {
+  const halamanAktif = Math.max(1, Number.parseInt(halaman, 10) || 1);
+  const limitAktif = Math.min(
+    LIMIT_MAKSIMAL,
+    Math.max(1, Number.parseInt(limit, 10) || LIMIT_BAWAAN)
+  );
+  const filter = { nasabah: nasabahId };
+
+  const [data, total] = await Promise.all([
+    BukuBesar.find(filter)
+      .sort({ createdAt: -1, _id: -1 })
+      .skip((halamanAktif - 1) * limitAktif)
+      .limit(limitAktif),
+    BukuBesar.countDocuments(filter),
+  ]);
+
+  return {
+    data,
+    paginasi: {
+      halaman: halamanAktif,
+      limit: limitAktif,
+      total,
+      totalHalaman: Math.ceil(total / limitAktif) || 0,
+    },
+  };
+}
+
+module.exports = { credit, debit, ambilSaldo, getSaldo, getRiwayat, getRiwayatHalaman };

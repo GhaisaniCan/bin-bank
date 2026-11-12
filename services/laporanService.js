@@ -2,6 +2,7 @@ const mongoose = require("mongoose");
 const Setoran = require("../models/Setoran");
 const Penarikan = require("../models/Penarikan");
 const User = require("../models/User");
+const AppError = require("../utils/AppError");
 
 const STATUS_PENARIKAN = ["diajukan", "disetujui", "ditolak", "selesai"];
 
@@ -12,11 +13,25 @@ async function getRekapLaporan(query) {
   const filterTanggal = {};
   if (dari || sampai) {
     filterTanggal.createdAt = {};
-    if (dari) filterTanggal.createdAt.$gte = new Date(dari);
+    let tanggalDari;
+    let tanggalSampai;
+    if (dari) {
+      tanggalDari = new Date(dari);
+      if (Number.isNaN(tanggalDari.getTime())) {
+        throw new AppError("Format tanggal 'dari' tidak valid", 400);
+      }
+      filterTanggal.createdAt.$gte = tanggalDari;
+    }
     if (sampai) {
-      const tanggalSampai = new Date(sampai);
+      tanggalSampai = new Date(sampai);
+      if (Number.isNaN(tanggalSampai.getTime())) {
+        throw new AppError("Format tanggal 'sampai' tidak valid", 400);
+      }
       tanggalSampai.setHours(23, 59, 59, 999);
       filterTanggal.createdAt.$lte = tanggalSampai;
+    }
+    if (tanggalDari && tanggalSampai && tanggalDari > tanggalSampai) {
+      throw new AppError("Tanggal 'dari' tidak boleh setelah tanggal 'sampai'", 400);
     }
   }
 

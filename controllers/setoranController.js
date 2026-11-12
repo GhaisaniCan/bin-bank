@@ -38,7 +38,7 @@ async function catatSetoran(req, res) {
       throw new AppError("Data petugas tidak ditemukan pada token", 401);
     }
 
-    const { nasabah, tanggal, rincian, catatan } = req.body;
+    const { nasabah, rincian, catatan } = req.body;
     if (!nasabah) {
       throw new AppError("Nasabah wajib diisi", 400);
     }
@@ -46,7 +46,6 @@ async function catatSetoran(req, res) {
     const hasil = await setoranService.catatSetoran({
       nasabah,
       petugas: petugas.id,
-      tanggal,
       rincian,
       catatan,
     });

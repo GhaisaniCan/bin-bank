@@ -39,8 +39,9 @@ router.get("/saldo", authenticate, authorize("nasabah"), async (req, res) => {
 // Nasabah lihat riwayat transaksi (mutasi buku besar) miliknya sendiri
 router.get("/riwayat", authenticate, authorize("nasabah"), async (req, res) => {
   try {
-    const data = await penarikanService.getRiwayatNasabah(req.user.id)
-    res.status(200).json({ message: "Riwayat berhasil diambil", data })
+    const { halaman, limit } = req.query
+    const hasil = await penarikanService.getRiwayatNasabah(req.user.id, { halaman, limit })
+    res.status(200).json({ message: "Riwayat berhasil diambil", data: hasil.data, paginasi: hasil.paginasi })
   } catch (err) {
     res.status(400).json({ message: err.message })
   }
