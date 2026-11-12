@@ -28,6 +28,16 @@ router.get("/profile", authenticate, (req, res) => {
   res.json({ message: "Ini profil kamu", user: req.user })
 })
 
+router.patch("/password", authenticate, async (req, res) => {
+  try {
+    const { passwordLama, passwordBaru } = req.body
+    const data = await authService.gantiPassword(req.user.id, passwordLama, passwordBaru)
+    res.status(200).json({ message: "Password berhasil diganti", data })
+  } catch (err) {
+    res.status(err.statusCode || 400).json({ message: err.message })
+  }
+})
+
 router.get("/admin-only", authenticate, authorize("admin"), (req, res) => {
   res.json({ message: "Selamat datang, admin!" })
 })

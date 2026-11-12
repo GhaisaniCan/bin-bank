@@ -24,7 +24,11 @@ async function resetPassword(id, passwordBaru) {
   pastikanPasswordValid(passwordBaru)
 
   const hash = await bcrypt.hash(passwordBaru, 10)
-  const user = await User.findByIdAndUpdate(id, { password: hash }, { returnDocument: "after" })
+  const user = await User.findByIdAndUpdate(
+    id,
+    { password: hash, wajibGantiPassword: true },
+    { returnDocument: "after" }
+  )
   if (!user) throw new AppError("Pengguna tidak ditemukan", 404)
 
   return ringkas(user)
@@ -43,7 +47,7 @@ async function buatUser(pembuat, { nama, email, password, role }) {
 
   const hash = await bcrypt.hash(password, 10)
   try {
-    const user = await User.create({ nama, email, password: hash, role })
+    const user = await User.create({ nama, email, password: hash, role, wajibGantiPassword: true })
     return ringkas(user)
   } catch (err) {
     if (err.code === 11000) throw new AppError("Email sudah terdaftar", 409)

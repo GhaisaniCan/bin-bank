@@ -19,9 +19,9 @@ Bank sampah tingkat RW pada umumnya masih melakukan pencatatan setoran nasabah s
 
 Aplikasi ini memiliki tiga peran pengguna dengan hak akses yang berbeda, yaitu:
 
-- **Petugas:** bertanggung jawab memasukkan data hasil penimbangan dan setoran sampah nasabah.
+- **Petugas:** bertanggung jawab memasukkan data hasil penimbangan dan setoran sampah nasabah, serta mendaftarkan akun nasabah.
 - **Nasabah:** dapat melihat informasi saldo dan mengajukan penarikan saldo.
-- **Admin:** bertanggung jawab mengelola harga jenis sampah serta mengakses laporan rekapitulasi.
+- **Admin:** bertanggung jawab mengelola harga jenis sampah dan akun pengguna, serta mengakses laporan rekapitulasi.
 
 ## Teknologi yang Digunakan
 
@@ -40,7 +40,7 @@ bin-bank/
 ├── config/
 │   └── db.js                        # Koneksi ke MongoDB Atlas
 ├── controllers/                     # Menangani request dan response API
-│   ├── authController.js            # Register, login, profil
+│   ├── authController.js            # Registrasi admin pertama, login, profil, ganti password
 │   ├── jenisSampahController.js     # CRUD jenis sampah dan harga
 │   ├── laporanController.js         # laporan setoran dan penarikan
 │   ├── penarikanController.js       # Saldo, riwayat, pengajuan, dan pemrosesan penarikan
@@ -54,18 +54,21 @@ bin-bank/
 │   ├── Penarikan.js                 # Pengajuan dan status penarikan
 │   ├── Setoran.js                   # Transaksi setoran beserta rincian
 │   └── User.js                      # Akun pengguna (petugas, nasabah, admin)
-├── postman/                         # Contoh Postman Collection (Modul C: setoran)
+├── postman/                         # Postman Collection
+│   ├── BinBank-Akun.postman_collection.json
 │   └── BinBank-Modul-C.postman_collection.json
 ├── routes/                          # Definisi endpoint dan penyisipan middleware
 │   ├── jenisSampahRoutes.js
 │   ├── laporanRoutes.js
-│   └── setoranRoutes.js
+│   ├── setoranRoutes.js
+│   └── userRoutes.js                # Manajemen akun pengguna
 ├── services/                        # Logika bisnis utama
 │   ├── authService.js
 │   ├── laporanService.js
 │   ├── ledgerService.js             # Pencatatan mutasi saldo
 │   ├── penarikanService.js
-│   └── setoranService.js
+│   ├── setoranService.js
+│   └── userService.js
 ├── tests/
 │   └── uji-modul-c.js               # Skrip pengujian Modul C (setoran)
 ├── utils/
@@ -86,12 +89,16 @@ bin-bank/
    ```bash
    npm install
    ```
-3. Buat file `.env` pada root folder. Variabel yang diperlukan dapat dilihat pada file `.env.example`.
+3. Buat file `.env` pada root folder. Variabel yang diperlukan dapat dilihat pada file `.env.example`. `MONGO_URI` harus berupa MongoDB Atlas (bukan MongoDB lokal) karena pencatatan setoran memakai transaksi database.
 4. Jalankan server dengan mode development:
    ```bash
    npm run dev
    ```
 5. Server akan berjalan pada: `http://localhost:5001`
+
+### Akun Pertama
+
+Registrasi publik (`POST /auth/register`) hanya berfungsi selama database belum berisi akun, agar admin pertama dapat dibuat. Setelah itu endpoint tersebut ditolak (403) dan akun baru dibuat lewat `POST /users` oleh Admin (semua peran) atau Petugas (hanya nasabah).
 
 ## Model Data Utama
 
@@ -104,6 +111,8 @@ Menyimpan data otentikasi dan identitas pengguna.
 | `password` | String | Password pengguna, wajib diisi dan disimpan dalam bentuk hash    |
 | `role`     | String | Peran pengguna: `petugas`, `nasabah`, atau `admin`               |
 | `saldo`    | Number | Akumulasi saldo (default 0), tidak boleh negatif                 |
+| `aktif`    | Boolean | Status akun (default true); akun nonaktif tidak dapat login     |
+| `wajibGantiPassword` | Boolean | Penanda password awal/sementara (default false); bila true, pengguna hanya dapat mengganti password |
 
 ### 2. JenisSampah
 Menyimpan katalog harga dan jenis sampah yang diterima.
@@ -152,11 +161,16 @@ Buku besar mutasi keuangan (ACID Transaction) yang tidak bisa dihapus.
 ## Endpoint yang Tersedia
 
 ### Modul A (Fondasi & Akun)
-| Method | Endpoint           | Deskripsi                                           | Autentikasi                  |
-| ------ | ------------------- | ------------------------------------------------------ | ------------------------------- |
-| POST   | `/auth/register`   | Melakukan registrasi pengguna baru                  | Tidak diperlukan              |
-| POST   | `/auth/login`      | Melakukan login dan mendapatkan token JWT           | Tidak diperlukan              |
-| GET    | `/auth/profile`    | Menampilkan profil pengguna yang sedang login       | Semua Role                    |
+| Method | Endpoint              | Deskripsi                                                                  | Autentikasi                  |
+| ------ | --------------------- | -------------------------------------------------------------------------- | ---------------------------- |
+| POST   | `/auth/register`      | Membuat admin pertama; ditolak (403) bila database sudah berisi akun       | Tidak diperlukan             |
+| POST   | `/auth/login`         | Melakukan login dan mendapatkan token JWT; akun nonaktif ditolak           | Tidak diperlukan             |
+| GET    | `/auth/profile`       | Menampilkan profil pengguna yang sedang login                              | Semua Role                   |
+| PATCH  | `/auth/password`      | Mengganti password sendiri (`passwordLama`, `passwordBaru`); mengembalikan token baru | Semua Role        |
+| GET    | `/users`              | Daftar akun (filter `?role=`); Petugas hanya melihat nasabah               | **Admin**, **Petugas**       |
+| POST   | `/users`              | Membuat akun; Petugas hanya boleh membuat akun nasabah                     | **Admin**, **Petugas**       |
+| PATCH  | `/users/:id/password` | Mereset password pengguna (`passwordBaru`, minimal 8 karakter)             | **Admin**                    |
+| PATCH  | `/users/:id/status`   | Mengaktifkan atau menonaktifkan akun (`aktif`: `true` atau `false`)        | **Admin**                    |
 
 ### Modul B (Harga & Laporan)
 | Method | Endpoint              | Deskripsi                                           | Autentikasi                  |
@@ -188,6 +202,8 @@ Setelah berhasil melakukan login, pengguna akan memperoleh **JWT token**. Token 
 ```text
 Authorization: Bearer <token>
 ```
+
+Akun yang baru dibuat lewat `POST /users` atau yang passwordnya direset admin memiliki penanda wajib ganti password. Selama penanda itu aktif, token hanya dapat dipakai untuk `PATCH /auth/password`; endpoint lain dijawab 403. Setelah password berhasil diganti, respons memberi token baru tanpa pembatasan.
 
 ## Aturan Kontribusi
 
