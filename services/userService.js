@@ -4,6 +4,7 @@ const User = require("../models/User")
 const AppError = require("../utils/AppError")
 
 const ROLE_VALID = ["admin", "petugas", "nasabah"]
+const FORMAT_EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 
 // Pembantu
 function ringkas(user) {
@@ -43,6 +44,9 @@ async function buatUser(pembuat, { nama, email, password, role }) {
   if (pembuat.role === "petugas" && role !== "nasabah") {
     throw new AppError("Petugas hanya boleh membuat akun nasabah", 403)
   }
+  if (typeof email !== "string" || !FORMAT_EMAIL.test(email.trim())) {
+    throw new AppError("Format email tidak valid", 400)
+  }
   pastikanPasswordValid(password)
 
   const hash = await bcrypt.hash(password, 10)
@@ -55,8 +59,12 @@ async function buatUser(pembuat, { nama, email, password, role }) {
   }
 }
 
+function escapeRegex(teks) {
+  return teks.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")
+}
+
 // Daftar akun
-async function daftarUser(pembuat, { role } = {}) {
+async function daftarUser(pembuat, { role, cari } = {}) {
   const filter = {}
   if (pembuat.role === "petugas") {
     filter.role = "nasabah"
@@ -65,6 +73,10 @@ async function daftarUser(pembuat, { role } = {}) {
       throw new AppError("Role harus admin, petugas, atau nasabah", 400)
     }
     filter.role = role
+  }
+  if (typeof cari === "string" && cari.trim()) {
+    const pola = new RegExp(escapeRegex(cari.trim()), "i")
+    filter.$or = [{ nama: pola }, { email: pola }]
   }
   const data = await User.find(filter).select("-password").sort({ createdAt: -1 })
   return data
