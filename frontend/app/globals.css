@@ -33,9 +33,9 @@
 
   --radius-*: initial;
   --radius-0: 0;
-  --radius-1: 2px;
-  --radius-2: 4px;
-  --radius-3: 8px;
+  --radius-1: 4px;
+  --radius-2: 12px;
+  --radius-3: 20px;
 
   --shadow-*: initial;
   --shadow-0: none;
