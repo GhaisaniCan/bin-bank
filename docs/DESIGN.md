@@ -119,6 +119,7 @@ Palet mengikuti desain awal tim: putih sebagai latar, tinta gelap sebagai teks, 
 | `pet-700` / `pet-100` | #1A4670 / #E2ECF5 | Status DISETUJUI, informasi |
 | `bata-700` / `bata-100` | #8A2615 / #FAE6E0 | Status DITOLAK dan DIBATALKAN, galat, aksi merusak |
 | `daun-700` / `daun-100` | #335512 / #E4F0D6 | Status SELESAI dan TERCATAT, keberhasilan |
+| `kuning-700` | #8A6500 | Judul kondisi "layanan tidak tersedia". Bukan untuk teks isi |
 | `line-500` | #767B73 | Batas komponen interaktif (isian, tombol sekunder, kotak centang) |
 | `line-300` | #CFC8B4 | Pemisah dekoratif: garis antarbaris, pembatas bagian |
 
@@ -153,6 +154,7 @@ Palet mengikuti desain awal tim: putih sebagai latar, tinta gelap sebagai teks, 
 | `pet-700` pada `pet-100` | 8,15:1 | Cap DISETUJUI | 7:1 |
 | `bata-700` pada `bata-100` | 7,37:1 | Cap DITOLAK, pesan galat | 7:1 |
 | `daun-700` pada `daun-100` | 7,24:1 | Cap SELESAI, pesan berhasil | 7:1 |
+| `kuning-700` pada `putih` | 5,33:1 | Judul besar kondisi "layanan tidak tersedia" | 4,5:1 |
 | putih pada `bata-700` | 8,87:1 | Tombol aksi merusak | 7:1 |
 | putih pada `ink-900` | 15,84:1 | Toast | 7:1 |
 | `line-500` pada `putih` | 4,33:1 | Batas isian dan tombol sekunder di halaman dan kartu | 3:1 |
@@ -300,8 +302,8 @@ Setiap peran hanya melihat menu miliknya (PRD F1.5). Di ponsel, menu berupa bila
 
 | ID | Screen | Bentuk | Tujuan | Fitur |
 | --- | --- | --- | --- | --- |
-| X1 | Tidak Ada Akses | Halaman | Pengguna membuka alamat di luar wewenang atau akun dinonaktifkan | F1.5, F1.7 |
-| X2 | Sesi Berakhir | Halaman | Token 8 jam habis; mengarahkan masuk ulang dan memberi tahu bahwa isian yang belum tersimpan tidak dijamin | F1.8 |
+| X1 | Tidak Ada Akses | Halaman | Pengguna membuka alamat di luar wewenangnya | F1.5, F1.7 |
+| X2 | Sesi Berakhir | Halaman | Token 8 jam habis; mengarahkan masuk ulang | F1.8 |
 | X3 | Layanan Tidak Tersedia | Halaman | Server atau database tidak terjangkau | Bagian 8 PRD |
 
 ## 5. User flow
@@ -514,6 +516,22 @@ Tidak ada tombol utama di halaman ini; aksi menulis ada di menu **Catat Setoran*
 3. Tabel Buku: Jenis sampah, Berat (kg), Nilai (Rp). Baris total berat dan total nilai di bawah garis ganda.
 4. Catatan di bawah tabel: "Setoran yang dibatalkan tidak dihitung. Nilai memakai harga saat setoran dicatat."
 
+### X1, X2, X3
+
+Ketiganya di luar folder aktor dan tanpa RoleGuard, sehingga bisa dibuka siapa saja. Susunannya sama:
+
+1. Nama "BinBank" sebagai teks `text-h2`, lalu judul h1. Warna judul menandai kondisi dan berbeda per screen.
+2. Satu kalimat penyebab sebagai paragraf `text-body` `ink-900`, tanpa latar dan tanpa kotak, `space-3` di bawah judul. Jaraknya lebih kecil karena baris h1 sudah menyisakan ruang di bawah huruf, sehingga jarak yang terlihat mendekati jarak kalimat ke tombol.
+3. **Aksi utama** selebar penuh, `space-5` di bawah kalimat, satu-satunya tombol di halaman.
+
+| ID | Alamat | Judul h1 | Kalimat penyebab | Aksi utama |
+| --- | --- | --- | --- | --- |
+| X1 | `/tidak-ada-akses` | `bata-700`: Tidak ada akses | "Akun Anda tidak memiliki akses ke halaman ini. Hubungi admin RW." | Kembali ke Beranda: ke `/nasabah`, `/petugas`, atau `/admin` sesuai peran; tanpa sesi ke `/login` |
+| X2 | `/sesi-berakhir` | `ink-500`: Sesi berakhir | "Sesi Anda sudah berakhir. Masuk lagi untuk melanjutkan." | Masuk lagi: ke `/login`. Sesi lama dihapus saat halaman dibuka |
+| X3 | `/layanan-tidak-tersedia` | `kuning-700`: Layanan tidak tersedia | "Saat ini layanan BinBank sedang tidak tersedia. Periksa koneksi Anda dan coba lagi." | Coba lagi: kembali ke halaman sebelumnya; tanpa riwayat ke Beranda sesuai peran atau `/login` |
+
+Tanpa ilustrasi dan tanpa kartu. Seperti U1, satu kolom selebar 400 px di tengah layar secara horizontal dan vertikal, gutter `space-4`, di atas latar `putih`.
+
 ### Screen lain
 
 | ID | Urutan dari atas ke bawah | Aksi utama | Komponen utama |
@@ -536,7 +554,7 @@ Tidak ada tombol utama di halaman ini; aksi menulis ada di menu **Catat Setoran*
 | A6 | Dialog: nama pengguna, Isian Kata Sandi sementara dengan tombol Buat otomatis | Atur password sementara | Dialog, Kotak Rahasia Sekali Tampil |
 | A8 | Tab Status "Penarikan dan saldo": periode, tabel per status (jumlah, total nominal), baris Total saldo seluruh nasabah | Tampilkan laporan | Tabel Buku, Pemilih Rentang Periode |
 | A9 | Dialog: nasabah, total setoran, saldo sekarang dan sesudah, isian alasan | Batalkan setoran Rp 25.000 (Merusak) | Dialog, Pesan Inline, Isian Teks |
-| X1, X2, X3 | Kepala Halaman, satu kalimat penyebab, satu tombol | Kembali ke Beranda (X1), Masuk lagi (X2), Coba lagi (X3) | Pesan Inline, Tombol |
+| X1, X2, X3 | Kepala Halaman, satu kalimat penyebab, satu tombol | Kembali ke Beranda (X1), Masuk lagi (X2), Coba lagi (X3) | Tombol |
 
 ## 7. Component library
 
