@@ -425,6 +425,16 @@ Layout ditulis dari lebar ponsel 360 px (mobile first), urut dari atas ke bawah.
 
 Tidak ada ilustrasi, tidak ada hero, tidak ada kartu. Di desktop, satu kolom selebar 400 px di tengah layar secara horizontal dan vertikal, di atas latar `putih`.
 
+### U2. Ganti Password Wajib
+
+1. Nama "BinBank" sebagai teks `text-h2`. Di bawahnya judul h1 "Ganti password" dan satu baris keterangan `text-small` `ink-700`: "Anda masuk dengan password sementara. Buat password baru sebelum melanjutkan."
+2. Pesan Inline galat di atas isian, hanya untuk galat yang tidak terkait satu isian: server tidak terjangkau atau 5xx ("BinBank sedang tidak bisa dihubungi. Coba lagi sebentar lagi."), atau pesan dari server untuk status lain.
+3. Tiga Isian Kata Sandi berjarak `space-4`: "Password lama" (`current-password`), "Password baru" (`new-password`, bantuan "Minimal 8 karakter"), "Ulangi password baru" (`new-password`). Galat tampil di bawah isian terkait tanpa menghapus isian lain: "Isi password lama.", "Password baru minimal 8 karakter.", "Password baru tidak boleh sama dengan password lama." (di bawah password baru), "Isian ulang tidak sama dengan password baru." (di bawah isian ulang). Bila server menjawab password lama salah, galat tampil di bawah isian password lama, isian itu dikosongkan dan difokuskan.
+4. **Aksi utama:** Simpan password baru (lebar penuh), berjarak `space-5` dari isian terakhir. Saat memproses berlabel "Memproses..."; saat offline nonaktif dengan teks "Menyimpan membutuhkan koneksi" di bawahnya.
+5. Berhasil: sesi baru disimpan, pengguna diarahkan ke Beranda sesuai peran, dan toast "Password diganti" tampil di sana.
+
+Tata letak sama dengan U1: tanpa kartu, satu kolom 400 px di tengah layar secara horizontal dan vertikal, gutter `space-4`. Tidak ada Bilah Menu, Kepala Halaman dengan menu Profil, atau tautan ke halaman lain. Halaman hanya terbuka bila sesi masih ber-password sementara; tanpa token diarahkan ke U1, dan bila tidak wajib ganti diarahkan ke Beranda. Selama password sementara berlaku, Penjaga Peran dan respons 403 server dengan `wajibGantiPassword` mengarahkan semua halaman lain ke U2. Form beserta logikanya adalah komponen Form Ganti Password yang juga dipakai U3, dengan keterangan dan aksi setelah berhasil sebagai parameter.
+
 ### N1. Beranda Nasabah
 
 1. Kepala Halaman: "Beranda" dan nama nasabah.

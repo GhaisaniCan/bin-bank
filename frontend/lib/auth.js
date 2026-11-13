@@ -28,3 +28,9 @@ export function hapusSesi() {
   localStorage.removeItem(KUNCI_TOKEN)
   localStorage.removeItem(KUNCI_USER)
 }
+
+export const BERANDA = {
+  nasabah: "/nasabah",
+  petugas: "/petugas",
+  admin: "/admin",
+}

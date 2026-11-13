@@ -1,19 +1,14 @@
 "use client"
 
-import { useEffect, useRef, useState, useSyncExternalStore } from "react"
+import { useEffect, useRef, useState } from "react"
 import { useRouter } from "next/navigation"
 import { api, ApiError } from "@/lib/api"
-import { ambilToken, ambilUser, simpanSesi } from "@/lib/auth"
+import { ambilToken, ambilUser, simpanSesi, BERANDA } from "@/lib/auth"
+import { useDaring } from "@/lib/koneksi"
 import PesanInline from "@/components/PesanInline"
 import IsianTeks from "@/components/IsianTeks"
 import IsianKataSandi from "@/components/IsianKataSandi"
 import Tombol from "@/components/Tombol"
-
-const BERANDA = {
-  nasabah: "/nasabah",
-  petugas: "/petugas",
-  admin: "/admin",
-}
 
 const PESAN_KOSONG = "Isi email dan password."
 const PESAN_DITOLAK = "Email atau password tidak cocok, atau akun tidak aktif."
@@ -23,24 +18,6 @@ function tujuan(user) {
   if (!user) return null
   if (user.wajibGantiPassword === true) return "/ganti-password-wajib"
   return BERANDA[user.role] ?? null
-}
-
-// Status koneksi
-function langganKoneksi(panggil) {
-  window.addEventListener("online", panggil)
-  window.addEventListener("offline", panggil)
-  return () => {
-    window.removeEventListener("online", panggil)
-    window.removeEventListener("offline", panggil)
-  }
-}
-
-function useDaring() {
-  return useSyncExternalStore(
-    langganKoneksi,
-    () => navigator.onLine,
-    () => true
-  )
 }
 
 // Halaman
