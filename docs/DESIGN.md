@@ -199,14 +199,14 @@ Semua jarak adalah kelipatan 4 px dan hanya delapan nilai yang boleh dipakai.
 
 ### Radius
 
-Buku besar berbentuk persegi, jadi sudutnya hampir tajam. Tidak ada bentuk pil dan tidak ada bentuk bulat penuh.
+Sudut dibuat melengkung lembut agar antarmuka terasa ramah, tetapi bentuk dasarnya tetap persegi seperti halaman buku besar. Tidak ada bentuk pil dan tidak ada bentuk bulat penuh.
 
 | Token | Nilai | Pemakaian |
 | --- | --- | --- |
 | `radius-0` | 0 | Tabel, garis pemisah |
-| `radius-1` | 2 px | Cap Status |
-| `radius-2` | 4 px | Tombol, isian, kartu |
-| `radius-3` | 8 px | Dialog, bottom sheet (sudut atas) |
+| `radius-1` | 4 px | Cap Status |
+| `radius-2` | 12 px | Tombol, isian, kartu |
+| `radius-3` | 20 px | Dialog, bottom sheet (sudut atas) |
 
 ### Garis dan bayangan
 
@@ -423,7 +423,7 @@ Layout ditulis dari lebar ponsel 360 px (mobile first), urut dari atas ke bawah.
 4. **Aksi utama:** Masuk (lebar penuh).
 5. Teks bantuan di bawah tombol: "Lupa password? Minta admin atau petugas RW mengatur ulang." Tanpa tautan, karena tidak ada fitur kirim email.
 
-Tidak ada ilustrasi, tidak ada hero, tidak ada kartu. Di desktop, satu kolom selebar 400 px di tengah latar `putih`.
+Tidak ada ilustrasi, tidak ada hero, tidak ada kartu. Di desktop, satu kolom selebar 400 px di tengah layar secara horizontal dan vertikal, di atas latar `putih`.
 
 ### N1. Beranda Nasabah
 
@@ -578,7 +578,7 @@ Label selalu tampak di atas isian; placeholder tidak pernah menggantikan label. 
 | Isian Teks | Nama, email, alasan (area teks 3 baris untuk alasan) | Galat: garis 2 px `bata-700`, ikon Warning dan teks galat di bawahnya; Hanya-baca: latar `olive-50`, tanpa garis |
 | Isian Uang | Awalan "Rp" tetap di dalam isian, bilangan bulat saja, pemisah ribuan titik muncul saat mengetik, papan angka numerik | Galat jika melebihi saldo, menyebut angka batasnya |
 | Isian Berat | Tinggi 64 px, teks `text-amount` 24 px angka tabular, akhiran "kg" tetap, papan angka desimal; menerima koma atau titik, dinormalkan ke dua desimal saat meninggalkan isian | Galat "Berat harus lebih dari 0" |
-| Isian Kata Sandi | Teks tersembunyi, tombol Teks **Tampilkan** atau **Sembunyikan** di sisi kanan, atribut `autocomplete` sesuai (`current-password`, `new-password`) | Galat; kekuatan password tidak diberi meter warna, cukup aturan tertulis |
+| Isian Kata Sandi | Teks tersembunyi, tombol ikon di dalam isian sisi kanan: Eye saat tersembunyi (menampilkan), EyeSlash saat terlihat (menyembunyikan), 24 px `ink-700`, tombol tanpa latar dan tanpa garis di semua state dengan hover berupa perubahan warna ikon ke `olive-700` secara instan, area sentuh 48 x 48 px, nama aksesibel "Tampilkan password" atau "Sembunyikan password" dengan `aria-pressed`; isian diberi padding kanan agar teks tidak menimpa ikon; atribut `autocomplete` sesuai (`current-password`, `new-password`) | Galat; kekuatan password tidak diberi meter warna, cukup aturan tertulis |
 | Kotak Cari | Pola combobox; mulai mencari pada dua karakter; hasil menampilkan nama dan email | Mencari (teks "Mencari..."), Ada hasil, Tidak ada hasil, Galat jaringan |
 | Pilihan Jenis Sampah | Daftar pilihan khusus (bukan elemen select bawaan) agar bisa menampilkan pictogram dan harga per kg; di ponsel terbuka sebagai sheet dengan opsi 56 px, di desktop sebagai popover | Terpilih ditandai ikon Check dan latar `olive-100`; jenis nonaktif tidak muncul |
 | Pilihan Metode | Grup radio berbentuk baris besar 56 px: lingkaran radio, label, penjelasan satu baris. Dipakai juga untuk pilihan peran | Terpilih: titik radio terisi, latar `olive-100`, garis 2 px `ink-900` (bentuk, bukan hanya warna) |
