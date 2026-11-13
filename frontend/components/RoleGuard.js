@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
-import { ambilToken, ambilPeran } from "@/lib/auth"
+import { ambilToken, ambilPeran, ambilUser } from "@/lib/auth"
 
 export default function RoleGuard({ peran, children }) {
   const router = useRouter()
@@ -11,6 +11,10 @@ export default function RoleGuard({ peran, children }) {
   useEffect(() => {
     if (!ambilToken()) {
       router.replace("/login")
+      return
+    }
+    if (ambilUser()?.wajibGantiPassword === true) {
+      router.replace("/ganti-password-wajib")
       return
     }
     if (!peran.includes(ambilPeran())) {

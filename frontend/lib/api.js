@@ -41,6 +41,8 @@ export async function api(path, { method = "GET", body, tanpaRedirect = false } 
     if (res.status === 401) {
       hapusSesi()
       window.location.href = "/sesi-berakhir"
+    } else if (res.status === 403 && data?.wajibGantiPassword === true) {
+      window.location.href = "/ganti-password-wajib"
     } else if (res.status === 403) {
       window.location.href = "/tidak-ada-akses"
     } else if (res.status >= 500) {
