@@ -2,17 +2,46 @@
 
 import { useState } from "react"
 
-const kelasIsian =
-  "h-12 w-full rounded-2 border border-line-500 bg-putih px-3 text-body"
+const dasarIsian = "h-12 w-full rounded-2 bg-putih px-3 text-body"
+
+function kelasIsian(salah) {
+  return `${dasarIsian} ${salah ? "border-2 border-bata-700" : "border border-line-500"}`
+}
+
+function Galat({ id, pesan }) {
+  if (!pesan) return null
+  return (
+    <p id={id} role="alert" className="mt-2 text-small font-bold text-bata-700">
+      {pesan}
+    </p>
+  )
+}
 
 export default function Halaman() {
   const [nama, setNama] = useState("")
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const [lihat, setLihat] = useState(false)
+  const [galat, setGalat] = useState({})
+
+  function periksa() {
+    const g = {}
+    if (!nama.trim()) g.nama = "Nama wajib diisi"
+    if (!/^\S+@\S+\.\S+$/.test(email.trim())) {
+      g.email = "Format email tidak valid"
+    } else if (email.trim().toLowerCase() === "sari@contoh.com") {
+      g.email = "Email ini sudah terdaftar atas nama Sari Wulandari"
+    }
+    if (password.length < 8) g.password = "Password awal minimal 8 karakter"
+    return g
+  }
 
   function kirim(e) {
     e.preventDefault()
+    const g = periksa()
+    setGalat(g)
+    const pertama = ["nama", "email", "password"].find((k) => g[k])
+    if (pertama) document.getElementById(pertama)?.focus()
   }
 
   return (
@@ -29,9 +58,12 @@ export default function Halaman() {
             type="text"
             value={nama}
             onChange={(e) => setNama(e.target.value)}
-            className={kelasIsian}
+            aria-invalid={galat.nama ? "true" : "false"}
+            aria-describedby={galat.nama ? "galat-nama" : undefined}
+            className={kelasIsian(galat.nama)}
           />
         </div>
+        <Galat id="galat-nama" pesan={galat.nama} />
 
         <label htmlFor="email" className="mt-4 block text-body font-bold">
           Email
@@ -42,9 +74,12 @@ export default function Halaman() {
             type="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            className={kelasIsian}
+            aria-invalid={galat.email ? "true" : "false"}
+            aria-describedby={galat.email ? "galat-email" : undefined}
+            className={kelasIsian(galat.email)}
           />
         </div>
+        <Galat id="galat-email" pesan={galat.email} />
 
         <label htmlFor="password" className="mt-4 block text-body font-bold">
           Password awal
@@ -56,7 +91,9 @@ export default function Halaman() {
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             autoComplete="new-password"
-            className={`${kelasIsian} pr-24`}
+            aria-invalid={galat.password ? "true" : "false"}
+            aria-describedby={galat.password ? "galat-password" : undefined}
+            className={`${kelasIsian(galat.password)} pr-24`}
           />
           <button
             type="button"
@@ -66,6 +103,7 @@ export default function Halaman() {
             {lihat ? "Sembunyikan" : "Tampilkan"}
           </button>
         </div>
+        <Galat id="galat-password" pesan={galat.password} />
         <p className="mt-2 text-small text-ink-500">
           Nasabah wajib menggantinya saat masuk pertama kali
         </p>
