@@ -59,7 +59,7 @@ Referensi diambil dari benda nyata yang dilihat warga setiap hari, bukan dari pr
 - Latar putih (`putih`) dengan teks tinta gelap (`ink`). Bidang hijau muda (`olive-50`, `olive-100`) hanya untuk area sekunder, item terpilih, dan hiasan.
 - Garis tipis 1 px sebagai pemisah utama. Bayangan hanya untuk lapisan yang melayang (menu, dialog, toast).
 - Seluruh teks memakai Outfit; angka memakai angka tabular Outfit (`tnum`) supaya digit sejajar.
-- Status tampil sebagai **cap**: kata kapital dalam bingkai tipis berwarna, dengan bentuk ikon yang berbeda per status (bagian 7, komponen Cap Status).
+- Status tampil sebagai **cap**: kata kapital di atas bidang warna, dengan bentuk ikon yang berbeda per status (bagian 7, komponen Cap Status).
 - Pictogram jenis sampah (botol, kardus, kaleng, kertas, logam) digambar sendiri dalam satu gaya garis, 24 px, supaya petugas mengenali jenis dari bentuk sebelum membaca nama.
 - Gerak seminimal mungkin: perubahan status instan, tanpa animasi dekoratif.
 
@@ -206,8 +206,8 @@ Sudut dibuat melengkung lembut agar antarmuka terasa ramah, tetapi bentuk dasarn
 | Token | Nilai | Pemakaian |
 | --- | --- | --- |
 | `radius-0` | 0 | Tabel, garis pemisah |
-| `radius-1` | 4 px | Cap Status |
-| `radius-2` | 12 px | Tombol, isian, kartu |
+| `radius-1` | 4 px | Tidak dipakai untuk Cap Status |
+| `radius-2` | 12 px | Tombol, isian, kartu, Cap Status |
 | `radius-3` | 20 px | Dialog, bottom sheet (sudut atas) |
 
 ### Garis dan bayangan
@@ -457,6 +457,16 @@ Tata letak sama dengan U1: tanpa kartu, satu kolom 400 px di tengah layar secara
 
 Hierarki: saldo adalah satu-satunya hal yang membesar. Semua lain berukuran isi.
 
+Catatan implementasi (menyimpang dari atau melengkapi tulisan di atas dan bagian 8):
+
+- Pengajuan terakhir diberi label `text-small` bobot 700 `ink-700` "Pengajuan terakhir" di atas barisnya, dibatasi `rule-1` atas dan bawah. Bagian ini disembunyikan bila kosong atau gagal dimuat.
+- Mutasi kosong memakai judul h3 "Belum ada mutasi" dan kalimat "Setoran akan muncul di sini setelah petugas mencatatnya.", menggantikan "Belum ada setoran." di tabel bagian 8.
+- Pesan offline di N1 hanya "Tidak ada koneksi. Angka di layar bisa sudah berubah." dengan stempel "Dimuat pukul 14.32 WIB", tanpa kalimat "Menyimpan dimatikan sampai koneksi kembali." karena N1 tidak menulis ke server.
+- Saldo gagal dimuat: angka saldo dan saldo tersedia berisi "Belum termuat", Pesan Inline galat "Data belum bisa dimuat" dengan tombol Sekunder **Coba lagi** di dalam Lembar Saldo; tombol Tarik saldo tetap tampil.
+- Tabel Buku mutasi memakai kolom angka `text-body` angka tabular (varian Kecil); Daftar Baris di bawah 600 px memakai `text-amount`. Baris bersumber SETORAN dan PEMBATALAN_SETORAN menaut ke N3 (`/nasabah/setoran/{referensiId}`); baris PENARIKAN tidak menaut.
+- Judul h1 "Beranda" memakai `forest-900` dan keterangan nama nasabah di bawahnya memakai `olive-700`; warna ini khusus N1.
+- Token `text-display-lg` (48 / 52 px) dipakai untuk angka saldo mulai 1024 px; `text-cap` diberi jarak huruf 0,04 em di `globals.css`.
+
 ### N4. Ajukan Penarikan
 
 1. Kepala Halaman: "Tarik saldo".
@@ -624,7 +634,7 @@ Label selalu tampak di atas isian; placeholder tidak pernah menggantikan label. 
 
 ### Cap Status
 
-Cap tidak interaktif. Bentuk: persegi panjang `radius-1`, garis 1 px dan teks dalam warna -700, latar -100, ikon 16 px di depan kata kapital `text-cap`, tinggi minimal 28 px. Setiap status punya kata dan ikon sendiri, sehingga tetap berbeda dalam skala abu-abu.
+Cap tidak interaktif. Bentuk: persegi panjang `radius-2` tanpa garis tepi, teks dalam warna -700, latar -100, ikon 16 px di depan kata kapital `text-cap`, tinggi minimal 28 px. Setiap status punya kata dan ikon sendiri, sehingga tetap berbeda dalam skala abu-abu.
 
 | Status | Warna | Ikon | Dipakai pada |
 | --- | --- | --- | --- |
@@ -639,11 +649,11 @@ Cap tidak interaktif. Bentuk: persegi panjang `radius-1`, garis 1 px dan teks da
 
 ### Angka
 
-Komponen tampilan untuk nilai uang dan berat: angka tabular, rata kanan di tabel, satuan selalu menyertai ("Rp 25.000", "2,50 kg"), spasi tak terputus agar satuan tidak terpisah baris. Varian: Display (saldo), Amount (daftar), Kecil (sel padat). Tidak ada singkatan "rb" atau "jt", dan tidak ada angka yang dipotong dengan elipsis.
+Komponen tampilan untuk nilai uang dan berat: angka tabular, rata kanan di tabel (kecuali kolom uang Masuk, Keluar, dan Saldo pada Tabel Buku, yang rata tengah), satuan selalu menyertai ("Rp 25.000", "2,50 kg"), spasi tak terputus agar satuan tidak terpisah baris. Varian: Display (saldo), Amount (daftar), Kecil (sel padat). Tidak ada singkatan "rb" atau "jt", dan tidak ada angka yang dipotong dengan elipsis.
 
 ### Tabel Buku dan Daftar Baris
 
-Tabel Buku adalah komponen data utama. Kepala kolom `text-small` bobot 700 `ink-700`; baris minimal 48 px; garis `rule-1` antarbaris; kolom angka rata kanan; baris total di bawah `rule-total`. Baris selang-seling `olive-50` hanya dipakai pada tabel lebih dari lima baris di layar lebar. Tidak ada pengurutan kolom di MVP.
+Tabel Buku adalah komponen data utama. Kepala kolom `text-small` bobot 700 `ink-700`; baris minimal 48 px; garis `rule-1` antarbaris; kolom uang (Masuk, Keluar, Saldo) beserta judul kolomnya rata tengah sehingga angka berada di tengah di bawah judulnya; kolom angka lain rata kanan; baris total di bawah `rule-total`. Baris selang-seling `olive-50` hanya dipakai pada tabel lebih dari lima baris di layar lebar. Tidak ada pengurutan kolom di MVP.
 
 Di bawah 600 px, tabel berubah menjadi **Daftar Baris**: tiap data menjadi blok bertumpuk, baris atas berisi keterangan dan tanggal, baris bawah berisi angka berlabel ("Masuk", "Keluar", "Saldo") rata kanan. Tidak pernah ada scroll horizontal.
 
@@ -886,7 +896,7 @@ Elemen HTML bawaan didahulukan; ARIA hanya menambal yang tidak tercakup.
 - Teks membesar sampai 200% tanpa kehilangan fungsi. Reflow pada 320 px tanpa scroll horizontal (kecuali isi yang memang dua dimensi; tidak ada pada BinBank).
 - Ukuran huruf memakai `rem`; tinggi komponen memakai `min-height`, bukan tinggi tetap, agar tidak terpotong saat teks membesar.
 - Penimpaan jarak teks (kriteria 1.4.12) tidak memotong konten.
-- Mode kontras tinggi (`forced-colors`): batas komponen memakai `border` asli, ring fokus memakai `outline`, Cap Status mempertahankan garis dan ikon.
+- Mode kontras tinggi (`forced-colors`): batas komponen memakai `border` asli, ring fokus memakai `outline`, Cap Status mempertahankan kata dan ikon.
 
 ### Rencana pengujian aksesibilitas
 
