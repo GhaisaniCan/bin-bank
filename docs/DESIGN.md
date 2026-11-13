@@ -417,6 +417,16 @@ Layout ditulis dari lebar ponsel 360 px (mobile first), urut dari atas ke bawah.
 - Di ponsel, tombol utama halaman formulir berada di **Bilah Aksi Lekat** di atas bilah menu, selalu terlihat tanpa menggulir.
 - Jarak antarbagian `space-6`, antarkelompok isian `space-4`, label ke isian `space-2`.
 
+### Kerangka navigasi
+
+Semua screen aktor dibungkus `KerangkaAplikasi` (`components/KerangkaAplikasi.js`), berisi **Bilah Menu** (`components/BilahMenu.js`) dan kepala atas. Screen umum dan sistem (U1, U2, X1 sampai X3) tidak memakainya.
+
+- **Item menu Nasabah**: Beranda (`/nasabah`, House), Riwayat (`/nasabah/riwayat`, ClockCounterClockwise), Tarik Saldo (`/nasabah/tarik-saldo`, Wallet), Harga (`/nasabah/harga`, Tag). Item aktif ditentukan dari alamat: cocok persis atau diawali alamat item diikuti `/`; Beranda hanya cocok persis.
+- **Merek**: logo (`public/logo-binbank.png`, tinggi 32 px, lebar menyesuaikan, `alt=""` karena dekoratif) di kiri tulisan "BinBank" (`text-h2`, `forest-900`, bobot 700), berjarak `space-2`, ditautkan ke beranda peran (item menu pertama, untuk Nasabah `/nasabah`). Mulai 1024 px tampil paling atas di bilah samping, di atas item menu, dengan padding `space-4` (kiri `space-5`, sama dengan padding item menu, sehingga tepi kiri logo sejajar dengan ikon item) dan jarak `space-4` ke item pertama. Di bawah 1024 px tampil di sisi kiri kepala atas, sejajar dengan tombol nama pengguna di kanan.
+- **Bilah Menu**: di bawah 1024 px bilah bawah melekat 64 px dengan `rule-1` di atas dan inset area aman; mulai 1024 px bilah samping 240 px melekat dengan `rule-1` di kanan. Spesifikasi item mengikuti bagian 7.
+- **Kepala atas**: satu baris setinggi `space-8` di atas konten, berisi nama pengguna di kanan sebagai tombol (nama di kiri, ikon User di kanannya) dengan `aria-expanded`, tanpa latar dan garis di semua state; saat hover nama dan ikon berganti ke `olive-700` seketika tanpa transisi. Tombol membuka menu kecil (`shadow-1`) berisi satu item **Keluar** (ikon SignOut, Tombol Teks). Menu menutup dengan Esc (fokus kembali ke tombol nama), klik di luar menu, atau memilih item. Keluar menghapus sesi lalu mengganti alamat ke `/login`.
+- **Area konten**: gutter `space-4` (ponsel), `space-5` (tablet), `space-6` (desktop); di desktop berada di kanan bilah samping, lebar maksimum 1120 px di tengah, dengan kepala atas setinggi `space-8` sebagai margin atasnya. Di bawah 1024 px konten diberi padding bawah 64 px ditambah inset area aman agar tidak tertutup bilah bawah.
+
 ### U1. Masuk
 
 1. Nama "BinBank" sebagai teks `text-h2`, bukan logo bergambar. Di bawahnya judul h1 "Masuk".
