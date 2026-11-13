@@ -1,4 +1,5 @@
 "use client"
+import Link from "next/link"
 
 import { useState } from "react"
 
@@ -23,6 +24,7 @@ export default function Halaman() {
   const [password, setPassword] = useState("")
   const [lihat, setLihat] = useState(false)
   const [galat, setGalat] = useState({})
+  const [berhasil, setBerhasil] = useState(null)
 
   function periksa() {
     const g = {}
@@ -41,7 +43,56 @@ export default function Halaman() {
     const g = periksa()
     setGalat(g)
     const pertama = ["nama", "email", "password"].find((k) => g[k])
-    if (pertama) document.getElementById(pertama)?.focus()
+    if (pertama) {
+      document.getElementById(pertama)?.focus()
+      return
+    }
+    setBerhasil({ nama: nama.trim(), email: email.trim(), password })
+  }
+
+  function ulang() {
+    setNama("")
+    setEmail("")
+    setPassword("")
+    setLihat(false)
+    setGalat({})
+    setBerhasil(null)
+  }
+
+  if (berhasil) {
+    return (
+      <main className="mx-auto max-w-[640px] p-4">
+        <h1 className="text-h1 font-bold">Nasabah terdaftar</h1>
+
+        <dl className="mt-5 bg-olive-50 p-4">
+          <dt className="text-small text-ink-700">Nama</dt>
+          <dd className="text-body font-bold">{berhasil.nama}</dd>
+          <dt className="mt-3 text-small text-ink-700">Email</dt>
+          <dd className="text-body font-bold">{berhasil.email}</dd>
+          <dt className="mt-3 text-small text-ink-700">Password awal</dt>
+          <dd className="text-h2 font-bold tabular-nums">{berhasil.password}</dd>
+        </dl>
+
+        <p className="mt-3 text-small text-ink-700">
+          Password awal tidak bisa dilihat lagi setelah layar ini ditutup.
+          Nasabah wajib menggantinya saat masuk pertama kali.
+        </p>
+
+        <Link
+          href="/petugas/setoran/baru"
+          className="mt-5 flex h-12 items-center justify-center rounded-2 bg-olive-700 text-body font-bold text-putih hover:bg-olive-800"
+        >
+          Catat setoran untuk nasabah ini
+        </Link>
+        <button
+          type="button"
+          onClick={ulang}
+          className="mt-3 h-12 w-full rounded-2 border border-line-500 text-body font-bold hover:bg-olive-50"
+        >
+          Daftarkan nasabah lain
+        </button>
+      </main>
+    )
   }
 
   return (
