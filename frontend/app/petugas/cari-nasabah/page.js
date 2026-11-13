@@ -44,6 +44,16 @@ export default function Halaman() {
         <p className="mt-2 text-small text-ink-500">
           Ketik minimal dua huruf nama atau email
         </p>
+      ) : hasil.length === 0 ? (
+        <div className="mt-5">
+          <p className="text-body">Tidak ada nasabah dengan nama atau email itu</p>
+          <Link
+            href="/petugas/daftarkan-nasabah"
+            className="mt-3 inline-block text-body text-olive-700 underline"
+          >
+            Daftarkan nasabah baru
+          </Link>
+        </div>
       ) : (
         <ul className="mt-5 border-t border-line-300">
           {hasil.map((n) => (
