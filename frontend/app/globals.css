@@ -46,6 +46,8 @@
   --text-*: initial;
   --text-display: 40px;
   --text-display--line-height: 44px;
+  --text-display-lg: 48px;
+  --text-display-lg--line-height: 52px;
   --text-h1: 28px;
   --text-h1--line-height: 34px;
   --text-h2: 22px;
@@ -60,6 +62,7 @@
   --text-small--line-height: 20px;
   --text-cap: 14px;
   --text-cap--line-height: 16px;
+  --text-cap--letter-spacing: 0.04em;
 
   --font-sans: var(--font-outfit), system-ui, sans-serif;
 }
