@@ -1,6 +1,7 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useEffect, useRef, useState } from "react"
+import { CalendarBlank } from "@phosphor-icons/react"
 
 function bentuk(digit) {
   const d = digit.slice(0, 8)
@@ -25,6 +26,7 @@ function keTeks(iso) {
 }
 
 export default function IsianTanggal({ id, value, onChange, salah = false, describedBy }) {
+  const refKalender = useRef(null)
   const [teks, setTeks] = useState(keTeks(value))
   const [galat, setGalat] = useState(false)
 
@@ -46,26 +48,55 @@ export default function IsianTanggal({ id, value, onChange, salah = false, descr
     setGalat(teks !== "" && keIso(teks) === "")
   }
 
+  function bukaKalender() {
+    const el = refKalender.current
+    if (!el) return
+    try {
+      el.showPicker()
+    } catch {
+      el.focus()
+    }
+  }
+
   const merah = salah || galat
 
   return (
     <>
-      <input
-        id={id}
-        type="text"
-        inputMode="numeric"
-        autoComplete="off"
-        placeholder="dd/mm/yyyy"
-        maxLength={10}
-        value={teks}
-        onChange={ubah}
-        onBlur={saatKeluar}
-        aria-invalid={merah ? "true" : "false"}
-        aria-describedby={galat ? `${id}-galat` : describedBy}
-        className={`mt-2 h-12 w-full rounded-2 bg-putih px-3 text-body ${
-          merah ? "border-2 border-bata-700" : "border border-line-500"
-        }`}
-      />
+      <div className="relative mt-2">
+        <input
+          id={id}
+          type="text"
+          inputMode="numeric"
+          autoComplete="off"
+          placeholder="dd/mm/yyyy"
+          maxLength={10}
+          value={teks}
+          onChange={ubah}
+          onBlur={saatKeluar}
+          aria-invalid={merah ? "true" : "false"}
+          aria-describedby={galat ? `${id}-galat` : describedBy}
+          className={`h-12 w-full rounded-2 bg-putih px-3 pr-36 text-body ${
+            merah ? "border-2 border-bata-700" : "border border-line-500"
+          }`}
+        />
+        <input
+          ref={refKalender}
+          type="date"
+          value={value}
+          onChange={(e) => onChange(e.target.value)}
+          tabIndex={-1}
+          aria-hidden="true"
+          className="pointer-events-none absolute inset-0 opacity-0"
+        />
+        <button
+          type="button"
+          onClick={bukaKalender}
+          className="absolute right-3 top-1/2 flex -translate-y-1/2 items-center gap-1 text-body text-olive-700 underline"
+        >
+          <CalendarBlank size={24} weight="regular" aria-hidden="true" />
+          Kalender
+        </button>
+      </div>
       {galat && (
         <p id={`${id}-galat`} role="alert" className="mt-2 text-small font-bold text-bata-700">
           Format tanggal salah, contoh 10/11/2026
