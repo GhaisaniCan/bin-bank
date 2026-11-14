@@ -1,21 +1,19 @@
 "use client"
 
-import { House, Money, Plus, Receipt, Users } from "@phosphor-icons/react"
 import RoleGuard from "@/components/RoleGuard"
 import KerangkaAplikasi from "@/components/KerangkaAplikasi"
+import { ambilPeran } from "@/lib/auth"
+import { MENU_ADMIN, MENU_PETUGAS } from "@/lib/menu"
 
-const MENU_PETUGAS = [
-  { label: "Beranda", href: "/petugas", ikon: House },
-  { label: "Catat Setoran", href: "/petugas/setoran/baru", ikon: Plus },
-  { label: "Setoran", href: "/petugas/setoran", ikon: Receipt },
-  { label: "Penarikan", href: "/petugas/penarikan", ikon: Money },
-  { label: "Nasabah", href: "/petugas/cari-nasabah", ikon: Users },
-]
+function Kerangka({ children }) {
+  const menu = ambilPeran() === "admin" ? MENU_ADMIN : MENU_PETUGAS
+  return <KerangkaAplikasi item={menu}>{children}</KerangkaAplikasi>
+}
 
 export default function Layout({ children }) {
   return (
     <RoleGuard peran={["petugas", "admin"]}>
-      <KerangkaAplikasi item={MENU_PETUGAS}>{children}</KerangkaAplikasi>
+      <Kerangka>{children}</Kerangka>
     </RoleGuard>
   )
 }
