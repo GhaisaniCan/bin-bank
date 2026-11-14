@@ -4,6 +4,7 @@ import { useState } from "react"
 import TabelSetoran from "@/components/TabelSetoran"
 import Paginasi from "@/components/Paginasi"
 import Tombol from "@/components/Tombol"
+import IsianTanggal from "@/components/IsianTanggal"
 
 const NAMA = ["Sari Wulandari", "Budi Santoso", "Sari Dewi", "Joko Prasetyo"]
 
@@ -78,28 +79,24 @@ export default function Halaman() {
             <label htmlFor="dari" className="block text-body font-bold">
               Dari tanggal
             </label>
-            <input
+            <IsianTanggal
               id="dari"
-              type="date"
               value={isian.dari}
-              onChange={(e) => setIsian({ ...isian, dari: e.target.value })}
-              aria-invalid={galat ? "true" : "false"}
-              aria-describedby={galat ? "galat-periode" : undefined}
-              className={kelasIsian(galat)}
+              onChange={(v) => setIsian({ ...isian, dari: v })}
+              salah={Boolean(galat)}
+              describedBy={galat ? "galat-periode" : undefined}
             />
           </div>
           <div>
             <label htmlFor="sampai" className="block text-body font-bold">
               Sampai tanggal
             </label>
-            <input
+            <IsianTanggal
               id="sampai"
-              type="date"
               value={isian.sampai}
-              onChange={(e) => setIsian({ ...isian, sampai: e.target.value })}
-              aria-invalid={galat ? "true" : "false"}
-              aria-describedby={galat ? "galat-periode" : undefined}
-              className={kelasIsian(galat)}
+              onChange={(v) => setIsian({ ...isian, sampai: v })}
+              salah={Boolean(galat)}
+              describedBy={galat ? "galat-periode" : undefined}
             />
           </div>
         </div>
