@@ -2,7 +2,7 @@ import Link from "next/link"
 import CapStatus from "@/components/CapStatus"
 import { formatRupiah, formatTanggal } from "@/lib/format"
 
-function formatBerat(kg) {
+export function formatBerat(kg) {
   const angka = Number(kg).toLocaleString("id-ID", {
     minimumFractionDigits: 2,
     maximumFractionDigits: 2,
