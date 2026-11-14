@@ -22,7 +22,7 @@ export default function FormJenisSampah({ jenis, daftar, onTutup, onTersimpan })
   const dialog = useRef(null)
   const isianNama = useRef(null)
   const [nama, setNama] = useState(jenis?.nama ?? "")
-  const [harga, setHarga] = useState(jenis ? String(jenis.hargaPerKg) : "")
+  const [harga, setHarga] = useState(jenis?.hargaPerKg ? String(Math.round(jenis.hargaPerKg)) : "")
   const [galat, setGalat] = useState({})
   const [menyimpan, setMenyimpan] = useState(false)
 

@@ -20,7 +20,17 @@ const tombolSekunder =
 const tombolMerusak =
   "h-12 min-w-[96px] rounded-2 bg-bata-700 px-4 text-body font-bold text-putih decoration-2 hover:underline disabled:bg-olive-50 disabled:text-ink-500 disabled:no-underline"
 
+function rapikan(jenis) {
+  const harga = jenis.hargaPerKg ?? jenis.harga_per_kg
+  return {
+    ...jenis,
+    aktif: jenis.aktif !== false,
+    hargaPerKg: Number.isFinite(harga) ? harga : null,
+  }
+}
+
 function rupiah(nilai) {
+  if (nilai === null) return "Belum diisi"
   return `Rp ${nilai.toLocaleString("id-ID")}`
 }
 
@@ -113,7 +123,7 @@ export default function Halaman() {
     const t = setTimeout(() => setLambat(true), 300)
     return api("/jenis-sampah")
       .then((hasil) => {
-        setDaftar(hasil.data)
+        setDaftar(hasil.data.map(rapikan))
         setGalatBaca(null)
       })
       .catch(() => setGalatBaca("Data belum bisa dimuat"))
@@ -141,7 +151,8 @@ export default function Halaman() {
 
   const tutupToast = useCallback(() => setToast(null), [])
 
-  function perbarui(jenis) {
+  function perbarui(data) {
+    const jenis = rapikan(data)
     setDaftar((lama) =>
       lama.some((j) => j._id === jenis._id)
         ? lama.map((j) => (j._id === jenis._id ? jenis : j))
