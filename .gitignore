@@ -26,3 +26,6 @@ file beda/
 tmp
 temp
 *.tmp
+
+/CLAUDE.md
+/AGENTS.md

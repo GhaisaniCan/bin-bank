@@ -1,24 +1,15 @@
 "use client"
 
-import { useCallback, useEffect, useState, useSyncExternalStore } from "react"
+import { useCallback, useEffect, useState } from "react"
+import { WarningOctagon, WifiSlash } from "@phosphor-icons/react"
 import { api } from "@/lib/api"
+import { formatRupiah } from "@/lib/format"
+import { useDaring } from "@/lib/koneksi"
+import { tampilkanToast } from "@/lib/toast"
+import CapStatus from "@/components/CapStatus"
+import PesanInline from "@/components/PesanInline"
+import Tombol from "@/components/Tombol"
 import FormJenisSampah from "./FormJenisSampah"
-
-function langgananKoneksi(ubah) {
-  window.addEventListener("online", ubah)
-  window.addEventListener("offline", ubah)
-  return () => {
-    window.removeEventListener("online", ubah)
-    window.removeEventListener("offline", ubah)
-  }
-}
-
-const tombolUtama =
-  "h-12 min-w-[96px] rounded-2 bg-olive-700 px-4 text-body font-bold text-putih hover:bg-olive-800 disabled:bg-olive-50 disabled:text-ink-500"
-const tombolSekunder =
-  "h-12 min-w-[96px] rounded-2 border border-line-500 bg-putih px-4 text-body font-bold hover:bg-olive-50 disabled:border-0 disabled:bg-olive-50 disabled:text-ink-500"
-const tombolMerusak =
-  "h-12 min-w-[96px] rounded-2 bg-bata-700 px-4 text-body font-bold text-putih decoration-2 hover:underline disabled:bg-olive-50 disabled:text-ink-500 disabled:no-underline"
 
 function rapikan(jenis) {
   const harga = jenis.hargaPerKg ?? jenis.harga_per_kg
@@ -30,8 +21,7 @@ function rapikan(jenis) {
 }
 
 function rupiah(nilai) {
-  if (nilai === null) return "Belum diisi"
-  return `Rp ${nilai.toLocaleString("id-ID")}`
+  return nilai === null ? "Belum diisi" : formatRupiah(nilai)
 }
 
 function urutkan(daftar) {
@@ -45,64 +35,34 @@ function Monogram({ nama }) {
   return (
     <span
       aria-hidden="true"
-      className="inline-flex h-6 w-6 shrink-0 items-center justify-center rounded-1 border border-ink-900 font-mono text-small font-bold"
+      className="inline-flex size-[24px] shrink-0 items-center justify-center rounded-1 border border-ink-900 font-mono text-small font-bold"
     >
       {nama.charAt(0).toUpperCase()}
     </span>
   )
 }
 
-function CapStatus({ aktif }) {
-  return (
-    <span
-      className={`inline-flex min-h-[28px] items-center rounded-1 border px-2 text-cap font-bold uppercase ${
-        aktif ? "border-daun-700 bg-daun-100 text-daun-700" : "border-line-500 bg-putih text-ink-700"
-      }`}
-    >
-      {aktif ? "Aktif" : "Nonaktif"}
-    </span>
-  )
-}
-
-function Toast({ pesan, onTutup }) {
-  useEffect(() => {
-    const t = setTimeout(onTutup, 8000)
-    return () => clearTimeout(t)
-  }, [pesan, onTutup])
-
-  return (
-    <div
-      role="status"
-      className="fixed inset-x-4 bottom-24 z-10 mx-auto flex max-w-[480px] items-center justify-between gap-3 rounded-2 bg-ink-900 px-4 py-3 text-putih min-[600px]:bottom-6"
-    >
-      <span>{pesan}</span>
-      <button type="button" onClick={onTutup} className="text-body font-bold underline">
-        Tutup
-      </button>
-    </div>
-  )
-}
-
-function AksiBaris({ jenis, offline, diproses, onUbah, onUbahStatus }) {
+function AksiBaris({ jenis, daring, diproses, onUbah, onUbahStatus }) {
   return (
     <div className="flex flex-wrap gap-2">
-      <button type="button" disabled={offline} onClick={() => onUbah(jenis)} className={tombolSekunder}>
+      <Tombol varian="sekunder" disabled={!daring} onClick={() => onUbah(jenis)}>
         Ubah
-      </button>
-      <button
-        type="button"
-        disabled={offline || diproses}
-        aria-busy={diproses}
+      </Tombol>
+      <Tombol
+        varian={jenis.aktif ? "merusak" : "sekunder"}
+        disabled={!daring}
+        memproses={diproses}
+        teksMemproses="Menyimpan..."
         onClick={() => onUbahStatus(jenis)}
-        className={jenis.aktif ? tombolMerusak : tombolSekunder}
       >
-        {diproses ? "Menyimpan..." : jenis.aktif ? "Nonaktifkan" : "Aktifkan"}
-      </button>
+        {jenis.aktif ? "Nonaktifkan" : "Aktifkan"}
+      </Tombol>
     </div>
   )
 }
 
 export default function Halaman() {
+  const daring = useDaring()
   const [daftar, setDaftar] = useState(null)
   const [memuat, setMemuat] = useState(true)
   const [lambat, setLambat] = useState(false)
@@ -110,14 +70,7 @@ export default function Halaman() {
   const [galatTulis, setGalatTulis] = useState(null)
   const [form, setForm] = useState(null)
   const [sorot, setSorot] = useState(null)
-  const [toast, setToast] = useState(null)
   const [prosesId, setProsesId] = useState(null)
-
-  const offline = useSyncExternalStore(
-    langgananKoneksi,
-    () => !navigator.onLine,
-    () => false
-  )
 
   const ambil = useCallback(() => {
     const t = setTimeout(() => setLambat(true), 300)
@@ -149,8 +102,6 @@ export default function Halaman() {
     return () => window.removeEventListener("online", muat)
   }, [muat])
 
-  const tutupToast = useCallback(() => setToast(null), [])
-
   function perbarui(data) {
     const jenis = rapikan(data)
     setDaftar((lama) =>
@@ -164,7 +115,7 @@ export default function Halaman() {
   function tersimpan(jenis) {
     setForm(null)
     perbarui(jenis)
-    setToast("Jenis sampah disimpan")
+    tampilkanToast("Jenis sampah disimpan")
   }
 
   async function ubahStatus(jenis) {
@@ -174,9 +125,10 @@ export default function Halaman() {
       const hasil = await api(`/jenis-sampah/${jenis._id}/status`, {
         method: "PATCH",
         body: { aktif: !jenis.aktif },
+        galatInline: true,
       })
       perbarui(hasil.data)
-      setToast(hasil.data.aktif ? "Jenis sampah diaktifkan" : "Jenis sampah dinonaktifkan")
+      tampilkanToast(hasil.data.aktif ? "Jenis sampah diaktifkan" : "Jenis sampah dinonaktifkan")
     } catch (err) {
       setGalatTulis(err.status ? err.message : "Belum dipastikan tersimpan. Muat ulang daftar sebelum mencoba lagi.")
     } finally {
@@ -186,48 +138,52 @@ export default function Halaman() {
 
   const terurut = daftar ? urutkan(daftar) : []
   const tombolTambah = (
-    <button type="button" disabled={offline} onClick={() => setForm({ jenis: null })} className={tombolUtama}>
+    <Tombol disabled={!daring} onClick={() => setForm({ jenis: null })} className="w-full min-[600px]:w-auto">
       Tambah jenis sampah
-    </button>
+    </Tombol>
   )
 
   return (
-    <main className="mx-auto max-w-[1120px] p-4 pb-28 min-[600px]:p-5 min-[1024px]:px-6 min-[1024px]:pt-8">
+    <main className="pb-[96px] min-[600px]:pb-6">
       <div className="flex items-start justify-between gap-4">
         <div>
-          <h1 className="text-h1 font-bold">Jenis sampah</h1>
+          <h1 className="text-h1 font-bold text-forest-900">Jenis sampah</h1>
           <p className="mt-1 text-small text-ink-700">Harga per kg dipakai untuk setoran berikutnya</p>
         </div>
         <div className="hidden min-[600px]:block">{tombolTambah}</div>
       </div>
 
-      {offline && (
-        <div role="status" className="mt-4 rounded-2 bg-kardus-100 p-4">
-          <p className="font-bold text-kardus-700">Tidak ada koneksi</p>
-          <p>Angka di layar bisa sudah berubah. Menyimpan dimatikan sampai koneksi kembali.</p>
-        </div>
+      {!daring && (
+        <PesanInline
+          varian="peringatan"
+          ikon={WifiSlash}
+          isi="Tidak ada koneksi. Angka di layar bisa sudah berubah. Menyimpan dimatikan sampai koneksi kembali."
+          className="mt-4"
+        />
       )}
 
       {galatTulis && (
-        <div role="alert" className="mt-4 rounded-2 bg-bata-100 p-4">
-          <p className="font-bold text-bata-700">Perubahan belum tersimpan</p>
-          <p>{galatTulis}</p>
-        </div>
+        <PesanInline
+          varian="galat"
+          ikon={WarningOctagon}
+          judul="Perubahan belum tersimpan"
+          isi={galatTulis}
+          className="mt-4"
+        />
       )}
 
       {galatBaca && (
-        <div role="alert" className="mt-4 flex flex-wrap items-center justify-between gap-3 rounded-2 bg-bata-100 p-4">
-          <p className="font-bold text-bata-700">{galatBaca}</p>
-          <button type="button" onClick={muat} className={tombolSekunder}>
+        <PesanInline varian="galat" ikon={WarningOctagon} isi={galatBaca} className="mt-4">
+          <Tombol varian="sekunder" onClick={muat}>
             Coba lagi
-          </button>
-        </div>
+          </Tombol>
+        </PesanInline>
       )}
 
       {daftar === null && memuat && lambat && (
         <div aria-busy="true" className="mt-5 space-y-2">
           {[0, 1, 2, 3, 4].map((i) => (
-            <div key={i} className="h-12 rounded-1 bg-olive-50" />
+            <div key={i} className="h-7 rounded-1 bg-olive-50" />
           ))}
         </div>
       )}
@@ -236,7 +192,7 @@ export default function Halaman() {
         <div className="mt-6">
           <h2 className="text-h3 font-bold">Belum ada jenis sampah</h2>
           <p className="mt-1">Tambahkan jenis pertama agar petugas bisa mencatat setoran.</p>
-          <div className="mt-4">{tombolTambah}</div>
+          <div className="mt-4 hidden min-[600px]:block">{tombolTambah}</div>
         </div>
       )}
 
@@ -269,13 +225,13 @@ export default function Halaman() {
                   </td>
                   <td className="py-2 pr-4 text-right tabular-nums">{rupiah(j.hargaPerKg)}</td>
                   <td className="py-2 pr-4">
-                    <CapStatus aktif={j.aktif} />
+                    <CapStatus status={j.aktif ? "AKTIF" : "NONAKTIF"} />
                   </td>
                   <td className="py-2">
                     <div className="flex justify-end">
                       <AksiBaris
                         jenis={j}
-                        offline={offline}
+                        daring={daring}
                         diproses={prosesId === j._id}
                         onUbah={(jenis) => setForm({ jenis })}
                         onUbahStatus={ubahStatus}
@@ -300,7 +256,7 @@ export default function Halaman() {
                     <Monogram nama={j.nama} />
                     {j.nama}
                   </span>
-                  <CapStatus aktif={j.aktif} />
+                  <CapStatus status={j.aktif ? "AKTIF" : "NONAKTIF"} />
                 </div>
                 <p className="mt-1 text-right tabular-nums">
                   <span className="text-small text-ink-700">Harga per kg </span>
@@ -309,7 +265,7 @@ export default function Halaman() {
                 <div className="mt-3">
                   <AksiBaris
                     jenis={j}
-                    offline={offline}
+                    daring={daring}
                     diproses={prosesId === j._id}
                     onUbah={(jenis) => setForm({ jenis })}
                     onUbahStatus={ubahStatus}
@@ -321,9 +277,9 @@ export default function Halaman() {
         </>
       )}
 
-      {offline && <p className="mt-3 text-small text-ink-700">Tambah, ubah, dan nonaktifkan butuh koneksi.</p>}
+      {!daring && <p className="mt-3 text-small text-ink-700">Tambah, ubah, dan nonaktifkan butuh koneksi.</p>}
 
-      <div className="fixed inset-x-0 bottom-0 border-t border-line-300 bg-putih p-4 min-[600px]:hidden [&>button]:w-full">
+      <div className="fixed inset-x-0 bottom-[calc(var(--spacing-8)+env(safe-area-inset-bottom))] z-10 border-t border-line-300 bg-putih p-4 min-[600px]:hidden">
         {tombolTambah}
       </div>
 
@@ -335,8 +291,6 @@ export default function Halaman() {
           onTersimpan={tersimpan}
         />
       )}
-
-      {toast && <Toast pesan={toast} onTutup={tutupToast} />}
     </main>
   )
 }

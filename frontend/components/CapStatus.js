@@ -7,6 +7,8 @@ const PETA_STATUS = {
   ditolak: { kata: "DITOLAK", Ikon: X, kelas: "bg-bata-100 text-bata-700" },
   TERCATAT: { kata: "TERCATAT", Ikon: Notebook, kelas: "bg-daun-100 text-daun-700" },
   DIBATALKAN: { kata: "DIBATALKAN", Ikon: Prohibit, kelas: "bg-bata-100 text-bata-700" },
+  AKTIF: { kata: "AKTIF", Ikon: Check, kelas: "bg-daun-100 text-daun-700" },
+  NONAKTIF: { kata: "NONAKTIF", Ikon: Prohibit, kelas: "border border-line-500 bg-putih text-ink-700" },
 }
 
 export default function CapStatus({ status, className = "" }) {
