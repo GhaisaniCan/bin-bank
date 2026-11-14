@@ -3,6 +3,9 @@
 import { useParams } from "next/navigation"
 import CapStatus from "@/components/CapStatus"
 import LembarSetoran from "@/components/LembarSetoran"
+import { Prohibit } from "@phosphor-icons/react"
+import PesanInline from "@/components/PesanInline"
+import { formatJam, formatTanggal } from "@/lib/format"
 
 function contoh(id) {
   const batal = id === "s3"
@@ -34,6 +37,15 @@ export default function Halaman() {
         <h1 className="text-h1 font-bold text-forest-900">Rincian setoran</h1>
         <CapStatus status={setoran.status} />
       </div>
+      {setoran.status === "DIBATALKAN" && (
+        <PesanInline varian="galat" ikon={Prohibit} isi="Setoran ini dibatalkan" className="mt-4">
+          <p className="text-body text-ink-900">Alasan: {setoran.alasanBatal}</p>
+          <p className="text-small text-ink-700">
+            Dibatalkan oleh {setoran.dibatalkanOleh.nama} pada {formatTanggal(setoran.dibatalkanPada)},{" "}
+            {formatJam(setoran.dibatalkanPada)}
+          </p>
+        </PesanInline>
+      )}
       <div className="mt-6">
         <LembarSetoran setoran={setoran} />
       </div>
