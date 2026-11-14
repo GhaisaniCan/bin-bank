@@ -3,6 +3,7 @@
 import Link from "next/link"
 import { useParams } from "next/navigation"
 import { formatRupiah } from "@/lib/format"
+import TabelMutasi from "@/components/TabelMutasi"
 
 const NASABAH_CONTOH = {
   1: { nama: "Sari Wulandari", email: "sari@contoh.com" },
@@ -12,6 +13,20 @@ const NASABAH_CONTOH = {
 }
 
 const SALDO_CONTOH = { saldo: 128500, saldoTersedia: 108500, saldoTertahan: 20000 }
+
+const MUTASI_CONTOH = Array.from({ length: 12 }, (_, i) => {
+  const keluar = i % 4 === 3
+  return {
+    _id: `m${i}`,
+    tipe: keluar ? "DEBIT" : "KREDIT",
+    jumlah: 25000,
+    sumber: keluar ? "PENARIKAN" : "SETORAN",
+    referensiId: null,
+    keterangan: keluar ? "Penarikan tunai" : "Setoran 2.5 kg",
+    saldoSetelah: 128500 - i * 10000,
+    createdAt: new Date(2026, 10, 12 - i).toISOString(),
+  }
+})
 
 export default function Halaman() {
   const { id } = useParams()
@@ -59,6 +74,15 @@ export default function Halaman() {
             sedang menunggu keputusan
           </p>
         )}
+      </section>
+
+      <section aria-labelledby="judul-mutasi" className="mt-6">
+        <h2 id="judul-mutasi" className="text-h2 font-bold">
+          Riwayat mutasi
+        </h2>
+        <div className="mt-4">
+          <TabelMutasi baris={MUTASI_CONTOH} labelId="judul-mutasi" />
+        </div>
       </section>
     </main>
   )
