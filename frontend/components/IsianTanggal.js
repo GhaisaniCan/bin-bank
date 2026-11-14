@@ -75,7 +75,7 @@ export default function IsianTanggal({ id, value, onChange, salah = false, descr
           onBlur={saatKeluar}
           aria-invalid={merah ? "true" : "false"}
           aria-describedby={galat ? `${id}-galat` : describedBy}
-          className={`h-12 w-full rounded-2 bg-putih px-3 pr-36 text-body ${
+          className={`h-12 w-full rounded-2 bg-putih px-3 pr-14 text-body ${
             merah ? "border-2 border-bata-700" : "border border-line-500"
           }`}
         />
@@ -91,10 +91,10 @@ export default function IsianTanggal({ id, value, onChange, salah = false, descr
         <button
           type="button"
           onClick={bukaKalender}
-          className="absolute right-3 top-1/2 flex -translate-y-1/2 items-center gap-1 text-body text-olive-700 underline"
+          aria-label="Buka kalender"
+          className="absolute right-3 top-1/2 flex -translate-y-1/2 items-center text-olive-700 hover:text-olive-800"
         >
           <CalendarBlank size={24} weight="regular" aria-hidden="true" />
-          Kalender
         </button>
       </div>
       {galat && (
