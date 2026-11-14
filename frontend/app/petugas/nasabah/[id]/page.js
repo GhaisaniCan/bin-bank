@@ -1,9 +1,11 @@
 "use client"
 
+import { useState } from "react"
 import Link from "next/link"
 import { useParams } from "next/navigation"
 import { formatRupiah } from "@/lib/format"
 import TabelMutasi from "@/components/TabelMutasi"
+import Tombol from "@/components/Tombol"
 
 const NASABAH_CONTOH = {
   1: { nama: "Sari Wulandari", email: "sari@contoh.com" },
@@ -28,8 +30,11 @@ const MUTASI_CONTOH = Array.from({ length: 12 }, (_, i) => {
   }
 })
 
+const PER_HALAMAN = 5
+
 export default function Halaman() {
   const { id } = useParams()
+  const [halaman, setHalaman] = useState(1)
   const nasabah = NASABAH_CONTOH[id]
 
   if (!nasabah) {
@@ -46,6 +51,9 @@ export default function Halaman() {
       </main>
     )
   }
+
+  const totalHalaman = Math.ceil(MUTASI_CONTOH.length / PER_HALAMAN)
+  const tampil = MUTASI_CONTOH.slice((halaman - 1) * PER_HALAMAN, halaman * PER_HALAMAN)
 
   return (
     <main className="pb-6">
@@ -81,7 +89,18 @@ export default function Halaman() {
           Riwayat mutasi
         </h2>
         <div className="mt-4">
-          <TabelMutasi baris={MUTASI_CONTOH} labelId="judul-mutasi" />
+          <TabelMutasi baris={tampil} labelId="judul-mutasi" />
+          <nav aria-label="Halaman daftar" className="mt-4 flex items-center justify-between gap-3">
+            <Tombol varian="sekunder" disabled={halaman === 1} onClick={() => setHalaman(halaman - 1)}>
+              Sebelumnya
+            </Tombol>
+            <span className="text-small text-ink-700">
+              Halaman {halaman} dari {totalHalaman}
+            </span>
+            <Tombol varian="sekunder" disabled={halaman === totalHalaman} onClick={() => setHalaman(halaman + 1)}>
+              Berikutnya
+            </Tombol>
+          </nav>
         </div>
       </section>
     </main>
