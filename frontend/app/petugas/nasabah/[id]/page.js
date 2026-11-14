@@ -59,6 +59,12 @@ export default function Halaman() {
     <main className="pb-6">
       <h1 className="text-h1 font-bold text-forest-900">{nasabah.nama}</h1>
       <p className="mt-2 text-small text-ink-700">{nasabah.email}</p>
+      <Link
+        href="/petugas/setoran/baru"
+        className="mt-4 inline-flex h-7 w-full min-w-[96px] items-center justify-center rounded-2 bg-olive-700 px-4 text-body font-bold text-putih hover:bg-olive-800 active:bg-olive-800 min-[600px]:w-auto"
+      >
+        Catat setoran untuk nasabah ini
+      </Link>
 
       <section
         aria-labelledby="judul-saldo"
