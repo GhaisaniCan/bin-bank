@@ -1,10 +1,12 @@
-import { Check, Checks, Hourglass, X } from "@phosphor-icons/react"
+import { Check, Checks, Hourglass, Notebook, Prohibit, X } from "@phosphor-icons/react"
 
 const PETA_STATUS = {
   diajukan: { kata: "MENUNGGU", Ikon: Hourglass, kelas: "bg-kardus-100 text-kardus-700" },
   disetujui: { kata: "DISETUJUI", Ikon: Check, kelas: "bg-pet-100 text-pet-700" },
   selesai: { kata: "SELESAI", Ikon: Checks, kelas: "bg-daun-100 text-daun-700" },
   ditolak: { kata: "DITOLAK", Ikon: X, kelas: "bg-bata-100 text-bata-700" },
+  TERCATAT: { kata: "TERCATAT", Ikon: Notebook, kelas: "bg-daun-100 text-daun-700" },
+  DIBATALKAN: { kata: "DIBATALKAN", Ikon: Prohibit, kelas: "bg-bata-100 text-bata-700" },
 }
 
 export default function CapStatus({ status, className = "" }) {
