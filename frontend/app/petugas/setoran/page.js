@@ -1,6 +1,8 @@
 "use client"
 
+import { useState } from "react"
 import TabelSetoran from "@/components/TabelSetoran"
+import Paginasi from "@/components/Paginasi"
 
 const NAMA = ["Sari Wulandari", "Budi Santoso", "Sari Dewi", "Joko Prasetyo"]
 
@@ -13,12 +15,19 @@ const SETORAN_CONTOH = Array.from({ length: 12 }, (_, i) => ({
   status: i === 2 ? "DIBATALKAN" : "TERCATAT",
 }))
 
+const PER_HALAMAN = 5
+
 export default function Halaman() {
+  const [halaman, setHalaman] = useState(1)
+  const totalHalaman = Math.ceil(SETORAN_CONTOH.length / PER_HALAMAN)
+  const tampil = SETORAN_CONTOH.slice((halaman - 1) * PER_HALAMAN, halaman * PER_HALAMAN)
+
   return (
     <main className="pb-6">
       <h1 className="text-h1 font-bold text-forest-900">Setoran</h1>
       <div className="mt-6">
-        <TabelSetoran baris={SETORAN_CONTOH} />
+        <TabelSetoran baris={tampil} />
+        <Paginasi halaman={halaman} totalHalaman={totalHalaman} onUbah={setHalaman} />
       </div>
     </main>
   )
