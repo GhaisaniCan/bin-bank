@@ -1,5 +1,20 @@
 const JenisSampah = require("../models/JenisSampah");
 
+function kirimGalatSimpan(res, error) {
+  if (error.code === 11000) {
+    return res.status(409).json({ sukses: false, pesan: "Nama jenis sampah sudah dipakai" });
+  }
+  if (error.name === "ValidationError") {
+    const pertama = Object.values(error.errors)[0];
+    const pesan = pertama.name === "CastError" ? "Data jenis sampah tidak valid" : pertama.message;
+    return res.status(400).json({ sukses: false, pesan });
+  }
+  if (error.name === "CastError") {
+    return res.status(400).json({ sukses: false, pesan: "Data jenis sampah tidak valid" });
+  }
+  return res.status(500).json({ sukses: false, pesan: error.message });
+}
+
 async function tambahJenisSampah(req, res) {
   try {
     const { nama, hargaPerKg } = req.body;
@@ -11,7 +26,7 @@ async function tambahJenisSampah(req, res) {
       data: jenisBaru
     });
   } catch (error) {
-    return res.status(500).json({ sukses: false, pesan: error.message });
+    return kirimGalatSimpan(res, error);
   }
 }
 
@@ -51,7 +66,7 @@ async function ubahJenisSampah(req, res) {
       data: sampahDiperbarui
     });
   } catch (error) {
-    return res.status(500).json({ sukses: false, pesan: error.message });
+    return kirimGalatSimpan(res, error);
   }
 }
 
@@ -81,7 +96,7 @@ async function ubahStatus(req, res) {
       data: sampahDiperbarui
     });
   } catch (error) {
-    return res.status(500).json({ sukses: false, pesan: error.message });
+    return kirimGalatSimpan(res, error);
   }
 }
 

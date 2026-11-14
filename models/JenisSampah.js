@@ -3,13 +3,17 @@ const mongoose = require('mongoose');
 const jenisSampahSchema = new mongoose.Schema({
   nama: {
     type: String,
-    required: true,
-    unique: true
+    required: [true, "Nama jenis sampah wajib diisi"],
+    unique: true,
+    trim: true
   },
   hargaPerKg: {
     type: Number,
-    required: true,
-    min: [0, "harga per kg tidak boleh negatif"]
+    required: [true, "Harga per kg wajib diisi"],
+    validate: {
+      validator: (nilai) => Number.isInteger(nilai) && nilai > 0,
+      message: "Harga per kg harus bilangan bulat lebih dari 0"
+    }
   },
   aktif: {
     type: Boolean,

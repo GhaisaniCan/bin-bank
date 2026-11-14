@@ -119,8 +119,8 @@ Menyimpan data otentikasi dan identitas pengguna.
 Menyimpan katalog harga dan jenis sampah yang diterima.
 | Field        | Tipe    | Keterangan                                                   |
 | ------------ | ------- | -------------------------------------------------------------- |
-| `nama`       | String  | Nama atau kategori sampah (misal: "Karton", "Plastik Bening")  |
-| `hargaPerKg` | Number  | Harga beli per kilogram sampah                                 |
+| `nama`       | String  | Nama atau kategori sampah (misal: "Karton", "Plastik Bening"); wajib dan unik (nama yang sudah dipakai dijawab 409) |
+| `hargaPerKg` | Number  | Harga beli per kilogram sampah; bilangan bulat rupiah lebih dari 0 |
 | `aktif`      | Boolean | Status aktif/tidaknya jenis sampah (default true)              |
 
 ### 3. Setoran
