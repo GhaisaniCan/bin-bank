@@ -59,7 +59,7 @@ Referensi diambil dari benda nyata yang dilihat warga setiap hari, bukan dari pr
 - Latar putih (`putih`) dengan teks tinta gelap (`ink`). Bidang hijau muda (`olive-50`, `olive-100`) hanya untuk area sekunder, item terpilih, dan hiasan.
 - Garis tipis 1 px sebagai pemisah utama. Bayangan hanya untuk lapisan yang melayang (menu, dialog, toast).
 - Seluruh teks memakai Outfit; angka memakai angka tabular Outfit (`tnum`) supaya digit sejajar.
-- Status tampil sebagai **cap**: kata kapital dalam bingkai tipis berwarna, dengan bentuk ikon yang berbeda per status (bagian 7, komponen Cap Status).
+- Status tampil sebagai **cap**: kata kapital di atas bidang warna, dengan bentuk ikon yang berbeda per status (bagian 7, komponen Cap Status).
 - Pictogram jenis sampah (botol, kardus, kaleng, kertas, logam) digambar sendiri dalam satu gaya garis, 24 px, supaya petugas mengenali jenis dari bentuk sebelum membaca nama.
 - Gerak seminimal mungkin: perubahan status instan, tanpa animasi dekoratif.
 
@@ -119,6 +119,7 @@ Palet mengikuti desain awal tim: putih sebagai latar, tinta gelap sebagai teks, 
 | `pet-700` / `pet-100` | #1A4670 / #E2ECF5 | Status DISETUJUI, informasi |
 | `bata-700` / `bata-100` | #8A2615 / #FAE6E0 | Status DITOLAK dan DIBATALKAN, galat, aksi merusak |
 | `daun-700` / `daun-100` | #335512 / #E4F0D6 | Status SELESAI dan TERCATAT, keberhasilan |
+| `kuning-700` | #8A6500 | Judul kondisi "layanan tidak tersedia". Bukan untuk teks isi |
 | `line-500` | #767B73 | Batas komponen interaktif (isian, tombol sekunder, kotak centang) |
 | `line-300` | #CFC8B4 | Pemisah dekoratif: garis antarbaris, pembatas bagian |
 
@@ -153,6 +154,7 @@ Palet mengikuti desain awal tim: putih sebagai latar, tinta gelap sebagai teks, 
 | `pet-700` pada `pet-100` | 8,15:1 | Cap DISETUJUI | 7:1 |
 | `bata-700` pada `bata-100` | 7,37:1 | Cap DITOLAK, pesan galat | 7:1 |
 | `daun-700` pada `daun-100` | 7,24:1 | Cap SELESAI, pesan berhasil | 7:1 |
+| `kuning-700` pada `putih` | 5,33:1 | Judul besar kondisi "layanan tidak tersedia" | 4,5:1 |
 | putih pada `bata-700` | 8,87:1 | Tombol aksi merusak | 7:1 |
 | putih pada `ink-900` | 15,84:1 | Toast | 7:1 |
 | `line-500` pada `putih` | 4,33:1 | Batas isian dan tombol sekunder di halaman dan kartu | 3:1 |
@@ -199,14 +201,14 @@ Semua jarak adalah kelipatan 4 px dan hanya delapan nilai yang boleh dipakai.
 
 ### Radius
 
-Buku besar berbentuk persegi, jadi sudutnya hampir tajam. Tidak ada bentuk pil dan tidak ada bentuk bulat penuh.
+Sudut dibuat melengkung lembut agar antarmuka terasa ramah, tetapi bentuk dasarnya tetap persegi seperti halaman buku besar. Tidak ada bentuk pil dan tidak ada bentuk bulat penuh.
 
 | Token | Nilai | Pemakaian |
 | --- | --- | --- |
 | `radius-0` | 0 | Tabel, garis pemisah |
-| `radius-1` | 2 px | Cap Status |
-| `radius-2` | 4 px | Tombol, isian, kartu |
-| `radius-3` | 8 px | Dialog, bottom sheet (sudut atas) |
+| `radius-1` | 4 px | Tidak dipakai untuk Cap Status |
+| `radius-2` | 12 px | Tombol, isian, kartu, Cap Status |
+| `radius-3` | 20 px | Dialog, bottom sheet (sudut atas) |
 
 ### Garis dan bayangan
 
@@ -300,8 +302,8 @@ Setiap peran hanya melihat menu miliknya (PRD F1.5). Di ponsel, menu berupa bila
 
 | ID | Screen | Bentuk | Tujuan | Fitur |
 | --- | --- | --- | --- | --- |
-| X1 | Tidak Ada Akses | Halaman | Pengguna membuka alamat di luar wewenang atau akun dinonaktifkan | F1.5, F1.7 |
-| X2 | Sesi Berakhir | Halaman | Token 8 jam habis; mengarahkan masuk ulang dan memberi tahu bahwa isian yang belum tersimpan tidak dijamin | F1.8 |
+| X1 | Tidak Ada Akses | Halaman | Pengguna membuka alamat di luar wewenangnya | F1.5, F1.7 |
+| X2 | Sesi Berakhir | Halaman | Token 8 jam habis; mengarahkan masuk ulang | F1.8 |
 | X3 | Layanan Tidak Tersedia | Halaman | Server atau database tidak terjangkau | Bagian 8 PRD |
 
 ## 5. User flow
@@ -415,6 +417,16 @@ Layout ditulis dari lebar ponsel 360 px (mobile first), urut dari atas ke bawah.
 - Di ponsel, tombol utama halaman formulir berada di **Bilah Aksi Lekat** di atas bilah menu, selalu terlihat tanpa menggulir.
 - Jarak antarbagian `space-6`, antarkelompok isian `space-4`, label ke isian `space-2`.
 
+### Kerangka navigasi
+
+Semua screen aktor dibungkus `KerangkaAplikasi` (`components/KerangkaAplikasi.js`), berisi **Bilah Menu** (`components/BilahMenu.js`) dan kepala atas. Screen umum dan sistem (U1, U2, X1 sampai X3) tidak memakainya.
+
+- **Item menu Nasabah**: Beranda (`/nasabah`, House), Riwayat (`/nasabah/riwayat`, ClockCounterClockwise), Tarik Saldo (`/nasabah/tarik-saldo`, Wallet), Harga (`/nasabah/harga`, Tag). Item aktif ditentukan dari alamat: cocok persis atau diawali alamat item diikuti `/`; Beranda hanya cocok persis.
+- **Merek**: logo (`public/logo-binbank.png`, tinggi 32 px, lebar menyesuaikan, `alt=""` karena dekoratif) di kiri tulisan "BinBank" (`text-h2`, `forest-900`, bobot 700), berjarak `space-2`, ditautkan ke beranda peran (item menu pertama, untuk Nasabah `/nasabah`). Mulai 1024 px tampil paling atas di bilah samping, di atas item menu, dengan padding `space-4` (kiri `space-5`, sama dengan padding item menu, sehingga tepi kiri logo sejajar dengan ikon item) dan jarak `space-4` ke item pertama. Di bawah 1024 px tampil di sisi kiri kepala atas, sejajar dengan tombol nama pengguna di kanan.
+- **Bilah Menu**: di bawah 1024 px bilah bawah melekat 64 px dengan `rule-1` di atas dan inset area aman; mulai 1024 px bilah samping 240 px melekat dengan `rule-1` di kanan. Spesifikasi item mengikuti bagian 7.
+- **Kepala atas**: satu baris setinggi `space-8` di atas konten, berisi nama pengguna di kanan sebagai tombol (nama di kiri, ikon User di kanannya) dengan `aria-expanded`, tanpa latar dan garis di semua state; saat hover nama dan ikon berganti ke `olive-700` seketika tanpa transisi. Tombol membuka menu kecil (`shadow-1`) berisi satu item **Keluar** (ikon SignOut, Tombol Teks). Menu menutup dengan Esc (fokus kembali ke tombol nama), klik di luar menu, atau memilih item. Keluar menghapus sesi lalu mengganti alamat ke `/login`.
+- **Area konten**: gutter `space-4` (ponsel), `space-5` (tablet), `space-6` (desktop); di desktop berada di kanan bilah samping, lebar maksimum 1120 px di tengah, dengan kepala atas setinggi `space-8` sebagai margin atasnya. Di bawah 1024 px konten diberi padding bawah 64 px ditambah inset area aman agar tidak tertutup bilah bawah.
+
 ### U1. Masuk
 
 1. Nama "BinBank" sebagai teks `text-h2`, bukan logo bergambar. Di bawahnya judul h1 "Masuk".
@@ -423,7 +435,17 @@ Layout ditulis dari lebar ponsel 360 px (mobile first), urut dari atas ke bawah.
 4. **Aksi utama:** Masuk (lebar penuh).
 5. Teks bantuan di bawah tombol: "Lupa password? Minta admin atau petugas RW mengatur ulang." Tanpa tautan, karena tidak ada fitur kirim email.
 
-Tidak ada ilustrasi, tidak ada hero, tidak ada kartu. Di desktop, satu kolom selebar 400 px di tengah latar `putih`.
+Tidak ada ilustrasi, tidak ada hero, tidak ada kartu. Di desktop, satu kolom selebar 400 px di tengah layar secara horizontal dan vertikal, di atas latar `putih`.
+
+### U2. Ganti Password Wajib
+
+1. Nama "BinBank" sebagai teks `text-h2`. Di bawahnya judul h1 "Ganti password" dan satu baris keterangan `text-small` `ink-700`: "Anda masuk dengan password sementara. Buat password baru sebelum melanjutkan."
+2. Pesan Inline galat di atas isian, hanya untuk galat yang tidak terkait satu isian: server tidak terjangkau atau 5xx ("BinBank sedang tidak bisa dihubungi. Coba lagi sebentar lagi."), atau pesan dari server untuk status lain.
+3. Tiga Isian Kata Sandi berjarak `space-4`: "Password lama" (`current-password`), "Password baru" (`new-password`, bantuan "Minimal 8 karakter"), "Ulangi password baru" (`new-password`). Galat tampil di bawah isian terkait tanpa menghapus isian lain: "Isi password lama.", "Password baru minimal 8 karakter.", "Password baru tidak boleh sama dengan password lama." (di bawah password baru), "Isian ulang tidak sama dengan password baru." (di bawah isian ulang). Bila server menjawab password lama salah, galat tampil di bawah isian password lama, isian itu dikosongkan dan difokuskan.
+4. **Aksi utama:** Simpan password baru (lebar penuh), berjarak `space-5` dari isian terakhir. Saat memproses berlabel "Memproses..."; saat offline nonaktif dengan teks "Menyimpan membutuhkan koneksi" di bawahnya.
+5. Berhasil: sesi baru disimpan, pengguna diarahkan ke Beranda sesuai peran, dan toast "Password diganti" tampil di sana.
+
+Tata letak sama dengan U1: tanpa kartu, satu kolom 400 px di tengah layar secara horizontal dan vertikal, gutter `space-4`. Tidak ada Bilah Menu, Kepala Halaman dengan menu Profil, atau tautan ke halaman lain. Halaman hanya terbuka bila sesi masih ber-password sementara; tanpa token diarahkan ke U1, dan bila tidak wajib ganti diarahkan ke Beranda. Selama password sementara berlaku, Penjaga Peran dan respons 403 server dengan `wajibGantiPassword` mengarahkan semua halaman lain ke U2. Form beserta logikanya adalah komponen Form Ganti Password yang juga dipakai U3, dengan keterangan dan aksi setelah berhasil sebagai parameter.
 
 ### N1. Beranda Nasabah
 
@@ -434,6 +456,16 @@ Tidak ada ilustrasi, tidak ada hero, tidak ada kartu. Di desktop, satu kolom sel
 5. Mutasi terbaru: judul h2, Tabel Buku lima baris (Tanggal, Keterangan, Masuk, Keluar, Saldo), tautan **Lihat semua riwayat**.
 
 Hierarki: saldo adalah satu-satunya hal yang membesar. Semua lain berukuran isi.
+
+Catatan implementasi (menyimpang dari atau melengkapi tulisan di atas dan bagian 8):
+
+- Pengajuan terakhir diberi label `text-small` bobot 700 `ink-700` "Pengajuan terakhir" di atas barisnya, dibatasi `rule-1` atas dan bawah. Bagian ini disembunyikan bila kosong atau gagal dimuat.
+- Mutasi kosong memakai judul h3 "Belum ada mutasi" dan kalimat "Setoran akan muncul di sini setelah petugas mencatatnya.", menggantikan "Belum ada setoran." di tabel bagian 8.
+- Pesan offline di N1 hanya "Tidak ada koneksi. Angka di layar bisa sudah berubah." dengan stempel "Dimuat pukul 14.32 WIB", tanpa kalimat "Menyimpan dimatikan sampai koneksi kembali." karena N1 tidak menulis ke server.
+- Saldo gagal dimuat: angka saldo dan saldo tersedia berisi "Belum termuat", Pesan Inline galat "Data belum bisa dimuat" dengan tombol Sekunder **Coba lagi** di dalam Lembar Saldo; tombol Tarik saldo tetap tampil.
+- Tabel Buku mutasi memakai kolom angka `text-body` angka tabular (varian Kecil); Daftar Baris di bawah 600 px memakai `text-amount`. Baris bersumber SETORAN dan PEMBATALAN_SETORAN menaut ke N3 (`/nasabah/setoran/{referensiId}`); baris PENARIKAN tidak menaut.
+- Judul h1 "Beranda" memakai `forest-900` dan keterangan nama nasabah di bawahnya memakai `olive-700`; warna ini khusus N1.
+- Token `text-display-lg` (48 / 52 px) dipakai untuk angka saldo mulai 1024 px; `text-cap` diberi jarak huruf 0,04 em di `globals.css`.
 
 ### N4. Ajukan Penarikan
 
@@ -514,6 +546,22 @@ Tidak ada tombol utama di halaman ini; aksi menulis ada di menu **Catat Setoran*
 3. Tabel Buku: Jenis sampah, Berat (kg), Nilai (Rp). Baris total berat dan total nilai di bawah garis ganda.
 4. Catatan di bawah tabel: "Setoran yang dibatalkan tidak dihitung. Nilai memakai harga saat setoran dicatat."
 
+### X1, X2, X3
+
+Ketiganya di luar folder aktor dan tanpa RoleGuard, sehingga bisa dibuka siapa saja. Susunannya sama:
+
+1. Nama "BinBank" sebagai teks `text-h2`, lalu judul h1. Warna judul menandai kondisi dan berbeda per screen.
+2. Satu kalimat penyebab sebagai paragraf `text-body` `ink-900`, tanpa latar dan tanpa kotak, `space-3` di bawah judul. Jaraknya lebih kecil karena baris h1 sudah menyisakan ruang di bawah huruf, sehingga jarak yang terlihat mendekati jarak kalimat ke tombol.
+3. **Aksi utama** selebar penuh, `space-5` di bawah kalimat, satu-satunya tombol di halaman.
+
+| ID | Alamat | Judul h1 | Kalimat penyebab | Aksi utama |
+| --- | --- | --- | --- | --- |
+| X1 | `/tidak-ada-akses` | `bata-700`: Tidak ada akses | "Akun Anda tidak memiliki akses ke halaman ini. Hubungi admin RW." | Kembali ke Beranda: ke `/nasabah`, `/petugas`, atau `/admin` sesuai peran; tanpa sesi ke `/login` |
+| X2 | `/sesi-berakhir` | `ink-500`: Sesi berakhir | "Sesi Anda sudah berakhir. Masuk lagi untuk melanjutkan." | Masuk lagi: ke `/login`. Sesi lama dihapus saat halaman dibuka |
+| X3 | `/layanan-tidak-tersedia` | `kuning-700`: Layanan tidak tersedia | "Saat ini layanan BinBank sedang tidak tersedia. Periksa koneksi Anda dan coba lagi." | Coba lagi: kembali ke halaman sebelumnya; tanpa riwayat ke Beranda sesuai peran atau `/login` |
+
+Tanpa ilustrasi dan tanpa kartu. Seperti U1, satu kolom selebar 400 px di tengah layar secara horizontal dan vertikal, gutter `space-4`, di atas latar `putih`.
+
 ### Screen lain
 
 | ID | Urutan dari atas ke bawah | Aksi utama | Komponen utama |
@@ -536,7 +584,7 @@ Tidak ada tombol utama di halaman ini; aksi menulis ada di menu **Catat Setoran*
 | A6 | Dialog: nama pengguna, Isian Kata Sandi sementara dengan tombol Buat otomatis | Atur password sementara | Dialog, Kotak Rahasia Sekali Tampil |
 | A8 | Tab Status "Penarikan dan saldo": periode, tabel per status (jumlah, total nominal), baris Total saldo seluruh nasabah | Tampilkan laporan | Tabel Buku, Pemilih Rentang Periode |
 | A9 | Dialog: nasabah, total setoran, saldo sekarang dan sesudah, isian alasan | Batalkan setoran Rp 25.000 (Merusak) | Dialog, Pesan Inline, Isian Teks |
-| X1, X2, X3 | Kepala Halaman, satu kalimat penyebab, satu tombol | Kembali ke Beranda (X1), Masuk lagi (X2), Coba lagi (X3) | Pesan Inline, Tombol |
+| X1, X2, X3 | Kepala Halaman, satu kalimat penyebab, satu tombol | Kembali ke Beranda (X1), Masuk lagi (X2), Coba lagi (X3) | Tombol |
 
 ## 7. Component library
 
@@ -578,7 +626,7 @@ Label selalu tampak di atas isian; placeholder tidak pernah menggantikan label. 
 | Isian Teks | Nama, email, alasan (area teks 3 baris untuk alasan) | Galat: garis 2 px `bata-700`, ikon Warning dan teks galat di bawahnya; Hanya-baca: latar `olive-50`, tanpa garis |
 | Isian Uang | Awalan "Rp" tetap di dalam isian, bilangan bulat saja, pemisah ribuan titik muncul saat mengetik, papan angka numerik | Galat jika melebihi saldo, menyebut angka batasnya |
 | Isian Berat | Tinggi 64 px, teks `text-amount` 24 px angka tabular, akhiran "kg" tetap, papan angka desimal; menerima koma atau titik, dinormalkan ke dua desimal saat meninggalkan isian | Galat "Berat harus lebih dari 0" |
-| Isian Kata Sandi | Teks tersembunyi, tombol Teks **Tampilkan** atau **Sembunyikan** di sisi kanan, atribut `autocomplete` sesuai (`current-password`, `new-password`) | Galat; kekuatan password tidak diberi meter warna, cukup aturan tertulis |
+| Isian Kata Sandi | Teks tersembunyi, tombol ikon di dalam isian sisi kanan: Eye saat tersembunyi (menampilkan), EyeSlash saat terlihat (menyembunyikan), 24 px `ink-700`, tombol tanpa latar dan tanpa garis di semua state dengan hover berupa perubahan warna ikon ke `olive-700` secara instan, area sentuh 48 x 48 px, nama aksesibel "Tampilkan password" atau "Sembunyikan password" dengan `aria-pressed`; isian diberi padding kanan agar teks tidak menimpa ikon; atribut `autocomplete` sesuai (`current-password`, `new-password`) | Galat; kekuatan password tidak diberi meter warna, cukup aturan tertulis |
 | Kotak Cari | Pola combobox; mulai mencari pada dua karakter; hasil menampilkan nama dan email | Mencari (teks "Mencari..."), Ada hasil, Tidak ada hasil, Galat jaringan |
 | Pilihan Jenis Sampah | Daftar pilihan khusus (bukan elemen select bawaan) agar bisa menampilkan pictogram dan harga per kg; di ponsel terbuka sebagai sheet dengan opsi 56 px, di desktop sebagai popover | Terpilih ditandai ikon Check dan latar `olive-100`; jenis nonaktif tidak muncul |
 | Pilihan Metode | Grup radio berbentuk baris besar 56 px: lingkaran radio, label, penjelasan satu baris. Dipakai juga untuk pilihan peran | Terpilih: titik radio terisi, latar `olive-100`, garis 2 px `ink-900` (bentuk, bukan hanya warna) |
@@ -586,7 +634,7 @@ Label selalu tampak di atas isian; placeholder tidak pernah menggantikan label. 
 
 ### Cap Status
 
-Cap tidak interaktif. Bentuk: persegi panjang `radius-1`, garis 1 px dan teks dalam warna -700, latar -100, ikon 16 px di depan kata kapital `text-cap`, tinggi minimal 28 px. Setiap status punya kata dan ikon sendiri, sehingga tetap berbeda dalam skala abu-abu.
+Cap tidak interaktif. Bentuk: persegi panjang `radius-2` tanpa garis tepi, teks dalam warna -700, latar -100, ikon 16 px di depan kata kapital `text-cap`, tinggi minimal 28 px. Setiap status punya kata dan ikon sendiri, sehingga tetap berbeda dalam skala abu-abu.
 
 | Status | Warna | Ikon | Dipakai pada |
 | --- | --- | --- | --- |
@@ -601,11 +649,11 @@ Cap tidak interaktif. Bentuk: persegi panjang `radius-1`, garis 1 px dan teks da
 
 ### Angka
 
-Komponen tampilan untuk nilai uang dan berat: angka tabular, rata kanan di tabel, satuan selalu menyertai ("Rp 25.000", "2,50 kg"), spasi tak terputus agar satuan tidak terpisah baris. Varian: Display (saldo), Amount (daftar), Kecil (sel padat). Tidak ada singkatan "rb" atau "jt", dan tidak ada angka yang dipotong dengan elipsis.
+Komponen tampilan untuk nilai uang dan berat: angka tabular, rata kanan di tabel (kecuali kolom uang Masuk, Keluar, dan Saldo pada Tabel Buku, yang rata tengah), satuan selalu menyertai ("Rp 25.000", "2,50 kg"), spasi tak terputus agar satuan tidak terpisah baris. Varian: Display (saldo), Amount (daftar), Kecil (sel padat). Tidak ada singkatan "rb" atau "jt", dan tidak ada angka yang dipotong dengan elipsis.
 
 ### Tabel Buku dan Daftar Baris
 
-Tabel Buku adalah komponen data utama. Kepala kolom `text-small` bobot 700 `ink-700`; baris minimal 48 px; garis `rule-1` antarbaris; kolom angka rata kanan; baris total di bawah `rule-total`. Baris selang-seling `olive-50` hanya dipakai pada tabel lebih dari lima baris di layar lebar. Tidak ada pengurutan kolom di MVP.
+Tabel Buku adalah komponen data utama. Kepala kolom `text-small` bobot 700 `ink-700`; baris minimal 48 px; garis `rule-1` antarbaris; kolom uang (Masuk, Keluar, Saldo) beserta judul kolomnya rata tengah sehingga angka berada di tengah di bawah judulnya; kolom angka lain rata kanan; baris total di bawah `rule-total`. Baris selang-seling `olive-50` hanya dipakai pada tabel lebih dari lima baris di layar lebar. Tidak ada pengurutan kolom di MVP.
 
 Di bawah 600 px, tabel berubah menjadi **Daftar Baris**: tiap data menjadi blok bertumpuk, baris atas berisi keterangan dan tanggal, baris bawah berisi angka berlabel ("Masuk", "Keluar", "Saldo") rata kanan. Tidak pernah ada scroll horizontal.
 
@@ -848,7 +896,7 @@ Elemen HTML bawaan didahulukan; ARIA hanya menambal yang tidak tercakup.
 - Teks membesar sampai 200% tanpa kehilangan fungsi. Reflow pada 320 px tanpa scroll horizontal (kecuali isi yang memang dua dimensi; tidak ada pada BinBank).
 - Ukuran huruf memakai `rem`; tinggi komponen memakai `min-height`, bukan tinggi tetap, agar tidak terpotong saat teks membesar.
 - Penimpaan jarak teks (kriteria 1.4.12) tidak memotong konten.
-- Mode kontras tinggi (`forced-colors`): batas komponen memakai `border` asli, ring fokus memakai `outline`, Cap Status mempertahankan garis dan ikon.
+- Mode kontras tinggi (`forced-colors`): batas komponen memakai `border` asli, ring fokus memakai `outline`, Cap Status mempertahankan kata dan ikon.
 
 ### Rencana pengujian aksesibilitas
 

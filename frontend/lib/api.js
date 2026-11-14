@@ -10,7 +10,7 @@ export class ApiError extends Error {
   }
 }
 
-export async function api(path, { method = "GET", body, tanpaRedirect = false } = {}) {
+export async function api(path, { method = "GET", body, tanpaRedirect = false, galatInline = false } = {}) {
   const headers = {}
   const token = ambilToken()
   if (token) headers.Authorization = `Bearer ${token}`
@@ -24,7 +24,7 @@ export async function api(path, { method = "GET", body, tanpaRedirect = false } 
       body: body !== undefined ? JSON.stringify(body) : undefined,
     })
   } catch {
-    if (!tanpaRedirect) window.location.href = "/layanan-tidak-tersedia"
+    if (!tanpaRedirect && !galatInline) window.location.href = "/layanan-tidak-tersedia"
     throw new ApiError("Layanan tidak tersedia", 0)
   }
 
@@ -41,9 +41,11 @@ export async function api(path, { method = "GET", body, tanpaRedirect = false } 
     if (res.status === 401) {
       hapusSesi()
       window.location.href = "/sesi-berakhir"
+    } else if (res.status === 403 && data?.wajibGantiPassword === true) {
+      window.location.href = "/ganti-password-wajib"
     } else if (res.status === 403) {
       window.location.href = "/tidak-ada-akses"
-    } else if (res.status >= 500) {
+    } else if (res.status >= 500 && !galatInline) {
       window.location.href = "/layanan-tidak-tersedia"
     }
   }
