@@ -1,6 +1,7 @@
 "use client"
 
-import { useCallback, useEffect, useRef, useState } from "react"
+import { Suspense, useCallback, useEffect, useRef, useState } from "react"
+import { useSearchParams } from "next/navigation"
 import { WarningOctagon, WifiSlash } from "@phosphor-icons/react"
 import { api } from "@/lib/api"
 import { formatRupiah, formatTanggal } from "@/lib/format"
@@ -183,8 +184,17 @@ function TabelPenarikanPerStatus({ data, periode }) {
 }
 
 export default function Halaman() {
+  return (
+    <Suspense>
+      <IsiLaporan />
+    </Suspense>
+  )
+}
+
+function IsiLaporan() {
   const daring = useDaring()
-  const [tab, setTab] = useState("setoran")
+  const tabUrl = useSearchParams().get("tab")
+  const [tab, setTab] = useState(TAB.some((t) => t.id === tabUrl) ? tabUrl : "setoran")
   const [isian, setIsian] = useState(bulanBerjalan)
   const [periode, setPeriode] = useState(null)
   const [data, setData] = useState(null)
