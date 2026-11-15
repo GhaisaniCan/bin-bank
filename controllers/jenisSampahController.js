@@ -1,4 +1,5 @@
 const JenisSampah = require("../models/JenisSampah");
+const Setoran = require("../models/Setoran");
 
 const PESAN_KATEGORI = `Kategori harus salah satu dari: ${JenisSampah.KATEGORI.join(", ")}`;
 
@@ -132,6 +133,32 @@ async function ubahStatus(req, res) {
   }
 }
 
+// Hapus
+async function hapusJenisSampah(req, res) {
+  try {
+    const { id } = req.params;
+
+    const jenis = await JenisSampah.findById(id).select("_id");
+    if (!jenis) {
+      return res.status(404).json({ sukses: false, pesan: "Jenis sampah tidak ditemukan" });
+    }
+
+    const dipakai = await Setoran.exists({ "rincian.jenisSampah": id });
+    if (dipakai) {
+      return res.status(409).json({ sukses: false, pesan: "Jenis sampah sudah dipakai di setoran, nonaktifkan saja" });
+    }
+
+    await JenisSampah.deleteOne({ _id: id });
+
+    return res.status(200).json({
+      sukses: true,
+      pesan: "Jenis sampah berhasil dihapus"
+    });
+  } catch (error) {
+    return kirimGalatSimpan(res, error);
+  }
+}
+
 // Gambar
 async function unggahGambar(req, res) {
   try {
@@ -213,6 +240,7 @@ module.exports = {
   dapatkanJenisSampah,
   ubahJenisSampah,
   ubahStatus,
+  hapusJenisSampah,
   unggahGambar,
   hapusGambar,
   ambilGambar

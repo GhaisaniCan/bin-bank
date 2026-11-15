@@ -61,6 +61,10 @@
       "value": ""
     },
     {
+      "key": "jenisSampahId3",
+      "value": ""
+    },
+    {
       "key": "setoranId",
       "value": ""
     },
@@ -316,6 +320,147 @@
                 "exec": [
                   "pm.test('Status 400', () => pm.response.to.have.status(400));",
                   "pm.test('Format galat', () => { const b = pm.response.json(); pm.expect(b.sukses).to.eql(false); pm.expect(b.pesan).to.include('Kategori'); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Tambah jenis sampah 3 (untuk dihapus)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenAdmin}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/jenis-sampah",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "jenis-sampah"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nama\": \"Dihapus {{run}}\",\n  \"hargaPerKg\": 1000\n}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 201', () => pm.response.to.have.status(201));",
+                  "pm.collectionVariables.set('jenisSampahId3', pm.response.json().data._id);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Hapus jenis sampah 3 (belum dipakai)",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenAdmin}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/jenis-sampah/{{jenisSampahId3}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "jenis-sampah",
+                "{{jenisSampahId3}}"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Sukses true', () => pm.expect(pm.response.json().sukses).to.eql(true));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Hapus ulang jenis sampah 3 (404)",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenAdmin}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/jenis-sampah/{{jenisSampahId3}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "jenis-sampah",
+                "{{jenisSampahId3}}"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 404', () => pm.response.to.have.status(404));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Hapus jenis sampah id tidak valid (400)",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenAdmin}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/jenis-sampah/bukan-id",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "jenis-sampah",
+                "bukan-id"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 400', () => pm.response.to.have.status(400));"
                 ]
               }
             }
@@ -1832,6 +1977,40 @@
                 "type": "text/javascript",
                 "exec": [
                   "pm.test('Status 200', () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Hapus jenis sampah yang sudah dipakai (409)",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenAdmin}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/jenis-sampah/{{jenisSampahId1}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "jenis-sampah",
+                "{{jenisSampahId1}}"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 409', () => pm.response.to.have.status(409));",
+                  "pm.test('Pesan sarankan nonaktif', () => pm.expect(pm.response.json().pesan).to.eql('Jenis sampah sudah dipakai di setoran, nonaktifkan saja'));"
                 ]
               }
             }

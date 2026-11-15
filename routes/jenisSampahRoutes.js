@@ -15,6 +15,7 @@ router.delete("/:id/gambar", authenticate, authorize("admin"), validasiIdJenisSa
 router.post("/", authenticate, authorize("admin"), jenisSampahController.tambahJenisSampah);
 router.put("/:id", authenticate, authorize("admin"), jenisSampahController.ubahJenisSampah);
 router.patch("/:id/status", authenticate, authorize("admin"), jenisSampahController.ubahStatus);
+router.delete("/:id", authenticate, authorize("admin"), validasiIdJenisSampah, jenisSampahController.hapusJenisSampah);
 
 // Semua pengguna yang login (admin, petugas, nasabah) bisa melihat daftar
 router.get("/", authenticate, jenisSampahController.dapatkanJenisSampah);
