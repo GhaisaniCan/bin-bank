@@ -121,7 +121,7 @@ export default function Halaman() {
           </h2>
           <ul className="mt-2 border-t border-line-300">
             <BarisAngka
-              href="/admin/laporan"
+              href="/admin/laporan?tab=penarikan"
               label="Total saldo seluruh nasabah"
               keterangan={`${data.saldo.totalNasabah.toLocaleString("id-ID")} nasabah`}
               angka={formatRupiah(data.saldo.totalUangMengendap)}
