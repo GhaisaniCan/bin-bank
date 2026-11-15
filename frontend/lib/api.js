@@ -10,7 +10,7 @@ export class ApiError extends Error {
   }
 }
 
-export async function api(path, { method = "GET", body, tanpaRedirect = false, galatInline = false } = {}) {
+export async function api(path, { method = "GET", body, tanpaRedirect = false, galatInline = false, aksesInline = false } = {}) {
   const headers = {}
   const token = ambilToken()
   if (token) headers.Authorization = `Bearer ${token}`
@@ -43,7 +43,7 @@ export async function api(path, { method = "GET", body, tanpaRedirect = false, g
       window.location.href = "/sesi-berakhir"
     } else if (res.status === 403 && data?.wajibGantiPassword === true) {
       window.location.href = "/ganti-password-wajib"
-    } else if (res.status === 403) {
+    } else if (res.status === 403 && !aksesInline) {
       window.location.href = "/tidak-ada-akses"
     } else if (res.status >= 500 && !galatInline) {
       window.location.href = "/layanan-tidak-tersedia"
