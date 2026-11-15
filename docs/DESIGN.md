@@ -467,6 +467,15 @@ Catatan implementasi (menyimpang dari atau melengkapi tulisan di atas dan bagian
 - Judul h1 "Beranda" memakai `forest-900` dan keterangan nama nasabah di bawahnya memakai `olive-700`; warna ini khusus N1.
 - Token `text-display-lg` (48 / 52 px) dipakai untuk angka saldo mulai 1024 px; `text-cap` diberi jarak huruf 0,04 em di `globals.css`.
 
+### N2. Riwayat Mutasi
+
+Catatan implementasi (menyimpang dari atau melengkapi bagian 8 dan 11):
+
+- Kepala Halaman hanya h1 "Riwayat" (`forest-900`); Lembar Saldo ringkas belum ditampilkan.
+- Tabel Buku memakai `components/TabelMutasi.js` yang sama dengan N1, 20 baris per halaman dari `GET /penarikan/riwayat?halaman=&limit=`. Kosong: judul h3 "Belum ada mutasi" dan kalimat yang sama dengan N1.
+- Paginasi menerima `nonaktif`; di N2 nonaktif selama memuat dan saat offline. Ganti halaman menggulir ke atas; data halaman sebelumnya tetap tampil sampai halaman baru termuat, dan bila gagal tetap tampil di bawah Pesan Inline galat dengan **Coba lagi**.
+- Baris selang-seling `olive-50` untuk tabel lebih dari lima baris belum diterapkan.
+
 ### N4. Ajukan Penarikan
 
 1. Kepala Halaman: "Tarik saldo".
