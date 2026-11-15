@@ -1,5 +1,23 @@
 const JenisSampah = require("../models/JenisSampah");
 
+const PESAN_KATEGORI = `Kategori harus salah satu dari: ${JenisSampah.KATEGORI.join(", ")}`;
+
+// Bentuk respons
+function bentukData(dokumen) {
+  const data = dokumen.toObject();
+  delete data.gambar;
+  return {
+    ...data,
+    kategori: data.kategori ?? null,
+    adaGambar: data.adaGambar ?? false,
+    gambarDiubah: data.gambarDiubah ?? null
+  };
+}
+
+function kategoriTidakValid(kategori) {
+  return kategori !== undefined && kategori !== null && !JenisSampah.KATEGORI.includes(kategori);
+}
+
 function kirimGalatSimpan(res, error) {
   if (error.code === 11000) {
     return res.status(409).json({ sukses: false, pesan: "Nama jenis sampah sudah dipakai" });
@@ -17,13 +35,16 @@ function kirimGalatSimpan(res, error) {
 
 async function tambahJenisSampah(req, res) {
   try {
-    const { nama, hargaPerKg } = req.body;
-    const jenisBaru = await JenisSampah.create({ nama, hargaPerKg });
+    const { nama, hargaPerKg, kategori } = req.body;
+    if (kategoriTidakValid(kategori)) {
+      return res.status(400).json({ sukses: false, pesan: PESAN_KATEGORI });
+    }
+    const jenisBaru = await JenisSampah.create({ nama, hargaPerKg, kategori: kategori ?? undefined });
     
     return res.status(201).json({
       sukses: true,
       pesan: "Jenis sampah berhasil ditambahkan",
-      data: jenisBaru
+      data: bentukData(jenisBaru)
     });
   } catch (error) {
     return kirimGalatSimpan(res, error);
@@ -38,7 +59,7 @@ async function dapatkanJenisSampah(req, res) {
     return res.status(200).json({
       sukses: true,
       pesan: "Daftar jenis sampah berhasil diambil",
-      data: daftarSampah
+      data: daftarSampah.map(bentukData)
     });
   } catch (error) {
     return res.status(500).json({ sukses: false, pesan: error.message });
@@ -48,11 +69,22 @@ async function dapatkanJenisSampah(req, res) {
 async function ubahJenisSampah(req, res) {
   try {
     const { id } = req.params;
-    const { nama, hargaPerKg } = req.body;
+    const { nama, hargaPerKg, kategori } = req.body;
+
+    if (kategoriTidakValid(kategori)) {
+      return res.status(400).json({ sukses: false, pesan: PESAN_KATEGORI });
+    }
+
+    const perubahan = { $set: { nama, hargaPerKg } };
+    if (kategori === null) {
+      perubahan.$unset = { kategori: 1 };
+    } else if (kategori !== undefined) {
+      perubahan.$set.kategori = kategori;
+    }
 
     const sampahDiperbarui = await JenisSampah.findByIdAndUpdate(
       id,
-      { nama, hargaPerKg },
+      perubahan,
       { new: true, runValidators: true }
     );
 
@@ -63,7 +95,7 @@ async function ubahJenisSampah(req, res) {
     return res.status(200).json({
       sukses: true,
       pesan: "Data jenis sampah berhasil diperbarui",
-      data: sampahDiperbarui
+      data: bentukData(sampahDiperbarui)
     });
   } catch (error) {
     return kirimGalatSimpan(res, error);
@@ -93,10 +125,86 @@ async function ubahStatus(req, res) {
     return res.status(200).json({
       sukses: true,
       pesan: `Jenis sampah berhasil ${pesanStatus}`,
-      data: sampahDiperbarui
+      data: bentukData(sampahDiperbarui)
     });
   } catch (error) {
     return kirimGalatSimpan(res, error);
+  }
+}
+
+// Gambar
+async function unggahGambar(req, res) {
+  try {
+    const sampahDiperbarui = await JenisSampah.findByIdAndUpdate(
+      req.params.id,
+      {
+        gambar: { data: req.file.buffer, tipe: req.file.tipeTerdeteksi },
+        adaGambar: true,
+        gambarDiubah: new Date()
+      },
+      { new: true }
+    );
+
+    if (!sampahDiperbarui) {
+      return res.status(404).json({ sukses: false, pesan: "Jenis sampah tidak ditemukan" });
+    }
+
+    return res.status(200).json({
+      sukses: true,
+      pesan: "Gambar jenis sampah berhasil diunggah",
+      data: bentukData(sampahDiperbarui)
+    });
+  } catch (error) {
+    return kirimGalatSimpan(res, error);
+  }
+}
+
+async function hapusGambar(req, res) {
+  try {
+    const sampahDiperbarui = await JenisSampah.findByIdAndUpdate(
+      req.params.id,
+      { $unset: { gambar: 1 }, $set: { adaGambar: false, gambarDiubah: new Date() } },
+      { new: true }
+    );
+
+    if (!sampahDiperbarui) {
+      return res.status(404).json({ sukses: false, pesan: "Jenis sampah tidak ditemukan" });
+    }
+
+    return res.status(200).json({
+      sukses: true,
+      pesan: "Gambar jenis sampah berhasil dihapus",
+      data: bentukData(sampahDiperbarui)
+    });
+  } catch (error) {
+    return kirimGalatSimpan(res, error);
+  }
+}
+
+async function ambilGambar(req, res) {
+  try {
+    const jenis = await JenisSampah.findById(req.params.id).select("+gambar adaGambar gambarDiubah");
+
+    if (!jenis || !jenis.adaGambar || !jenis.gambar || !jenis.gambar.data) {
+      return res.status(404).json({ sukses: false, pesan: "Gambar jenis sampah tidak ditemukan" });
+    }
+
+    const versi = jenis.gambarDiubah ? jenis.gambarDiubah.getTime() : 0;
+    const etag = `"${jenis._id}-${versi}"`;
+    res.set({
+      "Cache-Control": "public, max-age=86400",
+      ETag: etag
+    });
+
+    const etagKlien = (req.headers["if-none-match"] || "").split(",").map((nilai) => nilai.trim().replace(/^W\//, ""));
+    if (etagKlien.includes(etag) || etagKlien.includes("*")) {
+      return res.status(304).end();
+    }
+
+    res.set("Content-Type", jenis.gambar.tipe);
+    return res.send(jenis.gambar.data);
+  } catch (error) {
+    return res.status(500).json({ sukses: false, pesan: error.message });
   }
 }
 
@@ -104,5 +212,8 @@ module.exports = {
   tambahJenisSampah,
   dapatkanJenisSampah,
   ubahJenisSampah,
-  ubahStatus
+  ubahStatus,
+  unggahGambar,
+  hapusGambar,
+  ambilGambar
 };

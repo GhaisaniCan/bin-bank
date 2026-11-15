@@ -234,6 +234,94 @@
           ]
         },
         {
+          "name": "Ubah kategori jenis sampah 1 (plastik)",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenAdmin}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/jenis-sampah/{{jenisSampahId1}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "jenis-sampah",
+                "{{jenisSampahId1}}"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"kategori\": \"plastik\"\n}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                  "const data = pm.response.json().data;",
+                  "pm.test('Kategori tersimpan', () => pm.expect(data.kategori).to.eql('plastik'));",
+                  "pm.test('Harga tidak berubah', () => pm.expect(data.hargaPerKg).to.eql(3000));",
+                  "pm.test('Belum ada gambar', () => { pm.expect(data.adaGambar).to.eql(false); pm.expect(data).to.not.have.property('gambar'); });",
+                  "pm.test('Field gambarDiubah ada', () => pm.expect(data).to.have.property('gambarDiubah'));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Ubah kategori tidak valid (ditolak)",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenAdmin}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/jenis-sampah/{{jenisSampahId1}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "jenis-sampah",
+                "{{jenisSampahId1}}"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"kategori\": \"kaca\"\n}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 400', () => pm.response.to.have.status(400));",
+                  "pm.test('Format galat', () => { const b = pm.response.json(); pm.expect(b.sukses).to.eql(false); pm.expect(b.pesan).to.include('Kategori'); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
           "name": "Buat akun petugas",
           "request": {
             "method": "POST",
