@@ -201,7 +201,7 @@ Semua jarak adalah kelipatan 4 px dan hanya delapan nilai yang boleh dipakai.
 
 ### Radius
 
-Sudut dibuat melengkung lembut agar antarmuka terasa ramah, tetapi bentuk dasarnya tetap persegi seperti halaman buku besar. Tidak ada bentuk pil dan tidak ada bentuk bulat penuh.
+Sudut dibuat melengkung lembut agar antarmuka terasa ramah, tetapi bentuk dasarnya tetap persegi seperti halaman buku besar. Tidak ada bentuk pil dan tidak ada bentuk bulat penuh, dengan satu pengecualian yang disengaja: Filter Chip berbentuk pil (`rounded-full`) agar terbaca sebagai saringan, bukan tombol aksi. Bentuk pil tidak dipakai untuk Cap Status maupun komponen lain.
 
 | Token | Nilai | Pemakaian |
 | --- | --- | --- |
@@ -447,6 +447,16 @@ Tidak ada ilustrasi, tidak ada hero, tidak ada kartu. Di desktop, satu kolom sel
 
 Tata letak sama dengan U1: tanpa kartu, satu kolom 400 px di tengah layar secara horizontal dan vertikal, gutter `space-4`. Tidak ada Bilah Menu, Kepala Halaman dengan menu Profil, atau tautan ke halaman lain. Halaman hanya terbuka bila sesi masih ber-password sementara; tanpa token diarahkan ke U1, dan bila tidak wajib ganti diarahkan ke Beranda. Selama password sementara berlaku, Penjaga Peran dan respons 403 server dengan `wajibGantiPassword` mengarahkan semua halaman lain ke U2. Form beserta logikanya adalah komponen Form Ganti Password yang juga dipakai U3, dengan keterangan dan aksi setelah berhasil sebagai parameter.
 
+### U4. Daftar Harga
+
+Catatan implementasi (versi nasabah, `/nasabah/harga`):
+
+- Kepala Halaman: h1 "Harga" (`forest-900`) dan keterangan `text-small` `ink-700` "Harga per kg yang berlaku untuk setoran berikutnya". Tidak ada aksi.
+- Data dari `GET /jenis-sampah`; server mengirim semua jenis, sehingga jenis nonaktif disaring di klien. Urut nama A sampai Z.
+- Grid Kartu Harga, satu kartu per jenis: 2 kolom di bawah 640 px (muat di 360 px), 3 kolom mulai 640 px, 4 kolom mulai 1024 px; jarak horizontal `space-4`, jarak vertikal `space-8`, dan ruang atas grid `space-7` agar gambar yang menonjol tidak terpotong. Kartu hanya-baca, tanpa deskripsi, tombol, atau tautan. Gambar transparan dari `public/jenis-sampah/` dipilih oleh `lib/gambarSampah.js` menurut kata kunci nama (paling spesifik dulu); tanpa kecocokan tampil ikon Recycle. Gambar WebP ini menyimpang dari aturan "tanpa gambar bitmap" di bagian 10; dimuat lewat `next/image` (lazy, 96 px) dan U4 bukan halaman Masuk atau Beranda.
+- Filter kelompok: Filter Chip (`aria-label` "Kelompok sampah") tepat di bawah keterangan dan di atas grid. Lima chip tanpa jumlah: Semua (bawaan), Plastik, Kertas, Besi, Lainnya. Kelompok ditentukan `kelompokSampah()` di `lib/gambarSampah.js` menurut kata kunci nama: besi, kaleng, aluminium menjadi Besi (dicek lebih dulu agar nama ganda seperti "kaleng plastik" masuk Besi); plastik, kresek menjadi Plastik; kardus, kertas, koran, hvs menjadi Kertas; selain itu (termasuk botol kaca dan minyak jelantah) Lainnya. Memilih chip hanya menyaring kartu di klien, tanpa memuat ulang. Chip tidak tampil selama memuat atau bila tidak ada jenis aktif sama sekali.
+- Kosong: judul h3 "Belum ada harga" dan kalimat "Harga akan muncul di sini setelah admin menambahkan jenis sampah." Kelompok terpilih tanpa jenis: judul h3 "Belum ada harga untuk kelompok ini". Memuat, lambat, offline, dan galat mengikuti N2.
+
 ### N1. Beranda Nasabah
 
 1. Kepala Halaman: "Beranda" dan nama nasabah.
@@ -592,7 +602,7 @@ Tanpa ilustrasi dan tanpa kartu. Seperti U1, satu kolom selebar 400 px di tengah
 | --- | --- | --- | --- |
 | U2 | Kepala Halaman, Pesan Inline "Password awal harus diganti sebelum melanjutkan", tiga Isian Kata Sandi | Simpan password baru | Isian Kata Sandi, Pesan Inline, Tombol |
 | U3 | Kepala Halaman, tiga Isian Kata Sandi | Simpan password baru | Isian Kata Sandi, Tombol |
-| U4 | Kepala Halaman, tabel jenis dan harga per kg | Tidak ada | Tabel Buku, Pictogram Jenis |
+| U4 | Kepala Halaman, grid Kartu Harga (gambar, nama, harga per kg) | Tidak ada | Kartu Harga | Bidang latar `olive-50`, `radius-2`, tanpa garis tepi, padding `space-4`, isi rata tengah. Gambar 96 px (`object-contain`, `alt=""`) di tengah atas, menonjol separuh tingginya (48 px) keluar dari tepi atas kartu. Di bawahnya nama `text-body` 700 `ink-900`, garis pendek 40 px tebal 2 px `olive-700`, lalu harga "Rp 2.500/kg" `text-amount` 700 angka tabular `forest-900`. Hanya-baca | Dengan gambar, Tanpa gambar (ikon Recycle 96 px) | Memuat (kerangka `line-300` di atas `olive-50`), Terisi |
 | N2 | Kepala Halaman, Lembar Saldo ringkas, Tabel Buku mutasi, Paginasi | Tidak ada | Lembar Saldo, Tabel Buku, Paginasi |
 | N3 | Kepala Halaman dengan Cap Status, nasabah dan tanggal, rincian, total di bawah garis ganda | Tidak ada | Lembar Konfirmasi (varian hanya-baca), Cap Status |
 | P1 | Kepala Halaman, tombol Catat Setoran, kartu "Perlu diproses" dengan jumlah MENUNGGU dan DISETUJUI, lima setoran terakhir | Catat Setoran | Tombol, Tabel Buku |
@@ -623,6 +633,7 @@ Ikon memakai Phosphor Regular, 24 px, ketebalan garis 1,5 px, warna mengikuti te
 | Menu | House (Beranda), ClockCounterClockwise (Riwayat), Wallet (Tarik Saldo), Tag (Harga), Plus (Catat Setoran), Receipt (Setoran), Money (Penarikan), Users (Nasabah), ChartBar (Laporan), Gear (Kelola) |
 | Aksi | MagnifyingGlass (Cari), PencilSimple (Ubah), Copy (Salin), Eye dan EyeSlash (Tampilkan dan Sembunyikan), X (Tutup), CaretRight dan CaretLeft (Lanjut dan Kembali), ArrowCounterClockwise (Coba lagi), SignOut (Keluar), User (Profil) |
 | Status dan pesan | Check (item terpilih), Prohibit dan X (tombol Merusak); Info, Warning, WarningOctagon, CheckCircle, WifiSlash (Pesan Inline) |
+| Pengganti gambar | Recycle (Kartu Harga tanpa gambar, 96 px, `ink-700`) |
 
 ### Pictogram jenis sampah
 
@@ -691,6 +702,7 @@ State: **Memuat** (lima baris skeleton), **Kosong** (Keadaan Kosong), **Galat** 
 | Lembar Saldo | Saldo besar, saldo tersedia, penjelasan pengajuan menunggu | Nasabah (dengan tombol Tarik saldo), Ringkas (tanpa tombol), Pantauan petugas dan admin | Memuat, Terisi, Saldo nol ("Saldo Rp 0", teks arahan ke petugas), Galat |
 | Lembar Konfirmasi | Rincian setoran sebagai bacaan: nasabah, baris, garis ganda, total | Konfirmasi (di P4), Bukti (di P5), Hanya-baca (di N3 dan P7) | Terisi, Dibatalkan (dicoret dan disertai alasan) |
 | Kartu Pengajuan | Nama atau tanggal, nominal, metode, Cap Status, detail e-wallet, aksi baris | Per status: MENUNGGU, DISETUJUI, DITOLAK, SELESAI; Nasabah dan Staf | Default, Memproses, Sudah diproses pihak lain (pesan dan aksi dinonaktifkan) |
+| Kartu Harga | Bidang gambar persegi latar `olive-50` `radius-2` (`object-contain`, `alt=""`), nama `text-body` 700 `ink-900`, harga "Rp 2.500/kg" `text-amount` 700 angka tabular `forest-900`. Garis `line-300`, `radius-2`, padding `space-4`, tanpa bayangan. Hanya-baca | Dengan gambar, Tanpa gambar (ikon Recycle) | Memuat (kerangka `olive-50`), Terisi |
 | Kepala Konteks Nasabah | Bilah lekat berisi nama dan email nasabah yang sedang dikerjakan serta tautan Ganti | Tunggal | Default |
 
 ### Struktur dan navigasi
@@ -700,6 +712,7 @@ State: **Memuat** (lima baris skeleton), **Kosong** (Keadaan Kosong), **Galat** 
 | Kepala Halaman | h1, keterangan opsional `text-small`, slot untuk satu aksi di kanan (desktop) atau di Bilah Aksi Lekat (ponsel); di kanan atas ada nama pengguna yang membuka menu Profil dan Keluar |
 | Bilah Menu | Ponsel: bilah bawah setinggi 64 px, 4 sampai 5 item, ikon di atas kata `text-small`. Desktop: bilah samping 240 px, item 48 px, ikon di kiri kata. Item aktif: kata tebal, latar `olive-100`, penanda 3 px `olive-700` (atas di ponsel, kiri di desktop). Hitungan ditulis di kata: "Penarikan (3)" |
 | Tab Status | `role=tablist`; item aktif bertanda garis bawah 3 px `ink-900`, latar `putih`, kata tebal. Di ponsel empat tab ditata 2 kolom × 2 baris agar tidak ada scroll horizontal |
+| Filter Chip | `role=group` dengan `aria-label`, berisi `<button type="button">` ber-`aria-pressed`. Pil `rounded-full`, tinggi minimal 44 px, padding horizontal `space-4`, `text-body`, jarak antar chip `space-2`, tanpa angka jumlah. Aktif: latar `olive-700`, teks `putih` tebal. Tidak aktif: latar `olive-50`, teks `ink-900`. Fokus memakai `focus-ring`. Di layar sempit baris digeser horizontal (scrollbar disembunyikan, chip tidak mengecil, teks tidak dibungkus); wadah diberi padding `space-2` dengan margin horizontal negatif yang sama agar `focus-ring` tidak terpotong dan halaman tidak bergeser horizontal. Menyaring tampilan di klien, bukan memuat data |
 | Bilah Aksi Lekat | Wadah melekat di atas Bilah Menu, latar `putih`, `rule-1` di atas, padding `space-4`, menghormati area aman perangkat; berisi tombol Utama (dan Sekunder bila ada) |
 | Paginasi | Tombol Sekunder **Sebelumnya** dan **Berikutnya**, teks "Halaman 2 dari 7" di tengah; tanpa deret nomor halaman |
 | Tautan | `olive-700`, selalu bergaris bawah 1,5 px |
@@ -896,6 +909,7 @@ Elemen HTML bawaan didahulukan; ARIA hanya menambal yang tidak tercakup.
 | Tabel Buku | `<table>` asli dengan `<caption>` (boleh tersembunyi secara visual), `<th scope>`; baris total di `<tfoot>`. Daftar Baris di ponsel tetap tabel yang sama dengan tampilan CSS berbeda dan `role` eksplisit agar semantik tidak hilang. Sel kosong pada Masuk atau Keluar berisi teks tersembunyi "kosong" |
 | Angka dicoret (DIBATALKAN) | Dibungkus `<del>`; ditambah teks tersembunyi "dibatalkan", karena coretan tidak dibacakan |
 | Tab Status | `tablist`, `tab` (dengan `aria-selected`, `aria-controls`), `tabpanel`; hitungan menjadi bagian nama tab ("Menunggu, 3") |
+| Filter Chip | `role="group"` dengan `aria-label` (misalnya "Kelompok sampah"); tiap chip tombol asli dengan `aria-pressed`, sehingga Tab berpindah antar chip dan Enter atau Spasi memilih |
 | Tombol memproses | `aria-busy="true"`, label berganti, wilayah live sopan mengumumkan "Menyimpan setoran" lalu hasilnya |
 | Dialog | `role="dialog"` (`alertdialog` untuk Merusak), `aria-modal="true"`, `aria-labelledby` ke judul, `aria-describedby` ke ringkasan; latar belakang `inert` |
 | Pesan Inline | Galat `role="alert"`; lainnya `role="status"`; wadah live sudah ada di DOM sebelum teksnya diisi agar pengumuman terbaca |
