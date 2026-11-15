@@ -12,8 +12,8 @@ function kirimError(res, err) {
 // Daftar akun
 router.get("/", authenticate, authorize("admin", "petugas"), async (req, res) => {
   try {
-    const data = await userService.daftarUser(req.user, req.query)
-    res.status(200).json({ message: "Daftar pengguna berhasil diambil", data })
+    const { data, paginasi } = await userService.daftarUser(req.user, req.query)
+    res.status(200).json({ message: "Daftar pengguna berhasil diambil", data, ...(paginasi && { paginasi }) })
   } catch (err) {
     kirimError(res, err)
   }

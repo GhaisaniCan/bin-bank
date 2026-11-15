@@ -7,6 +7,11 @@ const DAFTAR_KELOLA = [
     judul: "Jenis sampah",
     keterangan: "Tambah jenis, ubah harga per kg, nonaktifkan",
   },
+  {
+    href: "/admin/kelola/pengguna",
+    judul: "Pengguna",
+    keterangan: "Buat akun, reset password, nonaktifkan akun",
+  },
 ]
 
 export default function Halaman() {

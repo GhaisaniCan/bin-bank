@@ -5,6 +5,8 @@ const AppError = require("../utils/AppError")
 
 const ROLE_VALID = ["admin", "petugas", "nasabah"]
 const FORMAT_EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+const LIMIT_BAWAAN = 20
+const LIMIT_MAKSIMAL = 100
 
 // Pembantu
 function ringkas(user) {
@@ -63,8 +65,14 @@ function escapeRegex(teks) {
   return teks.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")
 }
 
+function ambilPaginasi(halaman, limit) {
+  const halamanAktif = Math.max(1, Number.parseInt(halaman, 10) || 1)
+  const limitAktif = Math.min(LIMIT_MAKSIMAL, Math.max(1, Number.parseInt(limit, 10) || LIMIT_BAWAAN))
+  return { halamanAktif, limitAktif }
+}
+
 // Daftar akun
-async function daftarUser(pembuat, { role, cari } = {}) {
+async function daftarUser(pembuat, { role, cari, status, halaman, limit } = {}) {
   const filter = {}
   if (pembuat.role === "petugas") {
     filter.role = "nasabah"
@@ -78,8 +86,33 @@ async function daftarUser(pembuat, { role, cari } = {}) {
     const pola = new RegExp(escapeRegex(cari.trim()), "i")
     filter.$or = [{ nama: pola }, { email: pola }]
   }
-  const data = await User.find(filter).select("-password").sort({ createdAt: -1 })
-  return data
+  if (status === "aktif") {
+    filter.aktif = { $ne: false }
+  } else if (status === "nonaktif") {
+    filter.aktif = false
+  } else if (status !== undefined && status !== "") {
+    throw new AppError("Status harus aktif atau nonaktif", 400)
+  }
+
+  const kueri = User.find(filter).select("-password").sort({ createdAt: -1 })
+  if (halaman === undefined && limit === undefined) {
+    return { data: await kueri }
+  }
+
+  const { halamanAktif, limitAktif } = ambilPaginasi(halaman, limit)
+  const [data, total] = await Promise.all([
+    kueri.skip((halamanAktif - 1) * limitAktif).limit(limitAktif),
+    User.countDocuments(filter),
+  ])
+  return {
+    data,
+    paginasi: {
+      halaman: halamanAktif,
+      limit: limitAktif,
+      total,
+      totalHalaman: Math.ceil(total / limitAktif) || 0,
+    },
+  }
 }
 
 // Ubah status akun
