@@ -199,7 +199,7 @@ Buku besar mutasi keuangan (ACID Transaction) yang tidak bisa dihapus.
 | PUT    | `/jenis-sampah/:id/gambar`| Mengunggah gambar (multipart, field `gambar`, PNG/JPEG/WebP, maks. 500 KB; ukuran berlebih dijawab 413) | **Admin** |
 | DELETE | `/jenis-sampah/:id/gambar`| Menghapus gambar jenis sampah                               | **Admin**                    |
 | GET    | `/jenis-sampah/:id/gambar`| Mengambil berkas gambar (biner, `Cache-Control: public, max-age=86400`, `ETag`); 404 bila tidak ada | Publik (tanpa token) |
-| GET    | `/laporan`                | Rekap setoran, penarikan, saldo, setoran per jenis sampah, dan penarikan per status (filter `dari`, `sampai`; `dari` tidak boleh setelah `sampai`) | **Admin** |
+| GET    | `/laporan`                | Rekap setoran, penarikan, saldo, setoran per jenis sampah, dan penarikan per status (filter `dari`, `sampai` berformat `YYYY-MM-DD`, dihitung per hari penuh WIB; `dari` tidak boleh setelah `sampai`) | **Admin** |
 
 ### Modul C (Setoran)
 | Method | Endpoint              | Deskripsi                                                                                  | Autentikasi                                   |

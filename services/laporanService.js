@@ -5,10 +5,21 @@ const User = require("../models/User");
 const AppError = require("../utils/AppError");
 
 const STATUS_PENARIKAN = ["diajukan", "disetujui", "ditolak", "selesai"];
+const SELISIH_WIB = 7 * 60 * 60 * 1000;
+
+function tanggalWib(teks, nama, akhirHari) {
+  const sah = typeof teks === "string" && /^\d{4}-\d{2}-\d{2}$/.test(teks);
+  const jam = akhirHari ? "23:59:59.999" : "00:00:00.000";
+  const tanggal = sah ? new Date(`${teks}T${jam}+07:00`) : null;
+  if (!tanggal || Number.isNaN(tanggal.getTime()) || new Date(tanggal.getTime() + SELISIH_WIB).toISOString().slice(0, 10) !== teks) {
+    throw new AppError(`Format tanggal '${nama}' tidak valid, gunakan YYYY-MM-DD`, 400);
+  }
+  return tanggal;
+}
 
 async function getRekapLaporan(query) {
   const { dari, sampai } = query;
-  
+
   // Filter tanggal opsional
   const filterTanggal = {};
   if (dari || sampai) {
@@ -16,18 +27,11 @@ async function getRekapLaporan(query) {
     let tanggalDari;
     let tanggalSampai;
     if (dari) {
-      tanggalDari = new Date(dari);
-      if (Number.isNaN(tanggalDari.getTime())) {
-        throw new AppError("Format tanggal 'dari' tidak valid", 400);
-      }
+      tanggalDari = tanggalWib(dari, "dari", false);
       filterTanggal.createdAt.$gte = tanggalDari;
     }
     if (sampai) {
-      tanggalSampai = new Date(sampai);
-      if (Number.isNaN(tanggalSampai.getTime())) {
-        throw new AppError("Format tanggal 'sampai' tidak valid", 400);
-      }
-      tanggalSampai.setHours(23, 59, 59, 999);
+      tanggalSampai = tanggalWib(sampai, "sampai", true);
       filterTanggal.createdAt.$lte = tanggalSampai;
     }
     if (tanggalDari && tanggalSampai && tanggalDari > tanggalSampai) {
