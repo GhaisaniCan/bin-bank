@@ -2,16 +2,18 @@
 
 import { useCallback, useEffect, useState } from "react"
 import Image from "next/image"
-import { Recycle, WarningOctagon, WifiSlash } from "@phosphor-icons/react"
+import { CheckCircle, Prohibit, Recycle, Trash, WarningOctagon, WifiSlash } from "@phosphor-icons/react"
 import { api } from "@/lib/api"
 import { formatRupiah } from "@/lib/format"
 import { gambarSampah, urlGambarJenis } from "@/lib/gambarSampah"
 import { useDaring } from "@/lib/koneksi"
 import { tampilkanToast } from "@/lib/toast"
 import CapStatus from "@/components/CapStatus"
+import MenuAksi from "@/components/MenuAksi"
 import PesanInline from "@/components/PesanInline"
 import Tombol from "@/components/Tombol"
 import FormJenisSampah, { KATEGORI } from "./FormJenisSampah"
+import DialogHapusJenis from "./DialogHapusJenis"
 
 function rapikan(jenis) {
   const harga = jenis.hargaPerKg ?? jenis.harga_per_kg
@@ -76,21 +78,27 @@ function NamaJenis({ jenis }) {
   )
 }
 
-function AksiBaris({ jenis, daring, diproses, onUbah, onUbahStatus }) {
+function AksiBaris({ jenis, daring, diproses, onUbah, onUbahStatus, onHapus }) {
   return (
-    <div className="flex flex-wrap gap-2">
-      <Tombol varian="sekunder" disabled={!daring} onClick={() => onUbah(jenis)}>
+    <div className="flex items-center justify-end gap-2">
+      {diproses && (
+        <span role="status" className="text-small text-ink-700">
+          Menyimpan...
+        </span>
+      )}
+      <Tombol varian="sekunder" ukuran="ringkas" disabled={!daring || diproses} onClick={() => onUbah(jenis)}>
         Ubah
       </Tombol>
-      <Tombol
-        varian={jenis.aktif ? "merusak" : "sekunder"}
-        disabled={!daring}
-        memproses={diproses}
-        teksMemproses="Menyimpan..."
-        onClick={() => onUbahStatus(jenis)}
-      >
-        {jenis.aktif ? "Nonaktifkan" : "Aktifkan"}
-      </Tombol>
+      <MenuAksi
+        label={`Aksi lainnya untuk ${jenis.nama}`}
+        disabled={!daring || diproses}
+        item={[
+          jenis.aktif
+            ? { label: "Nonaktifkan", ikon: Prohibit, onPilih: () => onUbahStatus(jenis) }
+            : { label: "Aktifkan", ikon: CheckCircle, onPilih: () => onUbahStatus(jenis) },
+          { label: "Hapus", ikon: Trash, bahaya: true, onPilih: () => onHapus(jenis) },
+        ]}
+      />
     </div>
   )
 }
@@ -105,6 +113,7 @@ export default function Halaman() {
   const [form, setForm] = useState(null)
   const [sorot, setSorot] = useState(null)
   const [prosesId, setProsesId] = useState(null)
+  const [hapus, setHapus] = useState(null)
 
   const ambil = useCallback(() => {
     const t = setTimeout(() => setLambat(true), 300)
@@ -152,9 +161,7 @@ export default function Halaman() {
     tampilkanToast("Jenis sampah disimpan")
   }
 
-  async function ubahStatus(jenis) {
-    setProsesId(jenis._id)
-    setGalatTulis(null)
+  async function kirimStatus(jenis) {
     try {
       const hasil = await api(`/jenis-sampah/${jenis._id}/status`, {
         method: "PATCH",
@@ -163,16 +170,34 @@ export default function Halaman() {
       })
       perbarui(hasil.data)
       tampilkanToast(hasil.data.aktif ? "Jenis sampah diaktifkan" : "Jenis sampah dinonaktifkan")
+      return null
     } catch (err) {
-      setGalatTulis(err.status ? err.message : "Belum dipastikan tersimpan. Muat ulang daftar sebelum mencoba lagi.")
-    } finally {
-      setProsesId(null)
+      return err.status ? err.message : "Belum dipastikan tersimpan. Muat ulang daftar sebelum mencoba lagi."
     }
+  }
+
+  async function ubahStatus(jenis) {
+    setProsesId(jenis._id)
+    setGalatTulis(null)
+    const pesan = await kirimStatus(jenis)
+    if (pesan) setGalatTulis(pesan)
+    setProsesId(null)
+  }
+
+  async function nonaktifkanDariDialog(jenis) {
+    setGalatTulis(null)
+    return kirimStatus(jenis)
+  }
+
+  function terhapus(jenis) {
+    setHapus(null)
+    setDaftar((lama) => lama.filter((j) => j._id !== jenis._id))
+    tampilkanToast("Jenis sampah dihapus")
   }
 
   const terurut = daftar ? urutkan(daftar) : []
   const tombolTambah = (
-    <Tombol disabled={!daring} onClick={() => setForm({ jenis: null })} className="w-full min-[600px]:w-auto">
+    <Tombol bentuk="bulat" disabled={!daring} onClick={() => setForm({ jenis: null })} className="w-full min-[600px]:w-auto">
       Tambah jenis sampah
     </Tombol>
   )
@@ -266,6 +291,7 @@ export default function Halaman() {
                         diproses={prosesId === j._id}
                         onUbah={(jenis) => setForm({ jenis })}
                         onUbahStatus={ubahStatus}
+                        onHapus={(jenis) => setHapus(jenis)}
                       />
                     </div>
                   </td>
@@ -299,6 +325,7 @@ export default function Halaman() {
                     diproses={prosesId === j._id}
                     onUbah={(jenis) => setForm({ jenis })}
                     onUbahStatus={ubahStatus}
+                    onHapus={(jenis) => setHapus(jenis)}
                   />
                 </div>
               </li>
@@ -307,7 +334,7 @@ export default function Halaman() {
         </>
       )}
 
-      {!daring && <p className="mt-3 text-small text-ink-700">Tambah, ubah, dan nonaktifkan butuh koneksi.</p>}
+      {!daring && <p className="mt-3 text-small text-ink-700">Tambah, ubah, nonaktifkan, dan hapus butuh koneksi.</p>}
 
       <div className="fixed inset-x-0 bottom-[calc(var(--spacing-8)+env(safe-area-inset-bottom))] z-10 border-t border-line-300 bg-putih p-4 min-[600px]:hidden">
         {tombolTambah}
@@ -320,6 +347,16 @@ export default function Halaman() {
           onTutup={() => setForm(null)}
           onTersimpan={tersimpan}
           onDiperbarui={perbarui}
+        />
+      )}
+
+      {hapus && (
+        <DialogHapusJenis
+          jenis={hapus}
+          daring={daring}
+          onTutup={() => setHapus(null)}
+          onTerhapus={terhapus}
+          onNonaktifkan={nonaktifkanDariDialog}
         />
       )}
     </main>
