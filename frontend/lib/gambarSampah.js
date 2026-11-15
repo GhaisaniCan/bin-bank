@@ -31,6 +31,13 @@ export function gambarSampah(nama) {
   return cocok ? `/jenis-sampah/${cocok[1]}` : null
 }
 
+// Gambar unggahan
+export function urlGambarJenis(jenis) {
+  if (!jenis?.adaGambar) return null
+  const versi = jenis.gambarDiubah ? new Date(jenis.gambarDiubah).getTime() : 0
+  return `/api/jenis-sampah/${jenis._id}/gambar?v=${versi}`
+}
+
 const KELOMPOK = [
   ["besi", ["besi", "kaleng", "aluminium"]],
   ["plastik", ["plastik", "kresek", "botol plastik", "gelas plastik"]],

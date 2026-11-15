@@ -14,14 +14,15 @@ export async function api(path, { method = "GET", body, tanpaRedirect = false, g
   const headers = {}
   const token = ambilToken()
   if (token) headers.Authorization = `Bearer ${token}`
-  if (body !== undefined) headers["Content-Type"] = "application/json"
+  const formData = typeof FormData !== "undefined" && body instanceof FormData
+  if (body !== undefined && !formData) headers["Content-Type"] = "application/json"
 
   let res
   try {
     res = await fetch(`${BASE}${path}`, {
       method,
       headers,
-      body: body !== undefined ? JSON.stringify(body) : undefined,
+      body: body === undefined ? undefined : formData ? body : JSON.stringify(body),
     })
   } catch {
     if (!tanpaRedirect && !galatInline) window.location.href = "/layanan-tidak-tersedia"

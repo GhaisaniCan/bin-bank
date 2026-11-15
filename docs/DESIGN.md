@@ -583,7 +583,7 @@ Tidak ada tombol utama di halaman ini; aksi menulis ada di menu **Catat Setoran*
 ### A2. Jenis Sampah
 
 1. Kepala Halaman: "Jenis sampah" dengan **aksi utama** "Tambah jenis sampah" di sisi kanan (desktop) atau Bilah Aksi Lekat (ponsel).
-2. Tabel Buku: Pictogram dan nama, Harga per kg (rata kanan, angka tabular), Status (Aktif atau Nonaktif sebagai Cap Status), aksi **Ubah** dan **Nonaktifkan** atau **Aktifkan**.
+2. Tabel Buku: Gambar Jenis 40 px dan nama dengan kategori sebagai `text-small` `ink-700` di bawahnya ("Kategori belum diisi" bila kosong), Harga per kg (rata kanan, angka tabular), Status (Aktif atau Nonaktif sebagai Cap Status), aksi **Ubah** dan **Nonaktifkan** atau **Aktifkan**.
 3. Jenis nonaktif tampil di bagian bawah, dengan teks `ink-700`.
 
 ### A7. Laporan Setoran
@@ -625,7 +625,7 @@ Tanpa ilustrasi dan tanpa kartu. Seperti U1, satu kolom selebar 400 px di tengah
 | P11 | Dialog: ringkasan pengajuan, pilihan Setujui atau Tolak; Tolak menampilkan isian alasan | Setujui Rp 50.000 | Dialog, Pesan Inline, Isian Teks |
 | P12 | Dialog: ringkasan, isian catatan opsional | Konfirmasi dana sudah diserahkan | Dialog, Isian Teks |
 | A1 | Kepala Halaman, tiga baris angka (total saldo nasabah, pengajuan MENUNGGU, setoran hari ini) berbentuk daftar berlabel, bukan tiga kotak | Tidak ada | Tabel Buku, Tautan |
-| A3 | Dialog: Isian Teks nama, Isian Uang harga per kg, pilihan pictogram opsional (Asumsi D1), catatan tetap tentang berlaku untuk setoran berikutnya | Simpan jenis sampah | Dialog, Isian |
+| A3 | Dialog: Isian Teks nama, Isian Uang harga per kg, catatan tetap tentang berlaku untuk setoran berikutnya, Pilihan Kategori (wajib), Unggah Gambar (opsional). Simpan mengirim data dulu, lalu gambar bila ada berkas baru; bila gambar gagal setelah data tersimpan, form tetap terbuka dengan Pesan Inline galat "Gambar gagal diunggah" dan Simpan dapat diulang | Simpan jenis sampah | Dialog, Isian |
 | A4 | Kepala Halaman, Kotak Cari, filter peran dan status, Tabel Buku (nama, email, peran, status, aksi), Paginasi | Buat akun baru | Tabel Buku, Cap Status, Tombol |
 | A5 | Kepala Halaman, pilihan peran (Petugas atau Admin), Isian nama, email, password awal | Buat akun | Pilihan Metode (varian pilihan peran), Isian, Kotak Rahasia Sekali Tampil |
 | A6 | Dialog: nama pengguna, Isian Kata Sandi sementara dengan tombol Buat otomatis | Atur password sementara | Dialog, Kotak Rahasia Sekali Tampil |
@@ -651,6 +651,8 @@ Ikon memakai Phosphor Regular, 24 px, ketebalan garis 1,5 px, warna mengikuti te
 ### Pictogram jenis sampah
 
 Delapan pictogram buatan sendiri, 24 px, garis 2 px `ink-900`, satu gaya: botol plastik, botol kaca, kardus, kertas, kaleng, logam, plastik lembaran, lainnya. Tujuannya mempercepat petugas memilih jenis dari bentuk. Bila jenis sampah belum diberi pictogram, tampil monogram: kotak 24 px berisi huruf pertama nama dengan huruf mono tebal. Pemberian pictogram memerlukan field opsional baru pada Jenis Sampah (lihat Asumsi D1); desain tetap utuh tanpa field itu.
+
+**Gambar Jenis.** Di A2, monogram diganti bidang persegi 40 px latar `olive-50` `radius-2` berisi gambar `object-contain` `alt=""`. Urutan sumber: gambar unggahan admin (`/api/jenis-sampah/:id/gambar?v=<gambarDiubah>` agar cache langsung terganti), gambar bawaan `lib/gambarSampah.js` berdasarkan nama, lalu ikon Recycle 24 px `ink-700`.
 
 ### Tombol
 
@@ -678,6 +680,8 @@ Label selalu tampak di atas isian; placeholder tidak pernah menggantikan label. 
 | Kotak Cari | Pola combobox; mulai mencari pada dua karakter; hasil menampilkan nama dan email | Mencari (teks "Mencari..."), Ada hasil, Tidak ada hasil, Galat jaringan |
 | Pilihan Jenis Sampah | Daftar pilihan khusus (bukan elemen select bawaan) agar bisa menampilkan pictogram dan harga per kg; di ponsel terbuka sebagai sheet dengan opsi 56 px, di desktop sebagai popover | Terpilih ditandai ikon Check dan latar `olive-100`; jenis nonaktif tidak muncul |
 | Pilihan Metode | Grup radio berbentuk baris besar 56 px: lingkaran radio, label, penjelasan satu baris. Dipakai juga untuk pilihan peran | Terpilih: titik radio terisi, latar `olive-100`, garis 2 px `ink-900` (bentuk, bukan hanya warna) |
+| Pilihan Kategori | Grup radio (`fieldset` dan `legend` "Kategori") berisi Plastik, Kertas, Besi, Lainnya dalam grid 2 kolom, tiap opsi 48 px bergaya Pilihan Metode tanpa penjelasan. Wajib dipilih; jenis lama berkategori kosong tampil tanpa pilihan dan harus dipilih sebelum simpan | Terpilih seperti Pilihan Metode; Galat: garis 2 px `bata-700` pada opsi dan teks galat "Pilih kategori jenis sampah" di bawah grup |
+| Unggah Gambar | Label "Gambar", pratinjau persegi 96 px latar `olive-50` `radius-2` (`object-contain`), di sampingnya tombol Sekunder "Pilih gambar" atau "Ganti gambar" dan tombol Teks "Hapus gambar" (membuka Dialog Merusak) atau "Batalkan gambar baru". Isian berkas tersembunyi, `accept` PNG, JPG, WebP. Teks bantuan tetap: "Disarankan gambar persegi (rasio 1:1), latar transparan, maksimal 500 KB. Format PNG, JPG, atau WebP." Gambar ditampilkan di Kartu Harga yang persegi, jadi rasio 1:1 adalah syarat tampilan rapi | Kosong (gambar bawaan atau Recycle dengan keterangan), Gambar saat ini, Gambar baru terpilih; Galat tipe atau ukuran (teks `bata-700` tebal, berkas ditolak); Peringatan rasio (Pesan Inline kardus "Rasio gambar tidak 1:1, tampilannya bisa kurang rapi di kartu." bila selisih rasio lebih dari 5%, tidak memblokir) |
 | Pemilih Rentang Periode | Dua isian tanggal bawaan peramban (`type=date`) berlabel "Dari tanggal" dan "Sampai tanggal", format dd/mm/yyyy | Galat jika mulai setelah akhir |
 
 ### Cap Status

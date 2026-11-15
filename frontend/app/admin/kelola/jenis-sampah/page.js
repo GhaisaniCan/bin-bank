@@ -1,15 +1,17 @@
 "use client"
 
 import { useCallback, useEffect, useState } from "react"
-import { WarningOctagon, WifiSlash } from "@phosphor-icons/react"
+import Image from "next/image"
+import { Recycle, WarningOctagon, WifiSlash } from "@phosphor-icons/react"
 import { api } from "@/lib/api"
 import { formatRupiah } from "@/lib/format"
+import { gambarSampah, urlGambarJenis } from "@/lib/gambarSampah"
 import { useDaring } from "@/lib/koneksi"
 import { tampilkanToast } from "@/lib/toast"
 import CapStatus from "@/components/CapStatus"
 import PesanInline from "@/components/PesanInline"
 import Tombol from "@/components/Tombol"
-import FormJenisSampah from "./FormJenisSampah"
+import FormJenisSampah, { KATEGORI } from "./FormJenisSampah"
 
 function rapikan(jenis) {
   const harga = jenis.hargaPerKg ?? jenis.harga_per_kg
@@ -31,13 +33,45 @@ function urutkan(daftar) {
   })
 }
 
-function Monogram({ nama }) {
+function GambarJenis({ jenis }) {
+  const unggahan = urlGambarJenis(jenis)
+  const [gagal, setGagal] = useState(null)
+  const bawaan = gambarSampah(jenis.nama)
   return (
     <span
       aria-hidden="true"
-      className="inline-flex size-[24px] shrink-0 items-center justify-center rounded-1 border border-ink-900 font-mono text-small font-bold"
+      className="flex size-[40px] shrink-0 items-center justify-center overflow-hidden rounded-2 bg-olive-50"
     >
-      {nama.charAt(0).toUpperCase()}
+      {unggahan && gagal !== unggahan ? (
+        <img
+          src={unggahan}
+          alt=""
+          width={40}
+          height={40}
+          loading="lazy"
+          onError={() => setGagal(unggahan)}
+          className="size-full object-contain"
+        />
+      ) : bawaan ? (
+        <Image src={bawaan} alt="" width={40} height={40} sizes="40px" className="size-full object-contain" />
+      ) : (
+        <Recycle size={24} weight="regular" className="text-ink-700" />
+      )}
+    </span>
+  )
+}
+
+function NamaJenis({ jenis }) {
+  const kategori = KATEGORI.find((k) => k.nilai === jenis.kategori)
+  return (
+    <span className="flex min-w-0 items-center gap-3">
+      <GambarJenis jenis={jenis} />
+      <span className="min-w-0">
+        <span className="block break-words">{jenis.nama}</span>
+        <span className="block text-small font-normal text-ink-700">
+          {kategori ? kategori.label : "Kategori belum diisi"}
+        </span>
+      </span>
     </span>
   )
 }
@@ -218,10 +252,7 @@ export default function Halaman() {
                   } ${j.aktif ? "" : "text-ink-700"}`}
                 >
                   <td className="py-2 pr-4">
-                    <span className="flex items-center gap-3">
-                      <Monogram nama={j.nama} />
-                      {j.nama}
-                    </span>
+                    <NamaJenis jenis={j} />
                   </td>
                   <td className="py-2 pr-4 text-right tabular-nums">{rupiah(j.hargaPerKg)}</td>
                   <td className="py-2 pr-4">
@@ -252,9 +283,8 @@ export default function Halaman() {
                 }`}
               >
                 <div className="flex items-center justify-between gap-3">
-                  <span className="flex items-center gap-3 font-bold">
-                    <Monogram nama={j.nama} />
-                    {j.nama}
+                  <span className="min-w-0 font-bold">
+                    <NamaJenis jenis={j} />
                   </span>
                   <CapStatus status={j.aktif ? "AKTIF" : "NONAKTIF"} />
                 </div>
@@ -289,6 +319,7 @@ export default function Halaman() {
           daftar={daftar || []}
           onTutup={() => setForm(null)}
           onTersimpan={tersimpan}
+          onDiperbarui={perbarui}
         />
       )}
     </main>
