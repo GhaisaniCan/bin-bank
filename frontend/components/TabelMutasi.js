@@ -9,6 +9,11 @@ const KETERANGAN_SUMBER = {
 
 const SUMBER_SETORAN = ["SETORAN", "PEMBATALAN_SETORAN"]
 
+const KELAS_TAUTAN = {
+  garis: "text-olive-700 underline decoration-1 group-hover:text-olive-800",
+  tebal: "font-bold text-olive-700 group-hover:text-olive-800 group-focus-visible:text-olive-800 focus-visible:text-olive-800",
+}
+
 function siapkan(baris) {
   const masuk = baris.tipe === "KREDIT" ? formatRupiah(baris.jumlah) : ""
   const keluar = baris.tipe === "DEBIT" ? formatRupiah(baris.jumlah) : ""
@@ -38,14 +43,14 @@ export function SkeletonMutasi({ jumlah = 5 }) {
 }
 
 // Daftar baris
-function DaftarBaris({ data }) {
+function DaftarBaris({ data, kelasTautan }) {
   return (
     <ul className="border-t border-line-300 min-[600px]:hidden">
       {data.map((b) => {
         const isi = (
           <>
             <span className="flex items-start justify-between gap-3">
-              <span className={b.tautan ? "text-olive-700 underline decoration-1 group-hover:text-olive-800" : "text-ink-900"}>
+              <span className={b.tautan ? kelasTautan : "text-ink-900"}>
                 {b.keterangan}
               </span>
               <span className="shrink-0 text-small text-ink-700">{b.tanggal}</span>
@@ -79,7 +84,7 @@ function DaftarBaris({ data }) {
 }
 
 // Tabel buku
-function TabelBuku({ data, labelId }) {
+function TabelBuku({ data, labelId, kelasTautan }) {
   const kelasKepala = "border-b border-line-300 px-2 py-3 text-small font-bold text-ink-700"
   const kelasSel = "px-2 py-3 align-top"
 
@@ -102,7 +107,7 @@ function TabelBuku({ data, labelId }) {
               {b.tautan ? (
                 <Link
                   href={b.tautan}
-                  className="text-olive-700 underline decoration-1 after:absolute after:inset-0 group-hover:text-olive-800"
+                  className={`${kelasTautan} after:absolute after:inset-0`}
                 >
                   {b.keterangan}
                 </Link>
@@ -121,13 +126,14 @@ function TabelBuku({ data, labelId }) {
 }
 
 // Tabel mutasi
-export default function TabelMutasi({ baris = [], labelId }) {
+export default function TabelMutasi({ baris = [], labelId, tautanTebal = false }) {
   const data = baris.map(siapkan)
+  const kelasTautan = KELAS_TAUTAN[tautanTebal ? "tebal" : "garis"]
 
   return (
     <>
-      <DaftarBaris data={data} />
-      <TabelBuku data={data} labelId={labelId} />
+      <DaftarBaris data={data} kelasTautan={kelasTautan} />
+      <TabelBuku data={data} labelId={labelId} kelasTautan={kelasTautan} />
     </>
   )
 }

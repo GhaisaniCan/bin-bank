@@ -417,6 +417,15 @@ Layout ditulis dari lebar ponsel 360 px (mobile first), urut dari atas ke bawah.
 - Di ponsel, tombol utama halaman formulir berada di **Bilah Aksi Lekat** di atas bilah menu, selalu terlihat tanpa menggulir.
 - Jarak antarbagian `space-6`, antarkelompok isian `space-4`, label ke isian `space-2`.
 
+### Tautan di layar nasabah
+
+Layar nasabah (`app/nasabah/`) tidak memakai garis bawah pada tautan. Tautan dibedakan dari teks biasa oleh bobot tebal, warna `olive-700` (7,27:1 pada `putih`), dan panah:
+
+- **Tautan berdiri sendiri** ("Lihat semua riwayat", "Semua pengajuan", "Tarik saldo", "Kembali ke riwayat") memakai Tautan Arah: ikon ArrowRight di kanan, atau ArrowLeft di kiri untuk kembali; target sentuh 48 px.
+- **Tautan di dalam tabel atau daftar** (keterangan "Setoran ..." di Tabel Buku) memakai `olive-700` tebal tanpa garis bawah, lewat prop `tautanTebal` pada `TabelMutasi`; saat hover atau fokus baris berlatar `olive-50` dan teks berganti `olive-800` (8,32:1).
+
+Alasannya: layar nasabah sudah padat garis pemisah baris dan angka. Garis bawah menambah kebisingan visual di sekitar nominal, sedangkan bobot, warna, dan panah cukup menandai tautan dan selaras dengan item menu pengguna. Layar petugas, admin, U1, U2, dan X1 sampai X3 tetap memakai aturan Tautan bergaris bawah.
+
 ### Kerangka navigasi
 
 Semua screen aktor dibungkus `KerangkaAplikasi` (`components/KerangkaAplikasi.js`), berisi **Bilah Menu** (`components/BilahMenu.js`) dan kepala atas. Screen umum dan sistem (U1, U2, X1 sampai X3) tidak memakainya.
@@ -424,7 +433,7 @@ Semua screen aktor dibungkus `KerangkaAplikasi` (`components/KerangkaAplikasi.js
 - **Item menu Nasabah**: Beranda (`/nasabah`, House), Riwayat (`/nasabah/riwayat`, ClockCounterClockwise), Tarik Saldo (`/nasabah/tarik-saldo`, Wallet), Harga (`/nasabah/harga`, Tag). Item aktif ditentukan dari alamat: cocok persis atau diawali alamat item diikuti `/`; Beranda hanya cocok persis.
 - **Merek**: logo (`public/logo-binbank.png`, tinggi 32 px, lebar menyesuaikan, `alt=""` karena dekoratif) di kiri tulisan "BinBank" (`text-h2`, `forest-900`, bobot 700), berjarak `space-2`, ditautkan ke beranda peran (item menu pertama, untuk Nasabah `/nasabah`). Mulai 1024 px tampil paling atas di bilah samping, di atas item menu, dengan padding `space-4` (kiri `space-5`, sama dengan padding item menu, sehingga tepi kiri logo sejajar dengan ikon item) dan jarak `space-4` ke item pertama. Di bawah 1024 px tampil di sisi kiri kepala atas, sejajar dengan tombol nama pengguna di kanan.
 - **Bilah Menu**: di bawah 1024 px bilah bawah melekat 64 px dengan `rule-1` di atas dan inset area aman; mulai 1024 px bilah samping 240 px melekat dengan `rule-1` di kanan. Spesifikasi item mengikuti bagian 7.
-- **Kepala atas**: satu baris setinggi `space-8` di atas konten, berisi nama pengguna di kanan sebagai tombol (nama di kiri, ikon User di kanannya) dengan `aria-expanded`, tanpa latar dan garis di semua state; saat hover nama dan ikon berganti ke `olive-700` seketika tanpa transisi. Tombol membuka menu kecil (`shadow-1`) berisi satu item **Keluar** (ikon SignOut, Tombol Teks). Menu menutup dengan Esc (fokus kembali ke tombol nama), klik di luar menu, atau memilih item. Keluar menghapus sesi lalu mengganti alamat ke `/login`.
+- **Kepala atas**: satu baris setinggi `space-8` di atas konten, berisi nama pengguna di kanan sebagai tombol (nama di kiri, ikon User di kanannya) dengan `aria-expanded`, tanpa latar dan garis di semua state; saat hover nama dan ikon berganti ke `olive-700` seketika tanpa transisi. Tombol membuka menu kecil (`shadow-1`) berisi item opsional per peran (prop `itemPengguna`) lalu **Keluar** (ikon SignOut). Item menu pengguna berupa tombol setinggi 48 px, teks tebal `olive-700` dengan ikon di kiri, tanpa garis bawah; dibedakan lewat ikon dan perubahan warna: saat hover teks `olive-800` di atas latar `olive-50`, seketika tanpa transisi seperti item Bilah Menu, dan fokus keyboard memakai `focus-ring`. Aturan garis bawah untuk tautan di dalam teks tidak berubah. Nasabah mendapat **Ganti password** (ikon Key, ke `/nasabah/ganti-password`); petugas dan admin hanya Keluar. Menu menutup dengan Esc (fokus kembali ke tombol nama), klik di luar menu, atau memilih item. Keluar menghapus sesi lalu mengganti alamat ke `/login`.
 - **Area konten**: gutter `space-4` (ponsel), `space-5` (tablet), `space-6` (desktop); di desktop berada di kanan bilah samping, lebar maksimum 1120 px di tengah, dengan kepala atas setinggi `space-8` sebagai margin atasnya. Di bawah 1024 px konten diberi padding bawah 64 px ditambah inset area aman agar tidak tertutup bilah bawah.
 
 ### U1. Masuk
@@ -436,6 +445,10 @@ Semua screen aktor dibungkus `KerangkaAplikasi` (`components/KerangkaAplikasi.js
 5. Teks bantuan di bawah tombol: "Lupa password? Minta admin atau petugas RW mengatur ulang." Tanpa tautan, karena tidak ada fitur kirim email.
 
 Tidak ada ilustrasi, tidak ada hero, tidak ada kartu. Di desktop, satu kolom selebar 400 px di tengah layar secara horizontal dan vertikal, di atas latar `putih`.
+
+### U3. Ganti Password Sendiri
+
+Di dalam `KerangkaAplikasi`, dibuka dari menu pengguna. Kepala Halaman h1 "Ganti password" (`forest-900`) tanpa keterangan, lalu Form Ganti Password selebar maksimum 400 px. Galat dari server (mis. password lama salah) tampil di bawah isian terkait tanpa pindah halaman. Berhasil: sesi diperbarui dengan token baru, toast "Password berhasil diganti", form dikosongkan, dan pengguna tetap di halaman ini.
 
 ### U2. Ganti Password Wajib
 
@@ -716,6 +729,7 @@ State: **Memuat** (lima baris skeleton), **Kosong** (Keadaan Kosong), **Galat** 
 | Bilah Aksi Lekat | Wadah melekat di atas Bilah Menu, latar `putih`, `rule-1` di atas, padding `space-4`, menghormati area aman perangkat; berisi tombol Utama (dan Sekunder bila ada) |
 | Paginasi | Tombol Sekunder **Sebelumnya** dan **Berikutnya**, teks "Halaman 2 dari 7" di tengah; tanpa deret nomor halaman |
 | Tautan | `olive-700`, selalu bergaris bawah 1,5 px |
+| Tautan Arah | `components/TautanArah.js`, khusus layar nasabah. Tautan berdiri sendiri tanpa garis bawah: `olive-700` tebal, ikon ArrowRight 16 px di kanan teks (ArrowLeft di kiri untuk tautan kembali, prop `kembali`) berjarak `space-1`, tinggi minimal 48 px. Hover dan fokus: teks `olive-800`, ikon bergeser 4 px searah panah (150 ms, hanya bila `prefers-reduced-motion` tidak aktif); fokus memakai `focus-ring` |
 
 ### Umpan balik
 

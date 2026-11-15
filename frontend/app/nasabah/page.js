@@ -1,7 +1,6 @@
 "use client"
 
 import { useCallback, useEffect, useState } from "react"
-import Link from "next/link"
 import { CheckCircle, Info, WarningOctagon, WifiSlash } from "@phosphor-icons/react"
 import { api } from "@/lib/api"
 import { ambilUser } from "@/lib/auth"
@@ -12,9 +11,9 @@ import TabelMutasi, { SkeletonMutasi } from "@/components/TabelMutasi"
 import CapStatus from "@/components/CapStatus"
 import PesanInline from "@/components/PesanInline"
 import Tombol from "@/components/Tombol"
+import TautanArah from "@/components/TautanArah"
 
 const AWAL = { data: null, galat: false }
-const kelasTautan = "inline-flex min-h-7 items-center text-body text-olive-700 underline decoration-1 hover:decoration-2"
 
 function hasilBagian(hasil, ambil) {
   return (lalu) =>
@@ -43,9 +42,9 @@ function PengajuanTerakhir({ pengajuan }) {
         <span className="text-small text-ink-700">{formatTanggal(pengajuan.createdAt)}</span>
         <span className="text-amount font-bold tabular-nums">{formatRupiah(pengajuan.jumlah)}</span>
         <CapStatus status={pengajuan.status} />
-        <Link href="/nasabah/pengajuan" className={`${kelasTautan} ml-auto`}>
+        <TautanArah href="/nasabah/pengajuan" className="ml-auto">
           Semua pengajuan
-        </Link>
+        </TautanArah>
       </div>
     </section>
   )
@@ -174,10 +173,10 @@ export default function Halaman() {
               </div>
             ) : (
               <div>
-                <TabelMutasi baris={mutasi.data} labelId="judul-mutasi" />
-                <Link href="/nasabah/riwayat" className={`${kelasTautan} mt-2`}>
+                <TabelMutasi baris={mutasi.data} labelId="judul-mutasi" tautanTebal />
+                <TautanArah href="/nasabah/riwayat" className="mt-2">
                   Lihat semua riwayat
-                </Link>
+                </TautanArah>
               </div>
             )}
           </div>

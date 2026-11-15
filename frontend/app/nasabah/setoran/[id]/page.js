@@ -2,7 +2,6 @@
 
 import { useCallback, useEffect, useState } from "react"
 import { useParams } from "next/navigation"
-import Link from "next/link"
 import { CheckCircle, Info, Prohibit, WarningOctagon, WifiSlash } from "@phosphor-icons/react"
 import { api } from "@/lib/api"
 import { ambilUser } from "@/lib/auth"
@@ -12,9 +11,9 @@ import CapStatus from "@/components/CapStatus"
 import LembarSetoran from "@/components/LembarSetoran"
 import PesanInline from "@/components/PesanInline"
 import Tombol from "@/components/Tombol"
+import TautanArah from "@/components/TautanArah"
 
 const STATUS_TIDAK_DITEMUKAN = [400, 403, 404]
-const kelasTautan = "inline-flex min-h-7 items-center text-body text-olive-700 underline decoration-1 hover:decoration-2"
 
 function petakan(data, user) {
   return {
@@ -141,9 +140,9 @@ export default function Halaman() {
   }, [muatUlang])
 
   const tautanKembali = (
-    <Link href="/nasabah/riwayat" className={kelasTautan}>
+    <TautanArah href="/nasabah/riwayat" kembali>
       Kembali ke riwayat
-    </Link>
+    </TautanArah>
   )
 
   if (tidakDitemukan && !setoran) {

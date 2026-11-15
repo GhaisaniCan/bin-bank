@@ -138,7 +138,7 @@ export default function Halaman() {
           </div>
         ) : (
           <div>
-            <TabelMutasi baris={daftar} labelId="judul-riwayat" />
+            <TabelMutasi baris={daftar} labelId="judul-riwayat" tautanTebal />
             {paginasi && (
               <Paginasi
                 halaman={paginasi.halaman}

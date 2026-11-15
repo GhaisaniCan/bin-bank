@@ -1,7 +1,6 @@
 "use client"
 
 import { useCallback, useEffect, useState } from "react"
-import Link from "next/link"
 import { CheckCircle, Info, WarningOctagon, WifiSlash } from "@phosphor-icons/react"
 import { api } from "@/lib/api"
 import { useDaring } from "@/lib/koneksi"
@@ -11,6 +10,7 @@ import Paginasi from "@/components/Paginasi"
 import PesanInline from "@/components/PesanInline"
 import TabStatus from "@/components/TabStatus"
 import Tombol from "@/components/Tombol"
+import TautanArah from "@/components/TautanArah"
 
 const TAB = [
   { id: "semua", label: "Semua" },
@@ -29,7 +29,6 @@ const KOSONG = {
 }
 
 const LIMIT = 10
-const kelasTautan = "inline-flex min-h-7 items-center text-body text-olive-700 underline decoration-1 hover:decoration-2"
 
 function alamat(status, halaman, limit) {
   const q = new URLSearchParams({ halaman: String(halaman), limit: String(limit) })
@@ -202,9 +201,9 @@ export default function Halaman() {
             {aktif === "semua" && (
               <>
                 <p className="mt-2 text-body text-ink-700">Pengajuan penarikan akan muncul di sini setelah Anda mengajukannya.</p>
-                <Link href="/nasabah/tarik-saldo" className={`${kelasTautan} mt-2`}>
+                <TautanArah href="/nasabah/tarik-saldo" className="mt-2">
                   Tarik saldo
-                </Link>
+                </TautanArah>
               </>
             )}
           </div>
