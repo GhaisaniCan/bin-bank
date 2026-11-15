@@ -59,7 +59,7 @@ Referensi diambil dari benda nyata yang dilihat warga setiap hari, bukan dari pr
 - Latar putih (`putih`) dengan teks tinta gelap (`ink`). Bidang hijau muda (`olive-50`, `olive-100`) hanya untuk area sekunder, item terpilih, dan hiasan.
 - Garis tipis 1 px sebagai pemisah utama. Bayangan hanya untuk lapisan yang melayang (menu, dialog, toast).
 - Seluruh teks memakai Outfit; angka memakai angka tabular Outfit (`tnum`) supaya digit sejajar.
-- Status tampil sebagai **cap**: kata kapital di atas bidang warna, dengan bentuk ikon yang berbeda per status (bagian 7, komponen Cap Status).
+- Status tampil sebagai **cap**: kata kapital di atas bidang warna. Status dibedakan oleh kata kapital dan warna; kata adalah penanda utama sehingga status tidak pernah bergantung pada warna saja (bagian 7, komponen Cap Status).
 - Pictogram jenis sampah (botol, kardus, kaleng, kertas, logam) digambar sendiri dalam satu gaya garis, 24 px, supaya petugas mengenali jenis dari bentuk sebelum membaca nama.
 - Gerak seminimal mungkin: perubahan status instan, tanpa animasi dekoratif.
 
@@ -125,7 +125,7 @@ Palet mengikuti desain awal tim: putih sebagai latar, tinta gelap sebagai teks, 
 
 **Mengapa olive-700 sebagai warna utama.** Zaitun pada desain awal tim (#849347) hanya berkontras 3,36:1 dengan putih, sehingga tidak lolos target 7:1 untuk teks dan tombol. Warna itu digelapkan dengan rona yang sama menjadi #4F5C23: tombol berteks putih dan teks tautan di atas putih mencapai 7,27:1 dan tetap terbaca di bawah sinar matahari. Hijau muda #CDE1B3 dari desain awal dipertahankan apa adanya, tetapi hanya sebagai bidang latar: `olive-700` di atasnya hanya 5,20:1, jadi teks di atas `olive-100` memakai `ink-900` atau `ink-700`.
 
-**Mengapa status berwarna kardus, PET, bata, daun.** Empat status penarikan (MENUNGGU, DISETUJUI, DITOLAK, SELESAI) membutuhkan empat warna yang bisa dibedakan, dan setiap warna dipetakan ke satu bahan yang dikenal petugas. Warna tidak pernah menjadi satu-satunya penanda: setiap status membawa kata kapital dan bentuk ikon sendiri (bagian 7).
+**Mengapa status berwarna kardus, PET, bata, daun.** Empat status penarikan (MENUNGGU, DISETUJUI, DITOLAK, SELESAI) membutuhkan empat warna yang bisa dibedakan, dan setiap warna dipetakan ke satu bahan yang dikenal petugas. Warna tidak pernah menjadi satu-satunya penanda: setiap status membawa kata kapitalnya sendiri, dan kata itulah penanda utamanya (bagian 7).
 
 **Aturan penggunaan.**
 
@@ -477,6 +477,14 @@ Catatan implementasi (menyimpang dari atau melengkapi tulisan di atas dan bagian
 6. Ringkasan satu baris: "Saldo tersedia setelah pengajuan: Rp 58.500" dan teks "Saldo belum berkurang sampai pengajuan disetujui. Pengajuan tidak bisa dibatalkan sendiri."
 7. **Aksi utama** di Bilah Aksi Lekat: "Ajukan penarikan Rp 50.000". Label ikut berubah mengikuti nominal; bila nominal kosong, "Ajukan penarikan".
 
+Catatan implementasi (menyimpang dari atau melengkapi tulisan di atas dan bagian 8):
+
+- Isian Uang berlabel "Jumlah penarikan". Pita saldo berisi label `text-small` bobot 700 `ink-700` "Saldo tersedia", angka `text-h2`, dan bila ada pengajuan menunggu satu baris "Sedang ditahan: Rp 20.000"; melekat di atas dengan `rule-1` di bawah.
+- Saat memuat saldo tampil Pesan Inline Info "Memuat saldo..."; bila gagal, Pesan Inline galat "Saldo belum bisa dimuat" dengan tombol Sekunder **Coba lagi**. Form tidak tampil sebelum saldo termuat.
+- Pilihan Metode memakai `components/PilihanMetode.js`: `fieldset` dengan `legend` "Metode penarikan", tiap opsi berupa `label` yang membungkus radio asli 24 px (`accent-color` `olive-700`), label tebal, dan penjelasan satu baris `text-small`; tinggi baris minimal 56 px dari isinya. Terpilih: latar `olive-100` dan garis 2 px `ink-900` (garis 1 px ditambah ring 1 px agar tata letak tidak bergeser). Fokus keyboard memakai `focus-ring` global pada radio; panah atas dan bawah berpindah opsi seperti radio bawaan.
+- Bilah Aksi Lekat ditulis langsung di halaman: `sticky` di atas Bilah Menu (`bottom` = 64 px ditambah inset area aman), mulai 1024 px melekat di dasar layar; tombol selebar penuh di ponsel. Pesan Inline galat dari server tampil tepat di atasnya. Galat jaringan atau 5xx: "Pengajuan belum dipastikan terkirim. Periksa pengajuan Anda sebelum mengajukan lagi."; setelah galat apa pun saldo dimuat ulang.
+- Berhasil: toast "Pengajuan terkirim" lalu pindah ke `/nasabah` sampai N5 tersedia.
+
 ### N5. Pengajuan Saya
 
 1. Kepala Halaman: "Pengajuan saya".
@@ -592,13 +600,13 @@ Tiga puluh komponen. Perilaku (fokus, keyboard, ARIA) ditanam di primitif headle
 
 ### Daftar ikon (tertutup)
 
-Ikon memakai Phosphor Regular, 24 px (16 px di dalam Cap Status), ketebalan garis 1,5 px, warna mengikuti teks di sebelahnya. Hanya ikon di tabel ini yang boleh dipakai; ikon baru butuh keputusan desain. Ikon selalu berdampingan dengan kata.
+Ikon memakai Phosphor Regular, 24 px, ketebalan garis 1,5 px, warna mengikuti teks di sebelahnya. Hanya ikon di tabel ini yang boleh dipakai; ikon baru butuh keputusan desain. Ikon selalu berdampingan dengan kata.
 
 | Fungsi | Ikon |
 | --- | --- |
 | Menu | House (Beranda), ClockCounterClockwise (Riwayat), Wallet (Tarik Saldo), Tag (Harga), Plus (Catat Setoran), Receipt (Setoran), Money (Penarikan), Users (Nasabah), ChartBar (Laporan), Gear (Kelola) |
 | Aksi | MagnifyingGlass (Cari), PencilSimple (Ubah), Copy (Salin), Eye dan EyeSlash (Tampilkan dan Sembunyikan), X (Tutup), CaretRight dan CaretLeft (Lanjut dan Kembali), ArrowCounterClockwise (Coba lagi), SignOut (Keluar), User (Profil) |
-| Status dan pesan | Hourglass, Check, Checks, X, Prohibit, Notebook (Cap Status); Info, Warning, WarningOctagon, CheckCircle, WifiSlash (Pesan Inline) |
+| Status dan pesan | Check (item terpilih), Prohibit dan X (tombol Merusak); Info, Warning, WarningOctagon, CheckCircle, WifiSlash (Pesan Inline) |
 
 ### Pictogram jenis sampah
 
@@ -634,18 +642,18 @@ Label selalu tampak di atas isian; placeholder tidak pernah menggantikan label. 
 
 ### Cap Status
 
-Cap tidak interaktif. Bentuk: persegi panjang `radius-2` tanpa garis tepi, teks dalam warna -700, latar -100, ikon 16 px di depan kata kapital `text-cap`, tinggi minimal 28 px. Setiap status punya kata dan ikon sendiri, sehingga tetap berbeda dalam skala abu-abu.
+Cap tidak interaktif. Bentuk: persegi panjang `radius-2` tanpa garis tepi, teks dalam warna -700, latar -100, kata kapital `text-cap` tanpa ikon, padding horizontal `space-3`, tinggi minimal 28 px. Status dibedakan oleh kata kapital dan warna; kata adalah penanda utama sehingga status tidak pernah bergantung pada warna saja dan tetap terbaca dalam skala abu-abu.
 
-| Status | Warna | Ikon | Dipakai pada |
-| --- | --- | --- | --- |
-| MENUNGGU | `kardus` | Hourglass | Pengajuan baru |
-| DISETUJUI | `pet` | Check | Pengajuan disetujui, dana belum diserahkan |
-| SELESAI | `daun` | Checks | Dana sudah diserahkan |
-| DITOLAK | `bata` | X | Pengajuan ditolak |
-| TERCATAT | `daun` | Notebook | Setoran sah |
-| DIBATALKAN | `bata` | Prohibit | Setoran dibatalkan |
-| AKTIF | `daun` | Check | Jenis sampah atau akun aktif |
-| NONAKTIF | netral (`putih`, `ink-700`, garis `line-500`; tanpa isian warna agar berbeda dari Cap hijau AKTIF dan SELESAI) | Prohibit | Jenis sampah atau akun nonaktif |
+| Status | Warna | Dipakai pada |
+| --- | --- | --- |
+| MENUNGGU | `kardus` | Pengajuan baru |
+| DISETUJUI | `pet` | Pengajuan disetujui, dana belum diserahkan |
+| SELESAI | `daun` | Dana sudah diserahkan |
+| DITOLAK | `bata` | Pengajuan ditolak |
+| TERCATAT | `daun` | Setoran sah |
+| DIBATALKAN | `bata` | Setoran dibatalkan |
+| AKTIF | `daun` | Jenis sampah atau akun aktif |
+| NONAKTIF | netral (`putih`, `ink-700`, garis `line-500`; tanpa isian warna agar berbeda dari Cap hijau AKTIF dan SELESAI) | Jenis sampah atau akun nonaktif |
 
 ### Angka
 
@@ -815,7 +823,7 @@ Focus ring `olive-700` berkontras 7,27:1 pada `putih` dan 6,36:1 pada `olive-50`
 
 Aturan pendamping kontras:
 
-- Informasi tidak pernah disampaikan hanya lewat warna: status = kata + ikon + warna; item terpilih = tanda Check atau titik radio + latar + garis tebal; item menu aktif = kata tebal + penanda + latar; mutasi = kolom Masuk dan Keluar.
+- Informasi tidak pernah disampaikan hanya lewat warna: status = kata kapital + warna, dengan kata sebagai penanda utama; item terpilih = tanda Check atau titik radio + latar + garis tebal; item menu aktif = kata tebal + penanda + latar; mutasi = kolom Masuk dan Keluar.
 - Teks pendukung `ink-500` hanya untuk keterangan sekunder (waktu, bantuan isian), bukan untuk informasi yang diperlukan untuk memutuskan, misalnya alasan penolakan (memakai `ink-900`).
 - Tidak ada teks di atas gambar atau gradien. Tidak ada teks yang dibatasi hanya oleh `line-300`.
 
@@ -868,7 +876,7 @@ Elemen HTML bawaan didahulukan; ARIA hanya menambal yang tidak tercakup.
 | Kotak Cari | Pola combobox: `role="combobox"`, `aria-expanded`, `aria-controls`, `aria-autocomplete="list"`, `aria-activedescendant`; daftar `role="listbox"` berisi `role="option"`; wilayah `aria-live="polite"` mengumumkan "5 hasil" atau "Tidak ada hasil" |
 | Pilihan Jenis Sampah | Listbox; nama opsi "Botol plastik, Rp 2.500 per kg"; pictogram `aria-hidden="true"` |
 | Pilihan Metode | `role="radiogroup"` dengan `aria-labelledby`; radio asli |
-| Cap Status | Teks nyata; ikon `aria-hidden`; kapital dibuat dengan CSS `text-transform`, bukan diketik kapital, agar pembaca layar membaca kata biasa ("Menunggu", bukan mengeja) |
+| Cap Status | Teks nyata tanpa ikon; kapital dibuat dengan CSS `text-transform`, bukan diketik kapital, agar pembaca layar membaca kata biasa ("Menunggu", bukan mengeja) |
 | Tabel Buku | `<table>` asli dengan `<caption>` (boleh tersembunyi secara visual), `<th scope>`; baris total di `<tfoot>`. Daftar Baris di ponsel tetap tabel yang sama dengan tampilan CSS berbeda dan `role` eksplisit agar semantik tidak hilang. Sel kosong pada Masuk atau Keluar berisi teks tersembunyi "kosong" |
 | Angka dicoret (DIBATALKAN) | Dibungkus `<del>`; ditambah teks tersembunyi "dibatalkan", karena coretan tidak dibacakan |
 | Tab Status | `tablist`, `tab` (dengan `aria-selected`, `aria-controls`), `tabpanel`; hitungan menjadi bagian nama tab ("Menunggu, 3") |
@@ -896,7 +904,7 @@ Elemen HTML bawaan didahulukan; ARIA hanya menambal yang tidak tercakup.
 - Teks membesar sampai 200% tanpa kehilangan fungsi. Reflow pada 320 px tanpa scroll horizontal (kecuali isi yang memang dua dimensi; tidak ada pada BinBank).
 - Ukuran huruf memakai `rem`; tinggi komponen memakai `min-height`, bukan tinggi tetap, agar tidak terpotong saat teks membesar.
 - Penimpaan jarak teks (kriteria 1.4.12) tidak memotong konten.
-- Mode kontras tinggi (`forced-colors`): batas komponen memakai `border` asli, ring fokus memakai `outline`, Cap Status mempertahankan kata dan ikon.
+- Mode kontras tinggi (`forced-colors`): batas komponen memakai `border` asli, ring fokus memakai `outline`, Cap Status mempertahankan kata.
 
 ### Rencana pengujian aksesibilitas
 
