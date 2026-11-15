@@ -483,13 +483,20 @@ Catatan implementasi (menyimpang dari atau melengkapi tulisan di atas dan bagian
 - Saat memuat saldo tampil Pesan Inline Info "Memuat saldo..."; bila gagal, Pesan Inline galat "Saldo belum bisa dimuat" dengan tombol Sekunder **Coba lagi**. Form tidak tampil sebelum saldo termuat.
 - Pilihan Metode memakai `components/PilihanMetode.js`: `fieldset` dengan `legend` "Metode penarikan", tiap opsi berupa `label` yang membungkus radio asli 24 px (`accent-color` `olive-700`), label tebal, dan penjelasan satu baris `text-small`; tinggi baris minimal 56 px dari isinya. Terpilih: latar `olive-100` dan garis 2 px `ink-900` (garis 1 px ditambah ring 1 px agar tata letak tidak bergeser). Fokus keyboard memakai `focus-ring` global pada radio; panah atas dan bawah berpindah opsi seperti radio bawaan.
 - Bilah Aksi Lekat ditulis langsung di halaman: `sticky` di atas Bilah Menu (`bottom` = 64 px ditambah inset area aman), mulai 1024 px melekat di dasar layar; tombol selebar penuh di ponsel. Pesan Inline galat dari server tampil tepat di atasnya. Galat jaringan atau 5xx: "Pengajuan belum dipastikan terkirim. Periksa pengajuan Anda sebelum mengajukan lagi."; setelah galat apa pun saldo dimuat ulang.
-- Berhasil: toast "Pengajuan terkirim" lalu pindah ke `/nasabah` sampai N5 tersedia.
+- Berhasil: toast "Pengajuan terkirim" lalu pindah ke `/nasabah/pengajuan` (N5).
 
 ### N5. Pengajuan Saya
 
 1. Kepala Halaman: "Pengajuan saya".
 2. Daftar Kartu Pengajuan, terbaru dulu: nominal (`text-amount`), tanggal, metode, Cap Status. Bila DITOLAK, alasan tampil penuh di bawah, dalam `ink-900` (bukan teks pendukung) karena nasabah perlu memahaminya. Bila E-wallet, nama dan nomor tampil.
 3. Paginasi di akhir daftar. Tidak ada aksi pada kartu.
+
+Catatan implementasi (melengkapi tulisan di atas dan bagian 8):
+
+- Tab Status lima tab: Semua (bawaan), Menunggu, Disetujui, Ditolak, Selesai. Di ponsel tetap 2 kolom, tab kelima di baris ketiga. Jumlah tiap tab diambil dari `paginasi.total` permintaan `GET /penarikan/saya?status=...&limit=1`; bila belum termuat, jumlah ditulis "-", bukan 0.
+- Kartu Pengajuan versi nasabah ada di `components/KartuPengajuanSaya.js`: tanpa kotak, tiap kartu dipisah `rule` `line-500` (atas daftar dan bawah tiap kartu). Baris atas nominal `text-amount` dan Cap Status; di bawahnya tanggal dan metode `text-small` `ink-700`; bila E-wallet nama dan nomor (tabular) `text-body`; bila DITOLAK "Alasan: ..." `text-body` `ink-900`.
+- Kosong per tab: Semua "Belum ada pengajuan" dengan satu kalimat dan tautan **Tarik saldo**; tab lain hanya judul h3.
+- Sorotan `olive-100` untuk pengajuan baru belum diterapkan.
 
 ### P2. Cari Nasabah
 

@@ -96,7 +96,7 @@ export default function Halaman() {
     try {
       await api("/penarikan/ajukan", { method: "POST", body, galatInline: true })
       tampilkanToast("Pengajuan terkirim")
-      router.push("/nasabah")
+      router.push("/nasabah/pengajuan")
     } catch (err) {
       setGalatServer(
         err.status === 0 || err.status >= 500
