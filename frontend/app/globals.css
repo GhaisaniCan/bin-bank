@@ -3,6 +3,7 @@
 @theme inline {
   --color-*: initial;
   --color-putih: #ffffff;
+  --color-krem-50: #fffefb;
   --color-olive-50: #eaf3de;
   --color-olive-100: #cde1b3;
   --color-olive-700: #4f5c23;
@@ -63,6 +64,24 @@
   --text-cap: 14px;
   --text-cap--line-height: 16px;
   --text-cap--letter-spacing: 0.04em;
+  --text-landing-judul: clamp(44px, calc(32px + 3.4vw), 68px);
+  --text-landing-judul--line-height: 1.1;
+  --text-landing-subjudul: clamp(20px, calc(14px + 2.1vw), 36px);
+  --text-landing-subjudul--line-height: 1.25;
+  --text-landing-bagian: clamp(26px, calc(20px + 1.4vw), 36px);
+  --text-landing-bagian--line-height: 1.2;
+  --text-landing-isi: clamp(16px, calc(14px + 0.6vw), 20px);
+  --text-landing-isi--line-height: 1.5;
+  --text-landing-fitur: clamp(14px, calc(12px + 0.6vw), 18px);
+  --text-landing-fitur--line-height: 1.4;
+  --text-landing-judul-hp: calc(clamp(44px, calc(32px + 3.4vw), 68px) * 0.82);
+  --text-landing-judul-hp--line-height: 1.1;
+  --text-landing-subjudul-hp: calc(clamp(20px, calc(14px + 2.1vw), 36px) * 0.82);
+  --text-landing-subjudul-hp--line-height: 1.25;
+  --text-landing-bagian-hp: calc(clamp(26px, calc(20px + 1.4vw), 36px) * 0.82);
+  --text-landing-bagian-hp--line-height: 1.2;
+  --text-landing-isi-hp: max(14px, calc(clamp(16px, calc(14px + 0.6vw), 20px) * 0.85));
+  --text-landing-isi-hp--line-height: 1.5;
 
   --font-sans: var(--font-outfit), system-ui, sans-serif;
 }
@@ -85,5 +104,63 @@ body {
   *::after {
     animation-duration: 0ms !important;
     transition-duration: 0ms !important;
+  }
+}
+
+[data-muncul][data-tahap="sembunyi"] {
+  opacity: 0;
+  transition: none;
+}
+
+[data-muncul="kiri"][data-tahap="sembunyi"] {
+  transform: translateX(-32px);
+}
+
+[data-muncul="kanan"][data-tahap="sembunyi"] {
+  transform: translateX(32px);
+}
+
+[data-muncul="naik"][data-tahap="sembunyi"] {
+  transform: translateY(16px);
+}
+
+[data-muncul][data-tahap="tampil"] {
+  opacity: 1;
+  transform: none;
+  transition:
+    opacity 600ms ease-out,
+    transform 600ms ease-out;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  [data-muncul][data-tahap] {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+}
+
+@keyframes dering {
+  0%,
+  100% {
+    transform: rotate(0deg);
+  }
+  20% {
+    transform: rotate(-8deg);
+  }
+  40% {
+    transform: rotate(8deg);
+  }
+  60% {
+    transform: rotate(-6deg);
+  }
+  80% {
+    transform: rotate(6deg);
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  [data-dering="aktif"] {
+    animation: dering 600ms ease-in-out infinite;
   }
 }
