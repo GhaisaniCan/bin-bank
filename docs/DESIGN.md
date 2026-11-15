@@ -107,6 +107,7 @@ Palet mengikuti desain awal tim: putih sebagai latar, tinta gelap sebagai teks, 
 | Token | Hex | Peran |
 | --- | --- | --- |
 | `putih` | #FFFFFF | Latar halaman utama dan permukaan terangkat: kartu, dialog, kolom isian |
+| `krem-50` | #FFFEFB | Latar landing page (L1): pembungkus halaman, kepala, dan kaki. Tidak dipakai di layar aplikasi |
 | `olive-50` | #EAF3DE | Baris tabel selang-seling, area sekunder, skeleton, tombol sekunder saat hover |
 | `ink-900` | #1D2420 | Teks isi, angka, judul |
 | `ink-700` | #394240 | Teks sekunder yang tetap penting (label kolom, keterangan) |
@@ -140,6 +141,9 @@ Palet mengikuti desain awal tim: putih sebagai latar, tinta gelap sebagai teks, 
 | Pasangan | Rasio | Dipakai untuk | Target |
 | --- | --- | --- | --- |
 | `ink-900` pada `putih` | 15,84:1 | Teks isi, angka, dan judul di halaman dan kartu | 7:1 |
+| `ink-900` pada `krem-50` | 15,71:1 | Teks isi dan judul di landing page | 7:1 |
+| `forest-900` pada `krem-50` | 9,98:1 | Merek di kepala landing page | 7:1 |
+| `olive-700` pada `krem-50` | 7,21:1 | Judul bagian dan kata tebal di landing page | 7:1 |
 | `ink-900` pada `olive-50` | 13,86:1 | Teks di baris selang-seling | 7:1 |
 | `ink-700` pada `putih` | 10,36:1 | Label kolom, keterangan | 7:1 |
 | `ink-700` pada `olive-50` | 9,06:1 | Label di area sekunder | 7:1 |
@@ -181,6 +185,22 @@ Outfit adalah huruf sans geometris berlisensi terbuka (SIL OFL), tersedia dalam 
 | `text-amount-sm` | 16 / 24 px | 400 | Outfit tabular | Nilai dalam sel tabel padat |
 | `text-small` | 14 / 20 px | 400 | Outfit | Teks pendukung, waktu, bantuan isian |
 | `text-cap` | 14 / 16 px, jarak huruf 0,04 em, kapital | 700 | Outfit | Cap Status |
+
+**Skala khusus Landing Page (L1).** Token tetap terlalu kecil untuk hero, jadi L1 memakai lima token cair di `app/globals.css`, masing-masing `clamp()` yang tumbuh linear terhadap lebar layar dari 360 px sampai sekitar 1024 px lalu berhenti di nilai desktop. Hanya L1 yang memakainya.
+
+| Token | Nilai | Tinggi baris | 360 px | Desktop | Dipakai untuk |
+| --- | --- | --- | --- | --- | --- |
+| `text-landing-judul` | clamp(44px, 32px + 3,4vw, 68px) | 1,1 | 44 px | 68 px | "BinBank:" di hero |
+| `text-landing-subjudul` | clamp(20px, 14px + 2,1vw, 36px) | 1,25 | 22 px | 36 px | "Bank Sampah Digital RW" |
+| `text-landing-bagian` | clamp(26px, 20px + 1,4vw, 36px) | 1,2 | 26 px | 36 px | Judul bagian (Apa itu BinBank?, 4 Fitur Utama, Kontak Kami) |
+| `text-landing-isi` | clamp(16px, 14px + 0,6vw, 20px) | 1,5 | 16 px | 20 px | Paragraf hero dan Apa itu BinBank?, teks kontak |
+| `text-landing-fitur` | clamp(14px, 12px + 0,6vw, 18px) | 1,4 | 14 px | 18 px | Teks butir 4 Fitur Utama |
+| `text-landing-judul-hp` | `text-landing-judul` × 0,82 | 1,1 | 36 px | – | "BinBank:" di bawah 640 px |
+| `text-landing-subjudul-hp` | `text-landing-subjudul` × 0,82 | 1,25 | 18 px | – | "Bank Sampah Digital RW" di bawah 640 px |
+| `text-landing-bagian-hp` | `text-landing-bagian` × 0,82 | 1,2 | 21 px | – | Judul bagian di bawah 640 px |
+| `text-landing-isi-hp` | max(14px, `text-landing-isi` × 0,85) | 1,5 | 14 px | – | Paragraf dan teks kontak di bawah 640 px |
+
+Varian `-hp` dipakai hanya di bawah 640 px (kelas dasar, lalu `sm:` kembali ke token utama), sehingga tablet dan desktop tidak berubah. Di ponsel tagline dan kaki memakai `text-small` (14 px) dan teks tombol Coba Sekarang `text-body` (16 px); teks butir fitur tetap `text-landing-fitur` karena sudah 14 px. Pengecualian yang disengaja untuk L1: paragraf landing di ponsel boleh 14 px (batas bawah varian `-hp`), di bawah aturan teks isi 16 px untuk layar aplikasi.
 
 Aturan tipografi: tidak ada ukuran di bawah 14 px; teks isi tidak pernah di bawah 16 px; panjang baris paragraf dibatasi 70 karakter; tidak ada italic; penekanan memakai bobot 700. Nilai uang ditulis `Rp 25.000` (spasi tak terputus setelah Rp, titik sebagai pemisah ribuan) dan berat ditulis `2,50 kg` (koma desimal, dua angka di belakang koma sesuai presisi 0,01 kg di PRD).
 
@@ -228,7 +248,7 @@ Di dunia buku kas, hierarki dibuat dengan garis, bukan bayangan. Bayangan hanya 
 ### Gerak
 
 - Perubahan warna saat hover, fokus, dan tekan bersifat instan (0 ms). Tombol tidak memudar.
-- Hanya bottom sheet dan dialog yang bergerak: geser 8 px dan tampil dalam 150 ms.
+- Hanya bottom sheet dan dialog yang bergerak: geser 8 px dan tampil dalam 150 ms. Pengecualian: Landing Page (L1) memakai animasi muncul sekali saat elemen masuk layar (lihat L1, komponen Muncul); layar aplikasi tetap tanpa animasi.
 - Skeleton berupa blok `olive-50` statis, tanpa kilau. Layar menimbang tidak boleh menampilkan animasi yang bisa disangka angka berubah.
 - Dengan pengaturan `prefers-reduced-motion`, semua gerak menjadi 0 ms.
 
@@ -252,6 +272,7 @@ Setiap peran hanya melihat menu miliknya (PRD F1.5). Di ponsel, menu berupa bila
 
 | ID | Screen | Bentuk | Tujuan | Fitur |
 | --- | --- | --- | --- | --- |
+| L1 | Landing Page | Halaman | Pengunjung mengenal BinBank (manfaat, fitur, kontak) lalu menuju Masuk atau beranda perannya | - |
 | U1 | Masuk | Halaman | Pengguna masuk dengan email dan password; pesan galat sama untuk email salah dan password salah. **Kunci** | F1.1, F1.4 |
 | U2 | Ganti Password Wajib | Halaman | Satu-satunya layar yang boleh dibuka pengguna ber-password sementara; tidak ada menu lain sampai selesai. **Kunci** | F2.6 |
 | U3 | Ganti Password Sendiri | Halaman | Pengguna mengganti password kapan saja dengan memasukkan password lama | F2.6 |
@@ -595,6 +616,25 @@ Tidak ada tombol utama di halaman ini; aksi menulis ada di menu **Catat Setoran*
 3. Tabel Buku: Jenis sampah, Berat (kg), Nilai (Rp). Baris total berat dan total nilai di bawah garis ganda.
 4. Catatan di bawah tabel: "Setoran yang dibatalkan tidak dihitung. Nilai memakai harga saat setoran dicatat."
 
+### L1. Landing Page
+
+Alamat `/` (`app/page.js`), komponen server tanpa `KerangkaAplikasi` dan tanpa RoleGuard. Satu-satunya halaman yang memakai ilustrasi; aturan "tanpa ilustrasi" pada U1 dan X1 sampai X3 tidak berlaku di sini. Acuan visualnya desain Figma ponsel tim (bingkai 595 px); proporsi dan posisi mengikuti desain, sedangkan warna dan ukuran huruf memakai token terdekat (zaitun Figma #849347 diganti `olive-700`, huruf Figma diganti Outfit). Wadah tiap bagian sama dengan area konten aplikasi: lebar maksimum 1120 px di tengah, gutter `space-4` (ponsel), `space-5` (600 px ke atas), `space-6` (desktop). Jarak vertikal tiap bagian `space-6` di ponsel, `space-7` di tablet, `space-8` di desktop. Hanya satu `h1`; judul bagian berupa `h2` `text-landing-bagian` tebal `olive-700`. Ukuran huruf L1 memakai skala khusus Landing Page (bagian 3, Tipografi).
+
+Latar seluruh halaman krem hangat `krem-50` (pembungkus halaman, kepala lekat, dan kaki), bukan `putih`; latar `body` global tetap `putih`. Kepala lekat berlatar `krem-50` tidak transparan, jadi konten tidak tampak menembus saat digulir. Layar ponsel di bagian Apa itu BinBank? tetap `putih` agar terbaca sebagai layar.
+
+1. **Kepala**: `components/KepalaLekat.js`, latar `krem-50`, garis bawah 2 px `olive-100`, sewarna blob (pengecualian dari `rule-1` khusus L1), tinggi isi 64 px (`space-8`) di bawah 1024 px dan 72 px (`space-8` + `space-2`) mulai 1024 px, dengan logo, tulisan, dan tombol sejajar tengah vertikal. Kiri: Merek (`components/BilahMenu.js`: logo hati 32 px dan tulisan "BinBank" `text-h2` `forest-900`) bertautan ke `/` dengan target 48 px; Kanan: Tombol Masuk ukuran Ringkas (pil, tinggi tampak 40 px, area sentuh 44 px, teks `text-h3`). Isi kepala tidak memakai wadah 1120 px: Merek dan tombol hanya berjarak padding tepi layar yang sama di kiri dan kanan (`space-4` di ponsel, `space-5` mulai 600 px, `space-6` di desktop), simetris terhadap tepi layar; lebar kepala tidak termasuk scrollbar, jadi tombol tidak tertutup. Kepala melekat di atas saat digulir (`position: sticky`, `top: 0`, `z-30` di atas konten dan blob); karena tetap berada di alur halaman, hero mulai tepat di bawah garis kepala tanpa offset tambahan. Belum digulir tanpa bayangan (`shadow-0`); setelah digulir lebih dari 8 px muncul `shadow-1` di bawah garis dengan transisi 150 ms, 0 ms bila `prefers-reduced-motion`. Status gulir dibaca lewat `useSyncExternalStore` dengan snapshot server `false`, jadi render awal selalu tanpa bayangan.
+2. **Hero**: dua kolom bersisian di semua lebar (teks kira-kira 55%, ilustrasi 45%). Tagline "Dari Sampah, Jadi Saldo" (`text-body`, mulai 640 px `text-h3`; "Sampah" dan "Saldo" tebal `olive-700`, sisanya `ink-900`). `h1` dua baris: "BinBank:" tebal `olive-700` (`text-landing-judul`) dan "Bank Sampah Digital RW" tebal `ink-900` (`text-landing-subjudul`). Paragraf `text-landing-isi`, lalu tombol pil "Coba Sekarang" (teks `text-h3`) dengan ArrowRight: tinggi 40 px (area sentuh 44 px) di bawah 1024 px, 48 px di desktop. Ilustrasi `hero-tangan-sampah.webp` (alt "Tangan memegang kantong sampah daur ulang") dan `blob-hero.webp` berada dalam satu pembungkus yang diposisikan absolut terhadap bagian hero selebar layar, menempel di `right: 0`, sehingga lengan selalu terpotong tepi layar, bukan tepi wadah 1120 px. Lebar pembungkus 38% lebar layar di bawah 640 px (dikecilkan agar teks hero yang lebih besar tetap muat di 360 px), 44% pada 640–1023 px, dan 480 px mulai 1024 px; kolom kanan grid hanya pengganjal setinggi 1,28 kali ilustrasi agar teks tidak pernah tertimpa dan blob utuh secara vertikal. Blob (tidak diregangkan) selebar 83% pembungkus, sehingga tingginya 1,2 kali tinggi ilustrasi, dengan tepi kiri di 27% lebar ilustrasi (sedikit di kiri garis tengah kantong di 30%) dan pusat vertikal di 40,5% tinggi ilustrasi. Separuh kiri kantong, botol, dan apel berada di atas latar `putih`; separuh kanan kantong dan lengan di atas bidang hijau; sisi kanan blob melewati tepi kanan layar. Bagian hero hanya memotong horizontal (`overflow-x: clip`), sehingga lengkung atas dan bawah blob terlihat utuh dengan ruang `putih` di atas dan bawahnya (desktop 45 px di atas dan 45 px di bawah, 360 px 103 px di atas dan bawah). Pembungkus ilustrasi diposisikan terhadap area isi hero, bukan terhadap padding, sehingga padding bawah hero (`space-3` di ponsel, `space-2` di tablet, 0 di desktop) dapat dikurangi untuk menyeimbangkan jarak tanpa menggeser ilustrasi. Blob berada di belakang ilustrasi (`z-0` di bawah `z-10`). Semua ukuran blob relatif terhadap pembungkus, jadi proporsinya sama di setiap lebar layar.
+3. **Apa itu BinBank?**: ponsel `ponsel.webp` (layar diisi bidang `putih`) dan `blob-ponsel.webp` berada dalam satu pembungkus absolut yang menempel di `left: 0` bagian selebar layar: 38% lebar layar di bawah 1024 px, 300 px mulai 1024 px, dengan ponsel selebar 60% pembungkus di sisi kanannya (180 px di desktop). Blob selebar sekitar 2,5 kali ponsel (147% pembungkus), tepi kanannya di tepi kanan pembungkus, terpotong tepi kiri layar. Ponsel dan blok teks sama-sama digeser ke kanan sejauh 4% lebar wadah (`min(lebar bagian, 1120 px) × 0,04`, 45 px di desktop, sekitar 14 px di 360 px), sedangkan blob tidak ikut bergeser; jarak ponsel ke teks tetap, dan teks tetap berhenti di tepi kanan area isi wadah. Padding bagian ini dipasang pada `section` (grup ponsel dan grid teks dibungkus satu `div` relatif sehingga turun bersama): atas `space-7`, tablet `space-8`, desktop `space-8` + `space-6` (96 px); bawah `space-5`, tablet `space-7`, desktop `space-7`. Isi bagian sedikit lebih rendah daripada bagian lain, dan blob tetap di dalam batas bawah bagian. Judul lalu paragraf ("BinBank" tebal) tetap di wadah 1120 px, sejajar tengah dengan ponsel; kolom kiri grid menjadi pengganjal selebar `max(0, 348 px − jarak tepi layar ke wadah)` di desktop sehingga teks tidak tertimpa ponsel.
+4. **4 Fitur Utama**: judul rata tengah; empat butir dalam satu baris di semua lebar (`ul`, `grid-cols-4`). Tiap butir: lingkaran `olive-100` 64 px (desktop 96 px) berisi ikon garis `olive-700` 32 px (desktop 48 px), lalu teks rata tengah `ink-900` `text-landing-fitur` dengan kata kunci tebal. Kata panjang boleh dipenggal agar tidak meluap di 320 px.
+5. **Kontak Kami**: berdampingan di semua lebar dan berada di tengah. Kiri `blob-kontak.webp` (36% lebar, maksimum 260 px) dengan `telepon.webp` selebar 59% blob di tengahnya. Kanan judul lalu dua tautan (`tel:081234567890`, `mailto:info@binbank.com`) setinggi minimal 48 px: lingkaran `olive-100` 40 px (desktop 48 px) berisi ikon isi Phone (`forest-900`) atau Envelope (`olive-700`), lalu teks `ink-900` `text-landing-isi` bobot biasa tanpa garis bawah; hover berganti `olive-700` seketika. Jenis tautan dibacakan pembaca layar lewat label tersembunyi ("Telepon:", "Email:").
+6. **Kaki**: garis atas 2 px `olive-100`, sama dengan garis kepala. "© 2026 BinBank" `text-body` tebal `ink-900` rata kiri, padding vertikal `space-4`; tidak memakai wadah 1120 px, melainkan padding tepi layar yang sama dengan Merek di kepala (`space-4` di ponsel, `space-5` mulai 600 px, `space-6` di desktop), sehingga teks kaki dan logo berada pada garis tegak yang sama.
+
+**Gambar dekoratif dan blob.** Semua gambar memakai `next/image` dengan `width` dan `height` asli berkas. Blob (`olive-100`, bidang dekoratif) selalu `alt=""` dan `aria-hidden`, diposisikan absolut di belakang ilustrasinya, boleh keluar dari kolom maupun tepi layar, dan dipotong `overflow-x: clip` pada bagian (yang juga menjadi `@container` sehingga ukuran memakai `cqw` tanpa ikut menghitung scrollbar seperti `100vw`) (hanya arah horizontal, agar blob yang lebih tinggi dari gambarnya tidak terpotong datar di atas dan bawah) sehingga halaman tidak pernah bergulir horizontal sampai 320 px. Ponsel dan telepon juga dekoratif (`alt=""`). Gerak di halaman ini hanya transisi bayangan kepala dan animasi Muncul; keduanya hilang dengan `prefers-reduced-motion`.
+
+**Animasi muncul.** `components/Muncul.js` (komponen klien) membungkus elemen yang muncul sekali saat masuk layar. Prop `arah`: `kiri` (elemen di sisi kiri tata letak, masuk dari kiri ke kanan, mulai `translateX(-32px)`), `kanan` (elemen di sisi kanan, masuk dari kanan ke kiri, mulai `translateX(32px)`), `naik` (mulai `translateY(16px)`, untuk judul dan butir di tengah), `diam` (hanya memudar, untuk blob agar posisinya tidak bergeser); prop `jeda` (ms) untuk bertahap. Durasi 600 ms `ease-out`, hanya `opacity` dan `transform` (tanpa reflow, CLS 0). Pemicu IntersectionObserver (`threshold` 0,15, `rootMargin` bawah −8%), sekali saja lalu berhenti mengamati, sehingga tidak mengulang saat digulir naik-turun; elemen yang sudah terlihat saat dimuat (hero) langsung beranimasi. HTML server dan render hidrasi tidak membawa status apa pun, jadi tanpa JavaScript konten tampil penuh; status `data-tahap="sembunyi"` dipasang langsung pada DOM di `useLayoutEffect` sebelum layar digambar, lalu `tampil` saat terlihat, tanpa state React. Kelas ada di `app/globals.css` (`[data-muncul]`). Dengan `prefers-reduced-motion: reduce` status tidak pernah dipasang: elemen langsung tampil tanpa transisi dan tanpa translasi. Penerapan: hero teks `kiri` bertahap 100 ms (tagline, judul, paragraf, tombol), ilustrasi `kanan`, blob `diam`; Apa itu BinBank? ponsel `kiri`, blob `diam`, teks `kanan`; 4 Fitur Utama judul `naik`, empat butir `naik` bertahap 100 ms kiri ke kanan; Kontak Kami telepon `kiri`, blob `diam`, judul lalu dua baris kontak `kanan` bertahap 100 ms. Kepala dan kaki tidak dianimasikan. Bagian yang memuat elemen bergeser memakai `overflow-x: clip`, sehingga tidak muncul scroll horizontal selama animasi. Tautan tetap dapat difokus dan diklik selama animasi.
+
+**Tombol sadar-sesi.** "Masuk" (kepala) dan "Coba Sekarang" dengan ArrowRight (hero) dirender oleh `components/TombolMasuk.js`. Bentuknya tautan bergaya Tombol Utama berbentuk pil (bukan `<button>` di dalam tautan). Teks keduanya tidak pernah berubah; hanya tujuannya yang sadar-sesi. Tanpa sesi keduanya menuju `/login`. Bila ada token dan peran di penyimpanan lokal (`ambilToken`, `ambilPeran`), tujuan menjadi beranda peran (`BERANDA`: `/nasabah`, `/petugas`, `/admin`). Render server dan render hidrasi selalu menuju `/login` (`useSyncExternalStore` dengan snapshot server `null`), lalu diperbarui setelah hidrasi dan saat sesi berubah di tab lain, sehingga tidak ada ketidakcocokan hidrasi.
+
 ### X1, X2, X3
 
 Ketiganya di luar folder aktor dan tanpa RoleGuard, sehingga bisa dibuka siapa saja. Susunannya sama:
@@ -649,6 +689,7 @@ Ikon memakai Phosphor Regular, 24 px, ketebalan garis 1,5 px, warna mengikuti te
 | Aksi | MagnifyingGlass (Cari), PencilSimple (Ubah), Copy (Salin), Eye dan EyeSlash (Tampilkan dan Sembunyikan), X (Tutup), CaretRight dan CaretLeft (Lanjut dan Kembali), ArrowCounterClockwise (Coba lagi), SignOut (Keluar), User (Profil) |
 | Status dan pesan | Check (item terpilih), Prohibit dan X (tombol Merusak); Info, Warning, WarningOctagon, CheckCircle, WifiSlash (Pesan Inline) |
 | Pengganti gambar | Recycle (Kartu Harga tanpa gambar, 96 px, `ink-700`) |
+| Landing (L1) | PencilSimpleLine, BookOpen, IdentificationCard, HandCoins (4 Fitur Utama); Phone, Envelope (Kontak Kami); ArrowRight (tombol Coba Sekarang) |
 
 ### Pictogram jenis sampah
 
