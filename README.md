@@ -29,6 +29,7 @@ Aplikasi ini memiliki tiga peran pengguna dengan hak akses yang berbeda, yaitu:
 - **MongoDB Atlas + Mongoose:** sebagai database dan ODM untuk pengelolaan data.
 - **JWT (jsonwebtoken):** digunakan untuk autentikasi berbasis token.
 - **bcrypt:** digunakan untuk melakukan hashing terhadap password pengguna.
+- **multer:** menerima unggahan gambar jenis sampah (multipart/form-data, disimpan di memori lalu ke MongoDB).
 - **Postman:** untuk pengujian API secara otomatis.
 
 ## Struktur Folder dan File
@@ -39,13 +40,14 @@ bin-bank/
 │   └── db.js                        # Koneksi ke MongoDB Atlas
 ├── controllers/                     # Menangani request dan response API
 │   ├── authController.js            # Registrasi admin pertama, login, profil, ganti password
-│   ├── jenisSampahController.js     # CRUD jenis sampah dan harga
+│   ├── jenisSampahController.js     # CRUD jenis sampah, harga, kategori, dan gambar
 │   ├── laporanController.js         # laporan setoran dan penarikan
 │   ├── penarikanController.js       # Saldo, riwayat, pengajuan, pemrosesan, dan penyelesaian penarikan
 │   └── setoranController.js         # Pencatatan, riwayat, dan pembatalan setoran
 ├── middlewares/
 │   ├── authenticate.js              # Verifikasi token JWT
-│   └── authorize.js                 # Pembatasan akses berdasarkan role
+│   ├── authorize.js                 # Pembatasan akses berdasarkan role
+│   └── unggahGambar.js              # Validasi id dan unggahan gambar jenis sampah (multer)
 ├── models/                          # Schema Mongoose
 │   ├── BukuBesar.js                 # Ledger mutasi kredit/debit
 │   ├── JenisSampah.js               # Katalog jenis sampah dan harga per kg
@@ -122,6 +124,10 @@ Menyimpan katalog harga dan jenis sampah yang diterima.
 | `nama`       | String  | Nama atau kategori sampah (misal: "Karton", "Plastik Bening"); wajib dan unik (nama yang sudah dipakai dijawab 409) |
 | `hargaPerKg` | Number  | Harga beli per kilogram sampah; bilangan bulat rupiah lebih dari 0 |
 | `aktif`      | Boolean | Status aktif/tidaknya jenis sampah (default true)              |
+| `kategori`   | String  | Opsional: `plastik`, `kertas`, `besi`, atau `lainnya`; data lama tanpa kategori dikirim sebagai `null` |
+| `gambar`     | Object  | `{ data: Buffer, tipe: String }`; tidak pernah ikut dalam respons JSON, diambil lewat `GET /jenis-sampah/:id/gambar` |
+| `adaGambar`  | Boolean | Penanda gambar tersedia (default false)                       |
+| `gambarDiubah` | Date  | Waktu terakhir gambar diunggah atau dihapus                    |
 
 ### 3. Setoran
 Mencatat riwayat transaksi penyetoran sampah oleh nasabah.
@@ -186,9 +192,12 @@ Buku besar mutasi keuangan (ACID Transaction) yang tidak bisa dihapus.
 | Method | Endpoint                  | Deskripsi                                                   | Autentikasi                  |
 | ------ | ------------------------- | ----------------------------------------------------------- | ---------------------------- |
 | GET    | `/jenis-sampah`           | Melihat daftar katalog harga sampah                         | Semua Role (login)           |
-| POST   | `/jenis-sampah`           | Menambah jenis sampah baru                                  | **Admin**                    |
-| PUT    | `/jenis-sampah/:id`       | Mengubah detail harga sampah                                | **Admin**                    |
+| POST   | `/jenis-sampah`           | Menambah jenis sampah baru (`kategori` opsional)            | **Admin**                    |
+| PUT    | `/jenis-sampah/:id`       | Mengubah detail harga sampah (`kategori` opsional; `null` mengosongkan) | **Admin**        |
 | PATCH  | `/jenis-sampah/:id/status`| Mengubah status aktif jenis sampah                          | **Admin**                    |
+| PUT    | `/jenis-sampah/:id/gambar`| Mengunggah gambar (multipart, field `gambar`, PNG/JPEG/WebP, maks. 500 KB; ukuran berlebih dijawab 413) | **Admin** |
+| DELETE | `/jenis-sampah/:id/gambar`| Menghapus gambar jenis sampah                               | **Admin**                    |
+| GET    | `/jenis-sampah/:id/gambar`| Mengambil berkas gambar (biner, `Cache-Control: public, max-age=86400`, `ETag`); 404 bila tidak ada | Publik (tanpa token) |
 | GET    | `/laporan`                | Rekap setoran, penarikan, saldo, setoran per jenis sampah, dan penarikan per status (filter `dari`, `sampai`; `dari` tidak boleh setelah `sampai`) | **Admin** |
 
 ### Modul C (Setoran)
