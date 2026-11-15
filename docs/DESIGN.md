@@ -201,7 +201,7 @@ Semua jarak adalah kelipatan 4 px dan hanya delapan nilai yang boleh dipakai.
 
 ### Radius
 
-Sudut dibuat melengkung lembut agar antarmuka terasa ramah, tetapi bentuk dasarnya tetap persegi seperti halaman buku besar. Tidak ada bentuk pil dan tidak ada bentuk bulat penuh, dengan satu pengecualian yang disengaja: Filter Chip berbentuk pil (`rounded-full`) agar terbaca sebagai saringan, bukan tombol aksi. Bentuk pil tidak dipakai untuk Cap Status maupun komponen lain.
+Sudut dibuat melengkung lembut agar antarmuka terasa ramah, tetapi bentuk dasarnya tetap persegi seperti halaman buku besar. Tidak ada bentuk pil dan tidak ada bentuk bulat penuh, dengan dua pengecualian yang disengaja: Filter Chip berbentuk pil (`rounded-full`) agar terbaca sebagai saringan, bukan tombol aksi; dan Tombol bentuk Bulat (aksi Ubah dan Tambah di halaman daftar atau kelola) beserta pemicu Menu Aksi, yang berbentuk pil agar aksi di halaman daftar terpisah dari tombol formulir dan dialog bersudut `radius-2`. Bentuk pil tidak dipakai untuk Cap Status maupun komponen lain.
 
 | Token | Nilai | Pemakaian |
 | --- | --- | --- |
@@ -289,7 +289,7 @@ Setiap peran hanya melihat menu miliknya (PRD F1.5). Di ponsel, menu berupa bila
 | ID | Screen | Bentuk | Tujuan | Fitur |
 | --- | --- | --- | --- | --- |
 | A1 | Beranda Admin | Halaman | Total saldo seluruh nasabah, pengajuan MENUNGGU, setoran hari ini | F12.2 |
-| A2 | Jenis Sampah | Halaman | Daftar jenis dan harga per kg, tombol ubah dan nonaktifkan. **Kunci** | F3.1, F11.1 |
+| A2 | Jenis Sampah | Halaman | Daftar jenis dan harga per kg, tombol ubah, nonaktifkan, dan hapus. **Kunci** | F3.1, F11.1 |
 | A3 | Form Jenis Sampah | Dialog | Menambah atau mengubah nama dan harga; menjelaskan bahwa perubahan hanya berlaku untuk setoran berikutnya | F3.1, F3.3, F3.4 |
 | A4 | Pengguna | Halaman | Daftar semua akun, saring menurut peran dan status, nonaktifkan dan aktifkan kembali. **Kunci** | F2, F11.2, F11.3 |
 | A5 | Buat Akun Petugas atau Admin | Halaman | Mengisi nama, email, password awal | F2.1, F2.9 |
@@ -383,7 +383,8 @@ Cabang:
 3. Mengisi nama dan harga per kg. Teks tetap di dialog: "Harga baru hanya berlaku untuk setoran berikutnya. Setoran yang sudah tercatat tidak berubah."
 4. Jika nama sudah ada atau harga 0 atau kurang: galat di isian.
 5. Berhasil: baris diperbarui dan disorot `olive-100` sampai halaman dimuat ulang.
-6. Menonaktifkan: tombol **Nonaktifkan** membuka konfirmasi yang menjelaskan bahwa jenis ini tidak muncul di setoran baru tetapi tetap ada di setoran lama.
+6. Menonaktifkan: item **Nonaktifkan** di Menu Aksi baris membuka konfirmasi yang menjelaskan bahwa jenis ini tidak muncul di setoran baru tetapi tetap ada di setoran lama.
+7. Menghapus: item **Hapus** di Menu Aksi baris membuka Dialog Merusak "Hapus jenis sampah?" (lihat Hapus dengan konfirmasi di bagian 7). Berhasil: dialog tertutup, baris hilang dari daftar, toast "Jenis sampah dihapus". Bila jenis sudah pernah dipakai di setoran (termasuk yang dibatalkan), server menolak dengan 409; dialog tetap terbuka, menampilkan pesan server sebagai Pesan Inline galat, dan tombol Hapus diganti **Nonaktifkan saja**.
 
 ### J8. Admin membatalkan setoran
 
@@ -414,6 +415,7 @@ Layout ditulis dari lebar ponsel 360 px (mobile first), urut dari atas ke bawah.
 
 - Setiap halaman diawali **Kepala Halaman**: judul h1 dan, bila perlu, satu baris keterangan. Tidak ada label kecil di atas judul.
 - Satu tombol utama (`olive-700`) per screen atau dialog. Pada daftar yang tiap barisnya punya aksi (mis. antrean penarikan), aksi baris memakai tombol Sekunder; tombol utama hanya ada di dialog yang dibuka.
+- Aksi baris yang paling sering dipakai tampil sebagai tombol; aksi yang jarang atau berisiko (nonaktifkan, hapus) masuk Menu Aksi di ujung kanan baris, supaya baris tidak penuh tombol merah.
 - Di ponsel, tombol utama halaman formulir berada di **Bilah Aksi Lekat** di atas bilah menu, selalu terlihat tanpa menggulir.
 - Jarak antarbagian `space-6`, antarkelompok isian `space-4`, label ke isian `space-2`.
 
@@ -583,7 +585,7 @@ Tidak ada tombol utama di halaman ini; aksi menulis ada di menu **Catat Setoran*
 ### A2. Jenis Sampah
 
 1. Kepala Halaman: "Jenis sampah" dengan **aksi utama** "Tambah jenis sampah" di sisi kanan (desktop) atau Bilah Aksi Lekat (ponsel).
-2. Tabel Buku: Gambar Jenis 40 px dan nama dengan kategori sebagai `text-small` `ink-700` di bawahnya ("Kategori belum diisi" bila kosong), Harga per kg (rata kanan, angka tabular), Status (Aktif atau Nonaktif sebagai Cap Status), aksi **Ubah** dan **Nonaktifkan** atau **Aktifkan**.
+2. Tabel Buku: Gambar Jenis 40 px dan nama dengan kategori sebagai `text-small` `ink-700` di bawahnya ("Kategori belum diisi" bila kosong), Harga per kg (rata kanan, angka tabular), Status (Aktif atau Nonaktif sebagai Cap Status), aksi baris berupa tombol Sekunder **Ubah** dan Menu Aksi (item **Nonaktifkan** dengan ikon Prohibit atau **Aktifkan** dengan ikon CheckCircle, lalu **Hapus** dengan ikon Trash sebagai item bahaya). Lebar aksi baris tetap 96 + 8 + 48 px, jadi muat di 360 px tanpa scroll horizontal. Selama status disimpan, teks `text-small` `ink-700` "Menyimpan..." tampil di kiri aksi dan kedua pemicu nonaktif.
 3. Jenis nonaktif tampil di bagian bawah, dengan teks `ink-700`.
 
 ### A7. Laporan Setoran
@@ -663,7 +665,11 @@ Tinggi 48 px (ukuran Besar 56 px untuk Bilah Aksi Lekat), lebar minimal 96 px, p
 | Utama | Latar `olive-700`, teks putih | Latar `olive-800` | Satu aksi terpenting per screen atau dialog |
 | Sekunder | Latar `putih`, teks `ink-900`, garis `rule-ui` | Latar `olive-50` | Aksi pendamping, aksi baris di daftar |
 | Merusak | Latar `bata-700`, teks putih, ikon Prohibit atau X di depan label | Label bergaris bawah 2 px | Tolak pengajuan, Batalkan setoran, Nonaktifkan |
-| Teks | Tanpa latar, teks `olive-700` bergaris bawah | Garis bawah menebal jadi 2 px | Tindakan ringan: Hapus baris, Tampilkan, Hapus filter |
+| Teks | Tanpa latar, teks `olive-700` bergaris bawah | Garis bawah menebal jadi 2 px | Tindakan ringan: Hapus baris, Tampilkan, Hapus filter, Hapus gambar (membuka Dialog Merusak) |
+
+Ukuran **Ringkas** (`ukuran="ringkas"`, bawaan `biasa`): tinggi tampak 40 px dengan area sentuh tetap 44 px lewat pseudo-elemen tak terlihat (2 px di atas dan bawah, tidak menambah tinggi tampilan), padding horizontal `space-4`, lebar mengikuti teks (tanpa lebar minimal 96 px), selalu memakai bentuk Bulat, teks `text-body` tebal; garis dan warna varian tidak berubah. Hanya untuk aksi baris di daftar atau tabel (mis. **Ubah** di A2), sejajar tengah dengan pemicu Menu Aksi berjarak `space-2`.
+
+Bentuk **Bulat** (`bentuk="bulat"`, bawaan `biasa` dengan `radius-2`): hanya mengganti sudut menjadi `rounded-full`; tinggi, padding, lebar minimal, warna, dan teks mengikuti ukuran dan varian. Dipakai untuk tombol aksi di halaman daftar atau kelola, yaitu aksi baris (**Ubah**, lewat ukuran Ringkas) dan aksi utama halaman (**Tambah jenis sampah** di Kepala Halaman, keadaan kosong, dan Bilah Aksi Lekat ponsel di A2). Alasannya sama dengan Filter Chip: bentuk pil menandai kontrol di halaman daftar yang mengatur isi daftar, sehingga terpisah secara visual dari tombol di formulir dan dialog. Tidak dipakai untuk tombol di formulir atau dialog (Simpan, konfirmasi, Batal), yang tetap `radius-2`.
 
 State tambahan: **Memproses** (label berganti, mis. "Menyimpan...", tombol tidak bisa ditekan, `aria-busy`, tanpa animasi putar) dan **Nonaktif** (latar `olive-50`, teks `ink-500`, tanpa garis; selalu disertai teks yang menjelaskan alasannya di dekatnya, karena tombol nonaktif tidak bisa menjelaskan dirinya).
 
@@ -732,6 +738,7 @@ State: **Memuat** (lima baris skeleton), **Kosong** (Keadaan Kosong), **Galat** 
 | Filter Chip | `role=group` dengan `aria-label`, berisi `<button type="button">` ber-`aria-pressed`. Pil `rounded-full`, tinggi minimal 44 px, padding horizontal `space-4`, `text-body`, jarak antar chip `space-2`, tanpa angka jumlah. Aktif: latar `olive-700`, teks `putih` tebal. Tidak aktif: latar `olive-50`, teks `ink-900`. Fokus memakai `focus-ring`. Di layar sempit baris digeser horizontal (scrollbar disembunyikan, chip tidak mengecil, teks tidak dibungkus); wadah diberi padding `space-2` dengan margin horizontal negatif yang sama agar `focus-ring` tidak terpotong dan halaman tidak bergeser horizontal. Menyaring tampilan di klien, bukan memuat data |
 | Bilah Aksi Lekat | Wadah melekat di atas Bilah Menu, latar `putih`, `rule-1` di atas, padding `space-4`, menghormati area aman perangkat; berisi tombol Utama (dan Sekunder bila ada) |
 | Paginasi | Tombol Sekunder **Sebelumnya** dan **Berikutnya**, teks "Halaman 2 dari 7" di tengah; tanpa deret nomor halaman |
+| Menu Aksi | `components/MenuAksi.js`. Pemicu: ikon DotsThreeVertical 24 px dalam target 48 × 48 px (`size-7`, di atas minimum 44 px), bulat penuh (`rounded-full`) agar serasi dengan Tombol Ringkas, tanpa garis dan latar, latar `olive-50` saat hover dan fokus, `aria-label` "Aksi lainnya untuk <nama>", `aria-haspopup=menu`, `aria-expanded`. Menu: `role=menu` di bawah pemicu rata kanan berjarak `space-1`, latar `putih`, `radius-2`, `shadow-1`, padding `space-2`. Item `role=menuitem` bergaya Item Menu (tinggi 48 px, `text-body` tebal, ikon 24 px, tanpa garis bawah, teks `olive-700`, latar `olive-50` saat hover dan fokus). Item bahaya bertulisan `bata-700` dan dipisahkan dari item lain oleh garis `line-300` dengan jarak `space-2`; letaknya selalu paling bawah. Menu dirender di luar wadah tabel (posisi tetap terhadap layar) agar tidak terpotong `overflow`, dijaga `space-2` dari tepi layar, dan membuka ke atas bila ruang di bawah tidak cukup. Menutup dengan klik di luar, Esc (fokus kembali ke pemicu), Tab, atau setelah memilih item (fokus kembali ke pemicu sebelum aksi berjalan, sehingga dialog yang dibuka mengembalikan fokus ke pemicu). Keyboard: Enter, Spasi, atau ArrowDown membuka dan memfokuskan item pertama; ArrowUp membuka ke item terakhir; ArrowUp dan ArrowDown berpindah item (berputar), Home dan End ke ujung. Pemicu nonaktif (`ink-500`) saat luring atau saat baris diproses |
 | Tautan | `olive-700`, selalu bergaris bawah 1,5 px |
 | Tautan Arah | `components/TautanArah.js`, khusus layar nasabah. Tautan berdiri sendiri tanpa garis bawah: `olive-700` tebal, ikon ArrowRight 16 px di kanan teks (ArrowLeft di kiri untuk tautan kembali, prop `kembali`) berjarak `space-1`, tinggi minimal 48 px. Hover dan fokus: teks `olive-800`, ikon bergeser 4 px searah panah (150 ms, hanya bila `prefers-reduced-motion` tidak aktif); fokus memakai `focus-ring` |
 
@@ -741,7 +748,8 @@ State: **Memuat** (lima baris skeleton), **Kosong** (Keadaan Kosong), **Galat** 
 | --- | --- | --- |
 | Pesan Inline | Info (`pet`), Peringatan (`kardus`), Galat (`bata`), Berhasil (`daun`) | Latar -100 tanpa garis tepi, ikon berwarna -700, judul tebal, teks isi `ink-900`. Galat memakai `role=alert`, sisanya `role=status` |
 | Toast | Satu varian | Latar `ink-900`, teks putih, di atas Bilah Menu, tampil 8 detik dengan tombol Tutup; satu pada satu waktu. Hanya untuk konfirmasi ringan ("Password diganti"); tidak untuk galat dan tidak untuk apa pun yang butuh tindakan |
-| Dialog | Biasa dan Merusak | Modal dengan penjebak fokus. Di bawah 600 px muncul sebagai sheet dari bawah dengan tombol bertumpuk selebar penuh; di atasnya muncul di tengah selebar 480 px. Judul h2, tombol Tutup berlabel kata di kanan atas. Klik pada scrim tidak menutup dialog yang berisi isian; Esc menutup kecuali saat proses berjalan |
+| Dialog | Biasa dan Merusak | Modal dengan penjebak fokus. Di bawah 600 px muncul sebagai sheet dari bawah dengan tombol bertumpuk selebar penuh; di atasnya muncul di tengah selebar 480 px. Judul h2 (`min-w-0`, boleh membungkus) dengan penutup Tombol Tutup (`components/TombolTutup.js`) di pojok kanan atas: ikon X 24 px tanpa teks dan tanpa garis bawah, warna `ink-900`, dalam target 44 × 44 px, `radius-2`, latar `olive-50` saat hover dan fokus, cincin fokus `olive-700` standar, `type=button`, `aria-label="Tutup"`. Judul dan tombol berada dalam satu baris flex dengan jarak `space-3` sampai `space-4`, sehingga judul panjang membungkus dan tidak tertimpa tombol di 360 px. Selama proses berjalan tombol nonaktif (`ink-500`). Setelah ditutup, fokus kembali ke pemicu. Tombol Batal di area aksi tetap berupa tombol Sekunder berlabel kata. Klik pada scrim tidak menutup dialog yang berisi isian; Esc menutup kecuali saat proses berjalan |
+| Hapus dengan konfirmasi | Dialog Merusak | Dipakai untuk menghapus data master yang belum punya jejak di buku besar (jenis sampah, gambar). Pemicu di baris daftar: item bahaya "Hapus" di Menu Aksi; pemicu di dalam form: tombol Teks (mis. "Hapus gambar"). Dialog: judul berupa pertanyaan ("Hapus jenis sampah?"), nama objek tebal, satu paragraf akibat ("dihapus permanen" dan kapan hapus tidak bisa dilakukan), lalu tombol Merusak "Hapus" dan Sekunder "Batal" berjarak 16 px, bertumpuk selebar penuh di bawah 600 px. Fokus awal pada **Batal**. Saat proses: label "Menghapus...", kedua tombol dan Tutup terkunci, Esc tidak menutup. Luring: tombol Hapus nonaktif dengan teks "Hapus dan nonaktifkan butuh koneksi." di dalam dialog. Berhasil: dialog tertutup, baris hilang, toast. Ditolak karena data sudah dipakai (409): pesan server sebagai Pesan Inline galat di dalam dialog, tombol Hapus diganti aksi alternatif yang aman ("Nonaktifkan saja"). Galat lain: Pesan Inline galat, dialog tetap terbuka |
 | Keadaan Kosong | Per screen | Judul `text-h3`, satu kalimat penjelas, satu tindakan bila ada. Tanpa ilustrasi |
 | Skeleton | Baris dan blok | Blok `olive-50` statis tanpa kilau; wadah diberi `aria-busy=true` |
 | Kotak Rahasia Sekali Tampil | Password awal dan password sementara | Teks angka tabular 24 px di latar `olive-50`, tanpa karakter I, l, 1, O, 0 pada password yang dibuat sistem, tombol Salin, peringatan "Tidak bisa dilihat lagi setelah layar ini ditutup" |
@@ -789,7 +797,7 @@ PRD menyatakan BinBank dipakai saat ada koneksi dan tidak punya mode offline (U5
 | P5 Setoran Tersimpan | Tidak berlaku | Bila saldo baru gagal dibaca, bukti tetap tampil dan saldo diberi "Belum termuat" | Layar ini adalah keberhasilannya; Cap TERCATAT | Bukti tetap tampil karena berasal dari respons simpan |
 | P6 Daftar Setoran | Tanpa filter: "Belum ada setoran". Dengan filter: "Tidak ada setoran yang cocok dengan filter" dan tautan **Hapus filter** | Tanggal mulai setelah akhir: galat di Pemilih Rentang, hasil lama dipertahankan; galat baca | Daftar hasil | Data terakhir; filter dan paginasi nonaktif |
 | P10 Antrean Penarikan | Per tab: MENUNGGU "Tidak ada pengajuan yang menunggu"; DISETUJUI "Tidak ada dana yang perlu diserahkan"; DITOLAK dan SELESAI "Belum ada" | Sudah diproses pihak lain: "Pengajuan ini sudah diproses oleh \[nama\]", daftar dimuat ulang. Saldo kurang saat setuju (F8.5). Gagal tidak pasti: periksa tab sebelum mengulang | Kartu pindah tab dan toast "Pengajuan disetujui" atau "Pengajuan ditolak" atau "Ditandai selesai" | Semua aksi baris nonaktif; daftar tetap terbaca dengan stempel waktu |
-| A2 Jenis Sampah | "Belum ada jenis sampah. Tambahkan jenis pertama agar petugas bisa mencatat setoran." dengan tombol Tambah | Nama sudah dipakai; harga 0 atau kurang | Baris disorot, toast "Jenis sampah disimpan" | Tombol Tambah, Ubah, Nonaktifkan nonaktif |
+| A2 Jenis Sampah | "Belum ada jenis sampah. Tambahkan jenis pertama agar petugas bisa mencatat setoran." dengan tombol Tambah | Nama sudah dipakai; harga 0 atau kurang | Baris disorot, toast "Jenis sampah disimpan"; hapus: baris hilang, toast "Jenis sampah dihapus" | Tombol Tambah, Ubah, Nonaktifkan, Hapus nonaktif |
 | A4 Pengguna | Dengan filter tanpa hasil: "Tidak ada akun yang cocok" | Email sudah dipakai (di A5); gagal tidak pasti | Toast pada reset, nonaktifkan, aktifkan | Aksi tulis nonaktif |
 | A7 Laporan Setoran | Periode tanpa setoran: tabel menampilkan "Tidak ada setoran pada periode ini" dan baris total "0,00 kg" dan "Rp 0" (bukan galat, F9.6) | Mulai setelah akhir: ditolak dengan pesan; galat baca | Tabel dengan total | Data terakhir; tombol Tampilkan laporan nonaktif |
 

@@ -195,6 +195,7 @@ Buku besar mutasi keuangan (ACID Transaction) yang tidak bisa dihapus.
 | POST   | `/jenis-sampah`           | Menambah jenis sampah baru (`kategori` opsional)            | **Admin**                    |
 | PUT    | `/jenis-sampah/:id`       | Mengubah detail harga sampah (`kategori` opsional; `null` mengosongkan) | **Admin**        |
 | PATCH  | `/jenis-sampah/:id/status`| Mengubah status aktif jenis sampah                          | **Admin**                    |
+| DELETE | `/jenis-sampah/:id`       | Menghapus jenis sampah beserta gambarnya; 409 bila sudah dipakai di setoran mana pun (termasuk yang dibatalkan), nonaktifkan saja | **Admin** |
 | PUT    | `/jenis-sampah/:id/gambar`| Mengunggah gambar (multipart, field `gambar`, PNG/JPEG/WebP, maks. 500 KB; ukuran berlebih dijawab 413) | **Admin** |
 | DELETE | `/jenis-sampah/:id/gambar`| Menghapus gambar jenis sampah                               | **Admin**                    |
 | GET    | `/jenis-sampah/:id/gambar`| Mengambil berkas gambar (biner, `Cache-Control: public, max-age=86400`, `ETag`); 404 bila tidak ada | Publik (tanpa token) |

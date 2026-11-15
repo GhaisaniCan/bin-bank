@@ -9,6 +9,7 @@ import Dialog from "@/components/Dialog"
 import IsianTeks from "@/components/IsianTeks"
 import PesanInline from "@/components/PesanInline"
 import Tombol from "@/components/Tombol"
+import TombolTutup from "@/components/TombolTutup"
 
 export const KATEGORI = [
   { nilai: "plastik", label: "Plastik" },
@@ -244,12 +245,10 @@ export default function FormJenisSampah({ jenis, daftar, onTutup, onTersimpan, o
         className="m-0 mt-auto w-full max-w-none rounded-t-3 bg-putih p-5 text-ink-900 backdrop:bg-ink-900/50 min-[600px]:m-auto min-[600px]:w-[480px] min-[600px]:rounded-3"
       >
         <div className="flex items-start justify-between gap-4">
-          <h2 id="judul-form-jenis" className="text-h2 font-bold">
+          <h2 id="judul-form-jenis" className="min-w-0 flex-1 break-words text-h2 font-bold">
             {jenis ? "Ubah jenis sampah" : "Tambah jenis sampah"}
           </h2>
-          <Tombol varian="teks" disabled={menyimpan} onClick={() => dialog.current.close()}>
-            Tutup
-          </Tombol>
+          <TombolTutup disabled={menyimpan} onClick={() => dialog.current.close()} className="-mr-2 -mt-2" />
         </div>
 
         <form onSubmit={kirim} noValidate className="mt-4 space-y-4">

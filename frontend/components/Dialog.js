@@ -1,18 +1,19 @@
 "use client"
 
 import { useEffect, useRef } from "react"
-import { X } from "@phosphor-icons/react"
+import TombolTutup from "@/components/TombolTutup"
 
-export default function Dialog({ judul, onTutup, terkunci = false, children }) {
+export default function Dialog({ judul, onTutup, terkunci = false, fokusAwal, children }) {
   const ref = useRef(null)
 
   useEffect(() => {
     const el = ref.current
     if (el && !el.open) el.showModal()
+    fokusAwal?.current?.focus()
     return () => {
       if (el?.open) el.close()
     }
-  }, [])
+  }, [fokusAwal])
 
   function batal(e) {
     e.preventDefault()
@@ -28,18 +29,10 @@ export default function Dialog({ judul, onTutup, terkunci = false, children }) {
     >
       <div className="p-4 min-[600px]:p-5">
         <div className="flex items-start justify-between gap-3">
-          <h2 id="judul-dialog" className="text-h2 font-bold">
+          <h2 id="judul-dialog" className="min-w-0 flex-1 break-words text-h2 font-bold">
             {judul}
           </h2>
-          <button
-            type="button"
-            onClick={onTutup}
-            disabled={terkunci}
-            className="flex min-h-7 shrink-0 items-center gap-1 text-body text-olive-700 underline decoration-1 hover:decoration-2 disabled:text-ink-500 disabled:no-underline"
-          >
-            <X size={24} weight="regular" aria-hidden="true" />
-            Tutup
-          </button>
+          <TombolTutup onClick={onTutup} disabled={terkunci} className="-mr-2 -mt-2" />
         </div>
         {children}
       </div>
