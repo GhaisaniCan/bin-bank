@@ -92,7 +92,7 @@ export default function IsianTanggal({ id, value, onChange, salah = false, descr
           type="button"
           onClick={bukaKalender}
           aria-label="Buka kalender"
-          className="absolute right-3 top-1/2 flex -translate-y-1/2 items-center text-olive-700 hover:text-olive-800"
+          className="absolute right-3 top-1/2 flex -translate-y-1/2 items-center text-olive-700 hover:text-olive-800 hover-tombol-ikon"
         >
           <CalendarBlank size={24} weight="regular" aria-hidden="true" />
         </button>

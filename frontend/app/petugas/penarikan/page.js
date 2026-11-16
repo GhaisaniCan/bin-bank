@@ -7,7 +7,7 @@ import DialogSelesai from "@/components/DialogSelesai"
 import KartuPengajuan from "@/components/KartuPengajuan"
 import Paginasi from "@/components/Paginasi"
 import PesanInline from "@/components/PesanInline"
-import TabStatus from "@/components/TabStatus"
+import GrupPil from "@/components/GrupPil"
 
 const NAMA = ["Sari Wulandari", "Budi Santoso", "Sari Dewi", "Joko Prasetyo"]
 const PETUGAS = { nama: "Petugas Contoh" }
@@ -128,7 +128,7 @@ export default function Halaman() {
       {kabar && <PesanInline varian="berhasil" ikon={CheckCircle} isi={kabar} className="mt-4" />}
 
       <div className="mt-6">
-        <TabStatus tab={tab} aktif={aktif} onUbah={ganti} />
+        <GrupPil pilihan={tab} aktif={aktif} onUbah={ganti} label="Status penarikan" sebagaiTab />
       </div>
 
       <div id="panel-status" role="tabpanel" aria-labelledby={`tab-${aktif}`} className="mt-4">

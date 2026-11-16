@@ -7,7 +7,7 @@ import { api } from "@/lib/api"
 import { useDaring } from "@/lib/koneksi"
 import { formatJam, formatRupiah } from "@/lib/format"
 import { gambarSampah, kelompokSampah } from "@/lib/gambarSampah"
-import FilterChip from "@/components/FilterChip"
+import GrupPil from "@/components/GrupPil"
 import PesanInline from "@/components/PesanInline"
 import Tombol from "@/components/Tombol"
 
@@ -54,7 +54,7 @@ function SkeletonHarga() {
 // Kartu harga
 function KartuHarga({ jenis }) {
   return (
-    <li className={KELAS_KARTU}>
+    <li className={`${KELAS_KARTU} hover-kartu`}>
       <div className={KELAS_GAMBAR}>
         {jenis.gambar ? (
           <Image src={jenis.gambar} alt="" width={96} height={96} sizes="96px" className="size-full object-contain" />
@@ -158,7 +158,7 @@ export default function Halaman() {
 
       {adaData && (
         <div className="mt-2">
-          <FilterChip pilihan={KELOMPOK} aktif={kelompok} onUbah={setKelompok} label="Kelompok sampah" />
+          <GrupPil pilihan={KELOMPOK} aktif={kelompok} onUbah={setKelompok} label="Kelompok sampah" />
         </div>
       )}
 

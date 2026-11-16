@@ -175,7 +175,7 @@ export default function MenuAksi({ label, item = [], disabled = false }) {
         disabled={disabled}
         onClick={() => (terbuka ? tutup() : buka("pertama"))}
         onKeyDown={tombolPemicu}
-        className="flex size-7 shrink-0 items-center justify-center rounded-full border-0 bg-transparent text-ink-900 hover:bg-olive-50 focus-visible:bg-olive-50 disabled:text-ink-500 disabled:hover:bg-transparent"
+        className="flex size-7 shrink-0 items-center justify-center rounded-full border-0 bg-transparent text-ink-900 hover:bg-olive-50 focus-visible:bg-olive-50 disabled:text-ink-500 disabled:hover:bg-transparent hover-tombol-ikon"
       >
         <DotsThreeVertical size={24} weight="regular" aria-hidden="true" />
       </button>

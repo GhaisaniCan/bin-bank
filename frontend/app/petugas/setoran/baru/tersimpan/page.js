@@ -13,10 +13,10 @@ const kelasTautan =
   "inline-flex min-h-7 items-center text-body text-olive-700 underline decoration-1 hover:decoration-2"
 
 const kelasUtama =
-  "inline-flex h-7 w-full min-w-[96px] items-center justify-center rounded-2 bg-olive-700 px-4 text-body font-bold text-putih hover:bg-olive-800 active:bg-olive-800 min-[600px]:w-auto"
+  "inline-flex h-7 w-full min-w-[96px] items-center justify-center rounded-2 bg-olive-700 px-4 text-body font-bold text-putih hover:bg-olive-800 active:bg-olive-800 hover-tombol min-[600px]:w-auto"
 
 const kelasSekunder =
-  "inline-flex h-7 w-full min-w-[96px] items-center justify-center rounded-2 border border-line-500 bg-putih px-4 text-body font-bold text-ink-900 hover:bg-olive-50 active:bg-olive-50 min-[600px]:w-auto"
+  "inline-flex h-7 w-full min-w-[96px] items-center justify-center rounded-2 border border-line-500 bg-putih px-4 text-body font-bold text-ink-900 hover:bg-olive-50 active:bg-olive-50 hover-tombol min-[600px]:w-auto"
 
 export default function Halaman() {
   const [hasil, setHasil] = useState(undefined)

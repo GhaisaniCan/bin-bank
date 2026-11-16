@@ -45,7 +45,7 @@ export function SkeletonMutasi({ jumlah = 5 }) {
 // Daftar baris
 function DaftarBaris({ data, kelasTautan }) {
   return (
-    <ul className="border-t border-line-300 min-[600px]:hidden">
+    <ul className="border-t border-line-300 bg-putih min-[600px]:hidden">
       {data.map((b) => {
         const isi = (
           <>
@@ -89,7 +89,7 @@ function TabelBuku({ data, labelId, kelasTautan }) {
   const kelasSel = "px-2 py-3 align-top"
 
   return (
-    <table aria-labelledby={labelId} className="hidden w-full border-collapse text-body min-[600px]:table">
+    <table aria-labelledby={labelId} className="hidden w-full border-collapse bg-putih text-body min-[600px]:table">
       <thead>
         <tr>
           <th scope="col" className={`${kelasKepala} text-left`}>Tanggal</th>

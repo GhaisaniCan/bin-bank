@@ -19,7 +19,7 @@ const SETORAN_TERAKHIR = Array.from({ length: 5 }, (_, i) => ({
 const PERLU_DIPROSES = { menunggu: 7, disetujui: 3 }
 
 const kelasUtama =
-  "inline-flex h-7 w-full min-w-[96px] items-center justify-center rounded-2 bg-olive-700 px-4 text-body font-bold text-putih hover:bg-olive-800 active:bg-olive-800 min-[600px]:w-auto"
+  "inline-flex h-7 w-full min-w-[96px] items-center justify-center rounded-2 bg-olive-700 px-4 text-body font-bold text-putih hover:bg-olive-800 active:bg-olive-800 hover-tombol min-[600px]:w-auto"
 
 const kelasTautan =
   "inline-flex min-h-7 items-center text-body text-olive-700 underline decoration-1 hover:decoration-2"
