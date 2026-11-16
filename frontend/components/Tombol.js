@@ -44,7 +44,7 @@ export default function Tombol({
       type={type}
       disabled={disabled || memproses}
       aria-busy={memproses || undefined}
-      className={`inline-flex shrink-0 items-center justify-center text-body font-bold ${kelasUkuran[ukuran]} ${sudut} ${lebarMin} ${kelas} ${className}`}
+      className={`inline-flex shrink-0 items-center justify-center text-body font-bold ${kelasUkuran[ukuran]} ${sudut} ${lebarMin} ${kelas} ${varian === "teks" ? "" : "hover-tombol"} ${className}`}
       {...rest}
     >
       {memproses ? teksMemproses : children}

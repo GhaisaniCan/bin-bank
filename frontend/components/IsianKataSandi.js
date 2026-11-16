@@ -24,7 +24,7 @@ export default function IsianKataSandi({ id, autoComplete = "current-password", 
           aria-pressed={tampil}
           aria-controls={id}
           onClick={() => setTampil((v) => !v)}
-          className="flex h-7 w-7 items-center justify-center rounded-2 border-0 bg-transparent text-ink-700 hover:text-olive-700"
+          className="flex h-7 w-7 items-center justify-center rounded-2 border-0 bg-transparent text-ink-700 hover:text-olive-700 hover-tombol-ikon"
         >
           <Ikon size={24} weight="regular" aria-hidden="true" />
         </button>

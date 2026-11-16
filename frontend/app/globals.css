@@ -98,6 +98,21 @@ body {
   outline-offset: 2px;
 }
 
+/* Hover tombol */
+@utility hover-tombol {
+  @apply not-disabled:cursor-pointer motion-safe:transition-[scale,box-shadow] motion-safe:duration-300 motion-safe:ease-out motion-safe:not-disabled:hover:scale-(--skala-hover,1.05) motion-safe:not-disabled:focus-visible:scale-(--skala-hover,1.05) motion-safe:not-disabled:hover:shadow-[0_8px_24px_color-mix(in_srgb,var(--color-olive-800)_30%,transparent)] motion-safe:not-disabled:focus-visible:shadow-[0_8px_24px_color-mix(in_srgb,var(--color-olive-800)_30%,transparent)];
+}
+
+@utility hover-tombol-ikon {
+  --skala-hover: 1.03;
+  @apply hover-tombol;
+}
+
+/* Hover kartu */
+@utility hover-kartu {
+  @apply relative hover:z-10 motion-safe:transition-[scale,box-shadow] motion-safe:duration-300 motion-safe:ease-out motion-safe:hover:scale-105 motion-safe:hover:shadow-[0_12px_32px_color-mix(in_srgb,var(--color-olive-700)_22%,transparent)];
+}
+
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,

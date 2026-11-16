@@ -27,7 +27,7 @@ export default function BilahMenu({ item = [] }) {
   return (
     <nav
       aria-label="Menu utama"
-      className="fixed inset-x-0 bottom-0 z-10 border-t border-line-300 bg-putih pb-[env(safe-area-inset-bottom)] lg:sticky lg:top-0 lg:h-dvh lg:w-[240px] lg:shrink-0 lg:border-t-0 lg:border-r lg:pb-0"
+      className="fixed inset-x-0 bottom-0 z-10 border-t border-line-300 bg-krem-50 pb-[env(safe-area-inset-bottom)] lg:sticky lg:top-0 lg:h-dvh lg:w-[240px] lg:shrink-0 lg:border-t-0 lg:border-r lg:pb-0"
     >
       <div className="mb-4 hidden py-4 pr-4 pl-5 lg:block">
         <Merek href={item[0]?.href ?? "/"} className="w-fit" />

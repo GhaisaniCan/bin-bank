@@ -12,7 +12,7 @@ function ItemMenu({ onClick, children }) {
     <button
       type="button"
       onClick={onClick}
-      className="flex h-7 w-full items-center justify-start gap-1 whitespace-nowrap rounded-2 border-0 bg-transparent px-2 text-body font-bold text-olive-700 hover:bg-olive-50 hover:text-olive-800"
+      className="flex h-7 w-full items-center justify-start gap-1 whitespace-nowrap rounded-2 border-0 bg-transparent px-2 text-body font-normal text-olive-700 hover:bg-olive-50 hover:text-olive-800"
     >
       {children}
     </button>
@@ -69,10 +69,12 @@ function MenuPengguna({ item = [] }) {
         aria-expanded={terbuka}
         aria-controls={idMenu}
         onClick={() => setTerbuka((v) => !v)}
-        className="flex h-7 min-w-7 max-w-[240px] items-center gap-1 rounded-2 border-0 bg-transparent px-2 text-body font-bold text-ink-900 hover:text-olive-700"
+        className="flex h-7 min-w-7 max-w-[240px] items-center gap-1 rounded-2 border-0 bg-transparent px-2 text-body font-normal text-ink-900 cursor-pointer hover:text-olive-700"
       >
         <span className="truncate">{nama}</span>
-        <User size={24} weight="regular" aria-hidden="true" className="shrink-0" />
+        <span className="flex size-[40px] shrink-0 items-center justify-center rounded-full bg-olive-50 text-forest-900">
+          <User size={24} weight="regular" aria-hidden="true" />
+        </span>
       </button>
       {terbuka && (
         <div id={idMenu} className="absolute right-0 top-full z-20 mt-1 flex flex-col rounded-2 bg-putih p-2 shadow-1">
@@ -98,7 +100,7 @@ function MenuPengguna({ item = [] }) {
 // Kerangka
 export default function KerangkaAplikasi({ item, itemPengguna, children }) {
   return (
-    <div className="min-h-dvh lg:flex">
+    <div className="min-h-dvh bg-krem-50 lg:flex">
       <BilahMenu item={item} />
       <div className="min-w-0 flex-1 pb-[calc(var(--spacing-8)+env(safe-area-inset-bottom))] lg:pb-0">
         <div className="mx-auto w-full max-w-[1120px] px-4 min-[600px]:px-5 lg:px-6">

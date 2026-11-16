@@ -56,7 +56,7 @@ Referensi diambil dari benda nyata yang dilihat warga setiap hari, bukan dari pr
 
 ### Bahan visual yang dipakai
 
-- Latar putih (`putih`) dengan teks tinta gelap (`ink`). Bidang hijau muda (`olive-50`, `olive-100`) hanya untuk area sekunder, item terpilih, dan hiasan.
+- Latar halaman krem hangat (`krem-50`) di landing page dan screen aktor, permukaan putih (`putih`), dengan teks tinta gelap (`ink`). Bidang hijau muda (`olive-50`, `olive-100`) hanya untuk area sekunder, item terpilih, dan hiasan.
 - Garis tipis 1 px sebagai pemisah utama. Bayangan hanya untuk lapisan yang melayang (menu, dialog, toast).
 - Seluruh teks memakai Outfit; angka memakai angka tabular Outfit (`tnum`) supaya digit sejajar.
 - Status tampil sebagai **cap**: kata kapital di atas bidang warna. Status dibedakan oleh kata kapital dan warna; kata adalah penanda utama sehingga status tidak pernah bergantung pada warna saja (bagian 7, komponen Cap Status).
@@ -106,8 +106,8 @@ Palet mengikuti desain awal tim: putih sebagai latar, tinta gelap sebagai teks, 
 
 | Token | Hex | Peran |
 | --- | --- | --- |
-| `putih` | #FFFFFF | Latar halaman utama dan permukaan terangkat: kartu, dialog, kolom isian |
-| `krem-50` | #FFFEFB | Latar landing page (L1): pembungkus halaman, kepala, dan kaki. Tidak dipakai di layar aplikasi |
+| `putih` | #FFFFFF | Permukaan terangkat: kartu, tabel, dialog, kolom isian; latar halaman umum dan sistem (U1, U2, X1 sampai X3) |
+| `krem-50` | #FFFEFB | Latar halaman landing page (L1: pembungkus halaman, kepala, dan kaki) dan screen aktor admin, petugas, nasabah (`KerangkaAplikasi` dan Bilah Menu) |
 | `olive-50` | #EAF3DE | Baris tabel selang-seling, area sekunder, skeleton, tombol sekunder saat hover |
 | `ink-900` | #1D2420 | Teks isi, angka, judul |
 | `ink-700` | #394240 | Teks sekunder yang tetap penting (label kolom, keterangan) |
@@ -141,7 +141,10 @@ Palet mengikuti desain awal tim: putih sebagai latar, tinta gelap sebagai teks, 
 | Pasangan | Rasio | Dipakai untuk | Target |
 | --- | --- | --- | --- |
 | `ink-900` pada `putih` | 15,84:1 | Teks isi, angka, dan judul di halaman dan kartu | 7:1 |
-| `ink-900` pada `krem-50` | 15,71:1 | Teks isi dan judul di landing page | 7:1 |
+| `ink-900` pada `krem-50` | 15,71:1 | Teks isi dan judul di landing page dan screen aktor | 7:1 |
+| `ink-700` pada `krem-50` | 10,27:1 | Keterangan di luar kartu pada screen aktor | 7:1 |
+| `ink-500` pada `krem-50` | 6,23:1 | Teks pendukung di luar kartu pada screen aktor | 4,5:1 |
+| `line-500` pada `krem-50` | 4,29:1 | Batas isian dan tombol sekunder di luar kartu pada screen aktor | 3:1 |
 | `forest-900` pada `krem-50` | 9,98:1 | Merek di kepala landing page | 7:1 |
 | `olive-700` pada `krem-50` | 7,21:1 | Judul bagian dan kata tebal di landing page | 7:1 |
 | `ink-900` pada `olive-50` | 13,86:1 | Teks di baris selang-seling | 7:1 |
@@ -221,7 +224,7 @@ Semua jarak adalah kelipatan 4 px dan hanya delapan nilai yang boleh dipakai.
 
 ### Radius
 
-Sudut dibuat melengkung lembut agar antarmuka terasa ramah, tetapi bentuk dasarnya tetap persegi seperti halaman buku besar. Tidak ada bentuk pil dan tidak ada bentuk bulat penuh, dengan dua pengecualian yang disengaja: Filter Chip berbentuk pil (`rounded-full`) agar terbaca sebagai saringan, bukan tombol aksi; dan Tombol bentuk Bulat (aksi Ubah dan Tambah di halaman daftar atau kelola) beserta pemicu Menu Aksi, yang berbentuk pil agar aksi di halaman daftar terpisah dari tombol formulir dan dialog bersudut `radius-2`. Bentuk pil tidak dipakai untuk Cap Status maupun komponen lain.
+Sudut dibuat melengkung lembut agar antarmuka terasa ramah, tetapi bentuk dasarnya tetap persegi seperti halaman buku besar. Tidak ada bentuk pil dan tidak ada bentuk bulat penuh, dengan dua pengecualian yang disengaja: Grup Pil (Filter Chip dan Tab Status) berbentuk pil (`rounded-full`) agar terbaca sebagai saringan, bukan tombol aksi; dan Tombol bentuk Bulat (aksi Ubah dan Tambah di halaman daftar atau kelola) beserta pemicu Menu Aksi, yang berbentuk pil agar aksi di halaman daftar terpisah dari tombol formulir dan dialog bersudut `radius-2`. Bentuk pil tidak dipakai untuk Cap Status maupun komponen lain.
 
 | Token | Nilai | Pemakaian |
 | --- | --- | --- |
@@ -250,6 +253,28 @@ Di dunia buku kas, hierarki dibuat dengan garis, bukan bayangan. Bayangan hanya 
 - Perubahan warna saat hover, fokus, dan tekan bersifat instan (0 ms). Tombol tidak memudar.
 - Hanya bottom sheet dan dialog yang bergerak: geser 8 px dan tampil dalam 150 ms. Pengecualian: Landing Page (L1) memakai animasi muncul sekali saat elemen masuk layar (lihat L1, komponen Muncul); layar aplikasi tetap tanpa animasi.
 - Skeleton berupa blok `olive-50` statis, tanpa kilau. Layar menimbang tidak boleh menampilkan animasi yang bisa disangka angka berubah.
+
+### Hover tombol standar
+
+Semua tombol memakai satu efek hover yang didefinisikan sebagai utilitas Tailwind di `frontend/app/globals.css`; nilai efek tidak ditulis ulang di komponen.
+
+| Utilitas | Efek | Dipakai untuk |
+| --- | --- | --- |
+| `hover-tombol` | Membesar `scale` 1,05 dengan bayangan `0 8px 24px` `olive-800` 30%, transisi `scale` dan `box-shadow` 300 ms ease-out; juga saat `focus-visible`; kursor pointer | Tombol Utama, Sekunder, dan Merusak (`Tombol`), Tombol Masuk, Filter Chip, tautan bergaya tombol |
+| `hover-tombol-ikon` | Sama dengan `hover-tombol`, skala 1,03 | Tombol ikon rapat: Tombol Tutup, pemicu Menu Aksi, tombol lihat password, tombol kalender |
+| `hover-kartu` | Membesar 1,05 dengan bayangan `0 12px 32px` `olive-700` 22%, naik ke `z-10` | Kartu Harga |
+
+Cara memakai: tambahkan nama utilitas ke `className` tombol, di samping kelas warnanya. Komponen `Tombol` dan `TombolMasuk` sudah memasangnya sendiri, kecuali varian Teks. Efek hanya berjalan bila `prefers-reduced-motion` tidak aktif dan perangkat mendukung hover, sehingga tap di ponsel tidak memicunya. Tombol `disabled`, termasuk yang sedang memproses, tidak membesar, tidak berbayang, dan kursornya tidak berubah. Perubahan warna latar saat hover tetap instan. Skala bekerja lewat `scale`, jadi tata letak tidak bergeser dan `translate` bawaan elemen tetap utuh. Varian Teks, tautan teks, item menu, tombol profil di kepala atas, Bilah Menu, dan baris tabel tidak memakai efek ini.
+
+### Grup Pil untuk tab dan filter
+
+Semua tab status dan filter memakai satu komponen, `components/GrupPil.js`; gayanya tidak ditulis ulang di halaman.
+
+- Props: `pilihan` (daftar `{ id, label, jumlah? }`), `aktif` (id terpilih), `onUbah(id)`, `label` (`aria-label` grup), `sebagaiTab` (bawaan `false`), dan `idPanel` (bawaan `panel-status`).
+- Tampilan: pil `rounded-full`, tinggi minimal 44 px, padding `space-4`, jarak `space-2`, `text-body`. Aktif `olive-700` teks `putih` tebal; tidak aktif `olive-50` teks `ink-900`. Hover `hover-tombol`, fokus `focus-ring`. Bila `jumlah` ada, label ditulis "Menunggu (3)".
+- Layar sempit: satu baris yang digeser horizontal (scrollbar disembunyikan), dengan wadah berpadding selebar gutter dan margin negatif agar bayangan hover dan `focus-ring` tidak terpotong.
+- Mode filter (bawaan): `role=group`, tiap pil `aria-pressed`. Dipakai filter kelompok di Harga.
+- Mode tab (`sebagaiTab`): `role=tablist`, tiap pil `role=tab` dengan `id` `tab-<id>`, `aria-selected`, `aria-controls` ke `idPanel`, tabindex bergulir, dan panah kiri kanan, Home, End untuk memindah fokus. Panel memakai `role=tabpanel` dengan `aria-labelledby` `tab-<aktif>`. Dipakai Pengajuan Saya (nasabah) dan Penarikan (petugas).
 - Dengan pengaturan `prefers-reduced-motion`, semua gerak menjadi 0 ms.
 
 ## 4. Screen inventory
@@ -451,12 +476,12 @@ Alasannya: layar nasabah sudah padat garis pemisah baris dan angka. Garis bawah 
 
 ### Kerangka navigasi
 
-Semua screen aktor dibungkus `KerangkaAplikasi` (`components/KerangkaAplikasi.js`), berisi **Bilah Menu** (`components/BilahMenu.js`) dan kepala atas. Screen umum dan sistem (U1, U2, X1 sampai X3) tidak memakainya.
+Semua screen aktor dibungkus `KerangkaAplikasi` (`components/KerangkaAplikasi.js`), berisi **Bilah Menu** (`components/BilahMenu.js`) dan kepala atas. Latar kerangka `krem-50`, sama dengan landing page; kartu, tabel, dialog, dan kolom isian di dalamnya tetap `putih`. Screen umum dan sistem (U1, U2, X1 sampai X3) tidak memakainya dan tetap berlatar `putih`.
 
 - **Item menu Nasabah**: Beranda (`/nasabah`, House), Riwayat (`/nasabah/riwayat`, ClockCounterClockwise), Tarik Saldo (`/nasabah/tarik-saldo`, Wallet), Harga (`/nasabah/harga`, Tag). Item aktif ditentukan dari alamat: cocok persis atau diawali alamat item diikuti `/`; Beranda hanya cocok persis.
 - **Merek**: logo (`public/logo-binbank.png`, tinggi 32 px, lebar menyesuaikan, `alt=""` karena dekoratif) di kiri tulisan "BinBank" (`text-h2`, `forest-900`, bobot 700), berjarak `space-2`, ditautkan ke beranda peran (item menu pertama, untuk Nasabah `/nasabah`). Mulai 1024 px tampil paling atas di bilah samping, di atas item menu, dengan padding `space-4` (kiri `space-5`, sama dengan padding item menu, sehingga tepi kiri logo sejajar dengan ikon item) dan jarak `space-4` ke item pertama. Di bawah 1024 px tampil di sisi kiri kepala atas, sejajar dengan tombol nama pengguna di kanan.
-- **Bilah Menu**: di bawah 1024 px bilah bawah melekat 64 px dengan `rule-1` di atas dan inset area aman; mulai 1024 px bilah samping 240 px melekat dengan `rule-1` di kanan. Spesifikasi item mengikuti bagian 7.
-- **Kepala atas**: satu baris setinggi `space-8` di atas konten, berisi nama pengguna di kanan sebagai tombol (nama di kiri, ikon User di kanannya) dengan `aria-expanded`, tanpa latar dan garis di semua state; saat hover nama dan ikon berganti ke `olive-700` seketika tanpa transisi. Tombol membuka menu kecil (`shadow-1`) berisi item opsional per peran (prop `itemPengguna`) lalu **Keluar** (ikon SignOut). Item menu pengguna berupa tombol setinggi 48 px, teks tebal `olive-700` dengan ikon di kiri, tanpa garis bawah; dibedakan lewat ikon dan perubahan warna: saat hover teks `olive-800` di atas latar `olive-50`, seketika tanpa transisi seperti item Bilah Menu, dan fokus keyboard memakai `focus-ring`. Aturan garis bawah untuk tautan di dalam teks tidak berubah. Nasabah mendapat **Ganti password** (ikon Key, ke `/nasabah/ganti-password`); petugas dan admin hanya Keluar. Menu menutup dengan Esc (fokus kembali ke tombol nama), klik di luar menu, atau memilih item. Keluar menghapus sesi lalu mengganti alamat ke `/login`.
+- **Bilah Menu**: latar `krem-50`; di bawah 1024 px bilah bawah melekat 64 px dengan `rule-1` di atas dan inset area aman; mulai 1024 px bilah samping 240 px melekat dengan `rule-1` di kanan. Spesifikasi item mengikuti bagian 7.
+- **Kepala atas**: satu baris setinggi `space-8` di atas konten, berisi nama pengguna di kanan sebagai tombol (nama di kiri bobot biasa `font-normal`, sama dengan item Bilah Menu tidak aktif, ikon User 24 px `forest-900` di dalam lingkaran 40 px `rounded-full` berlatar `olive-50`, tanpa garis dan bayangan, di kanannya) dengan `aria-expanded`, tanpa latar dan garis di semua state; saat hover nama berganti ke `olive-700` seketika tanpa transisi, ikon tetap `forest-900`. Bagian profil (nama dan lingkaran ikon) sengaja tanpa efek hover membesar dan bayangan; kursor pointer dan `focus-ring` tetap. Tombol membuka menu kecil (`shadow-1`) berisi item opsional per peran (prop `itemPengguna`) lalu **Keluar** (ikon SignOut). Item menu pengguna berupa tombol setinggi 48 px, teks bobot biasa (`font-normal`, sama dengan nama pengguna dan item Bilah Menu tidak aktif) `olive-700` dengan ikon di kiri, tanpa garis bawah; dibedakan lewat ikon dan perubahan warna: saat hover teks `olive-800` di atas latar `olive-50`, seketika tanpa transisi seperti item Bilah Menu, dan fokus keyboard memakai `focus-ring`. Aturan garis bawah untuk tautan di dalam teks tidak berubah. Nasabah mendapat **Ganti password** (ikon Key, ke `/nasabah/ganti-password`); petugas dan admin hanya Keluar. Menu menutup dengan Esc (fokus kembali ke tombol nama), klik di luar menu, atau memilih item. Keluar menghapus sesi lalu mengganti alamat ke `/login`.
 - **Area konten**: gutter `space-4` (ponsel), `space-5` (tablet), `space-6` (desktop); di desktop berada di kanan bilah samping, lebar maksimum 1120 px di tengah, dengan kepala atas setinggi `space-8` sebagai margin atasnya. Di bawah 1024 px konten diberi padding bawah 64 px ditambah inset area aman agar tidak tertutup bilah bawah.
 
 ### U1. Masuk
@@ -490,6 +515,8 @@ Catatan implementasi (versi nasabah, `/nasabah/harga`):
 - Kepala Halaman: h1 "Harga" (`forest-900`) dan keterangan `text-small` `ink-700` "Harga per kg yang berlaku untuk setoran berikutnya". Tidak ada aksi.
 - Data dari `GET /jenis-sampah`; server mengirim semua jenis, sehingga jenis nonaktif disaring di klien. Urut nama A sampai Z.
 - Grid Kartu Harga, satu kartu per jenis: 2 kolom di bawah 640 px (muat di 360 px), 3 kolom mulai 640 px, 4 kolom mulai 1024 px; jarak horizontal `space-4`, jarak vertikal `space-8`, dan ruang atas grid `space-7` agar gambar yang menonjol tidak terpotong. Kartu hanya-baca, tanpa deskripsi, tombol, atau tautan. Gambar transparan dari `public/jenis-sampah/` dipilih oleh `lib/gambarSampah.js` menurut kata kunci nama (paling spesifik dulu); tanpa kecocokan tampil ikon Recycle. Gambar WebP ini menyimpang dari aturan "tanpa gambar bitmap" di bagian 10; dimuat lewat `next/image` (lazy, 96 px) dan U4 bukan halaman Masuk atau Beranda.
+- Hover Kartu Harga: seluruh kartu (gambar, nama, garis, harga) membesar `scale-105` dengan bayangan `0 12px 32px` `olive-700` 22%, sama dengan hover fitur di landing page; transisi 300 ms ease-out, hanya bila `prefers-reduced-motion` tidak aktif dan hanya di perangkat yang mendukung hover. Kartu yang di-hover naik ke `z-10` di atas tetangganya. Kondisi normal tidak berubah. Kelasnya `hover-kartu` (bagian Hover tombol standar).
+- Hover Filter Chip kelompok (Grup Pil): `hover-tombol` untuk semua chip, aktif maupun tidak, tanpa mengubah warnanya; kursor pointer dan `focus-ring` tetap.
 - Filter kelompok: Filter Chip (`aria-label` "Kelompok sampah") tepat di bawah keterangan dan di atas grid. Lima chip tanpa jumlah: Semua (bawaan), Plastik, Kertas, Besi, Lainnya. Kelompok ditentukan `kelompokSampah()` di `lib/gambarSampah.js` menurut kata kunci nama: besi, kaleng, aluminium menjadi Besi (dicek lebih dulu agar nama ganda seperti "kaleng plastik" masuk Besi); plastik, kresek menjadi Plastik; kardus, kertas, koran, hvs menjadi Kertas; selain itu (termasuk botol kaca dan minyak jelantah) Lainnya. Memilih chip hanya menyaring kartu di klien, tanpa memuat ulang. Chip tidak tampil selama memuat atau bila tidak ada jenis aktif sama sekali.
 - Kosong: judul h3 "Belum ada harga" dan kalimat "Harga akan muncul di sini setelah admin menambahkan jenis sampah." Kelompok terpilih tanpa jenis: judul h3 "Belum ada harga untuk kelompok ini". Memuat, lambat, offline, dan galat mengikuti N2.
 
@@ -548,7 +575,7 @@ Catatan implementasi (menyimpang dari atau melengkapi tulisan di atas dan bagian
 
 Catatan implementasi (melengkapi tulisan di atas dan bagian 8):
 
-- Tab Status lima tab: Semua (bawaan), Menunggu, Disetujui, Ditolak, Selesai. Di ponsel tetap 2 kolom, tab kelima di baris ketiga. Jumlah tiap tab diambil dari `paginasi.total` permintaan `GET /penarikan/saya?status=...&limit=1`; bila belum termuat, jumlah ditulis "-", bukan 0.
+- Tab Status lima tab: Semua (bawaan), Menunggu, Disetujui, Ditolak, Selesai. Tampil sebagai Grup Pil; di layar sempit baris digeser horizontal. Jumlah tiap tab diambil dari `paginasi.total` permintaan `GET /penarikan/saya?status=...&limit=1`; bila belum termuat, jumlah ditulis "-", bukan 0.
 - Kartu Pengajuan versi nasabah ada di `components/KartuPengajuanSaya.js`: tanpa kotak, tiap kartu dipisah `rule` `line-500` (atas daftar dan bawah tiap kartu). Baris atas nominal `text-amount` dan Cap Status; di bawahnya tanggal dan metode `text-small` `ink-700`; bila E-wallet nama dan nomor (tabular) `text-body`; bila DITOLAK "Alasan: ..." `text-body` `ink-900`.
 - Kosong per tab: Semua "Belum ada pengajuan" dengan satu kalimat dan tautan **Tarik saldo**; tab lain hanya judul h3.
 - Sorotan `olive-100` untuk pengajuan baru belum diterapkan.
@@ -775,8 +802,8 @@ State: **Memuat** (lima baris skeleton), **Kosong** (Keadaan Kosong), **Galat** 
 | --- | --- |
 | Kepala Halaman | h1, keterangan opsional `text-small`, slot untuk satu aksi di kanan (desktop) atau di Bilah Aksi Lekat (ponsel); di kanan atas ada nama pengguna yang membuka menu Profil dan Keluar |
 | Bilah Menu | Ponsel: bilah bawah setinggi 64 px, 4 sampai 5 item, ikon di atas kata `text-small`. Desktop: bilah samping 240 px, item 48 px, ikon di kiri kata. Item aktif: kata tebal, latar `olive-100`, penanda 3 px `olive-700` (atas di ponsel, kiri di desktop). Hitungan ditulis di kata: "Penarikan (3)" |
-| Tab Status | `role=tablist`; item aktif bertanda garis bawah 3 px `ink-900`, latar `putih`, kata tebal. Di ponsel empat tab ditata 2 kolom × 2 baris agar tidak ada scroll horizontal |
-| Filter Chip | `role=group` dengan `aria-label`, berisi `<button type="button">` ber-`aria-pressed`. Pil `rounded-full`, tinggi minimal 44 px, padding horizontal `space-4`, `text-body`, jarak antar chip `space-2`, tanpa angka jumlah. Aktif: latar `olive-700`, teks `putih` tebal. Tidak aktif: latar `olive-50`, teks `ink-900`. Fokus memakai `focus-ring`. Di layar sempit baris digeser horizontal (scrollbar disembunyikan, chip tidak mengecil, teks tidak dibungkus); wadah diberi padding `space-2` dengan margin horizontal negatif yang sama agar `focus-ring` tidak terpotong dan halaman tidak bergeser horizontal. Menyaring tampilan di klien, bukan memuat data |
+| Tab Status | Grup Pil mode tab (`sebagaiTab`): `role=tablist`, pil dengan jumlah dalam kurung ("Menunggu (3)"). Tampilan sama dengan Filter Chip; tanpa garis bawah |
+| Filter Chip | Grup Pil mode filter: `role=group` dengan `aria-label`, berisi `<button type="button">` ber-`aria-pressed`. Pil `rounded-full`, tinggi minimal 44 px, padding horizontal `space-4`, `text-body`, jarak antar chip `space-2`, tanpa angka jumlah. Aktif: latar `olive-700`, teks `putih` tebal. Tidak aktif: latar `olive-50`, teks `ink-900`. Fokus memakai `focus-ring`. Di layar sempit baris digeser horizontal (scrollbar disembunyikan, chip tidak mengecil, teks tidak dibungkus); wadah diberi padding selebar gutter halaman di kiri dan kanan (`space-4`, `space-5` mulai 600 px, `space-6` mulai 1024 px), `space-5` di atas, dan `space-7` di bawah, diimbangi margin negatif sehingga jarak tampak tetap `space-2` di atas dan bawah; ruang ini menampung `focus-ring` serta bayangan hover tanpa terpotong dan halaman tidak bergeser horizontal. Hover memakai `hover-tombol`. Menyaring tampilan di klien, bukan memuat data |
 | Bilah Aksi Lekat | Wadah melekat di atas Bilah Menu, latar `putih`, `rule-1` di atas, padding `space-4`, menghormati area aman perangkat; berisi tombol Utama (dan Sekunder bila ada) |
 | Paginasi | Tombol Sekunder **Sebelumnya** dan **Berikutnya**, teks "Halaman 2 dari 7" di tengah; tanpa deret nomor halaman |
 | Menu Aksi | `components/MenuAksi.js`. Pemicu: ikon DotsThreeVertical 24 px dalam target 48 × 48 px (`size-7`, di atas minimum 44 px), bulat penuh (`rounded-full`) agar serasi dengan Tombol Ringkas, tanpa garis dan latar, latar `olive-50` saat hover dan fokus, `aria-label` "Aksi lainnya untuk <nama>", `aria-haspopup=menu`, `aria-expanded`. Menu: `role=menu` di bawah pemicu rata kanan berjarak `space-1`, latar `putih`, `radius-2`, `shadow-1`, padding `space-2`. Item `role=menuitem` bergaya Item Menu (tinggi 48 px, `text-body` tebal, ikon 24 px, tanpa garis bawah, teks `olive-700`, latar `olive-50` saat hover dan fokus). Item bahaya bertulisan `bata-700` dan dipisahkan dari item lain oleh garis `line-300` dengan jarak `space-2`; letaknya selalu paling bawah. Menu dirender di luar wadah tabel (posisi tetap terhadap layar) agar tidak terpotong `overflow`, dijaga `space-2` dari tepi layar, dan membuka ke atas bila ruang di bawah tidak cukup. Menutup dengan klik di luar, Esc (fokus kembali ke pemicu), Tab, atau setelah memilih item (fokus kembali ke pemicu sebelum aksi berjalan, sehingga dialog yang dibuka mengembalikan fokus ke pemicu). Keyboard: Enter, Spasi, atau ArrowDown membuka dan memfokuskan item pertama; ArrowUp membuka ke item terakhir; ArrowUp dan ArrowDown berpindah item (berputar), Home dan End ke ujung. Pemicu nonaktif (`ink-500`) saat luring atau saat baris diproses |
@@ -865,7 +892,7 @@ Layar tidak boleh rusak sampai 320 px (kebutuhan zoom 400% dan ponsel kecil): sa
 | Tabel Buku | Berubah menjadi Daftar Baris (di bawah 600 px) | Tabel penuh | Tabel penuh, baris selang-seling |
 | Tombol utama formulir | Di Bilah Aksi Lekat, lebar penuh | Di Bilah Aksi Lekat, lebar 400 px di tengah | Di akhir formulir atau di panel ringkasan, lebar sesuai isi |
 | Dialog | Sheet dari bawah, tombol bertumpuk lebar penuh | Dialog di tengah 480 px | Dialog di tengah 480 px |
-| Tab Status | 2 × 2 | Satu baris | Satu baris |
+| Tab Status | Satu baris, digeser horizontal | Satu baris | Satu baris |
 | Angka saldo | `text-display` 40 px | 40 px | 48 px |
 | Target sentuh | 48 × 48 px | 48 × 48 px | 48 × 48 px (sama; tidak ada target kecil khusus desktop) |
 

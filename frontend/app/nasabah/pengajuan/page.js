@@ -8,7 +8,7 @@ import { formatJam } from "@/lib/format"
 import KartuPengajuanSaya, { SkeletonPengajuanSaya } from "@/components/KartuPengajuanSaya"
 import Paginasi from "@/components/Paginasi"
 import PesanInline from "@/components/PesanInline"
-import TabStatus from "@/components/TabStatus"
+import GrupPil from "@/components/GrupPil"
 import Tombol from "@/components/Tombol"
 import TautanArah from "@/components/TautanArah"
 
@@ -175,7 +175,7 @@ export default function Halaman() {
       </div>
 
       <div className="mt-6">
-        <TabStatus tab={tab} aktif={aktif} onUbah={gantiTab} />
+        <GrupPil pilihan={tab} aktif={aktif} onUbah={gantiTab} label="Status penarikan" sebagaiTab />
       </div>
 
       <div

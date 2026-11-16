@@ -80,14 +80,14 @@ export default function Halaman() {
 
         <Link
           href="/petugas/setoran/baru"
-          className="mt-5 flex h-12 items-center justify-center rounded-2 bg-olive-700 text-body font-bold text-putih hover:bg-olive-800"
+          className="mt-5 flex h-12 items-center justify-center rounded-2 bg-olive-700 text-body font-bold text-putih hover:bg-olive-800 hover-tombol"
         >
           Catat setoran untuk nasabah ini
         </Link>
         <button
           type="button"
           onClick={ulang}
-          className="mt-3 h-12 w-full rounded-2 border border-line-500 text-body font-bold hover:bg-olive-50"
+          className="mt-3 h-12 w-full rounded-2 border border-line-500 text-body font-bold hover:bg-olive-50 hover-tombol"
         >
           Daftarkan nasabah lain
         </button>
@@ -161,7 +161,7 @@ export default function Halaman() {
 
         <button
           type="submit"
-          className="mt-5 h-12 w-full rounded-2 bg-olive-700 text-body font-bold text-putih hover:bg-olive-800"
+          className="mt-5 h-12 w-full rounded-2 bg-olive-700 text-body font-bold text-putih hover:bg-olive-800 hover-tombol"
         >
           Daftarkan nasabah
         </button>

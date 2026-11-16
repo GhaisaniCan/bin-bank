@@ -40,7 +40,7 @@ export default function TombolMasuk({ teks = "Masuk", ukuran = "biasa", panah = 
   return (
     <Link
       href={beranda ?? "/login"}
-      className={`group inline-flex shrink-0 items-center justify-center whitespace-nowrap rounded-full bg-olive-700 font-bold text-putih no-underline hover:bg-olive-800 active:bg-olive-800 ${kelasGerak} ${kelasUkuran[ukuran]} ${className}`}
+      className={`group inline-flex shrink-0 items-center justify-center whitespace-nowrap rounded-full bg-olive-700 font-bold text-putih no-underline hover:bg-olive-800 active:bg-olive-800 hover-tombol ${kelasUkuran[ukuran]} ${className}`}
     >
       <span>{teks}</span>
       {panah && <ArrowRight weight="bold" aria-hidden="true" className={`shrink-0 ${kelasGerakPanah} ${kelasPanah[ukuran]}`} />}

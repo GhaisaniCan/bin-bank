@@ -35,7 +35,7 @@ function Angka({ batal, children }) {
 
 function DaftarBaris({ data }) {
   return (
-    <ul className="border-t border-line-300 min-[600px]:hidden">
+    <ul className="border-t border-line-300 bg-putih min-[600px]:hidden">
       {data.map((b) => (
         <li key={b.id} className="border-b border-line-300">
           <Link href={b.tautan} className="block min-h-7 px-1 py-3 hover:bg-olive-50">
@@ -64,7 +64,7 @@ function TabelBuku({ data }) {
   const kelasSel = "px-2 py-3 align-top"
 
   return (
-    <table aria-label="Daftar setoran" className="hidden w-full border-collapse text-body min-[600px]:table">
+    <table aria-label="Daftar setoran" className="hidden w-full border-collapse bg-putih text-body min-[600px]:table">
       <thead>
         <tr>
           <th scope="col" className={`${kelasKepala} text-left`}>Tanggal</th>

@@ -257,7 +257,7 @@ export default function Halaman() {
 
       {daftar && daftar.length > 0 && (
         <>
-          <table className="mt-5 hidden w-full border-collapse min-[600px]:table">
+          <table className="mt-5 hidden w-full border-collapse bg-putih min-[600px]:table">
             <thead>
               <tr className="border-b-2 border-ink-900 text-left text-small font-bold text-ink-700">
                 <th scope="col" className="py-3 pr-4">Jenis sampah</th>
@@ -300,7 +300,7 @@ export default function Halaman() {
             </tbody>
           </table>
 
-          <ul className="mt-5 border-t border-line-300 min-[600px]:hidden">
+          <ul className="mt-5 border-t border-line-300 bg-putih min-[600px]:hidden">
             {terurut.map((j) => (
               <li
                 key={j._id}
