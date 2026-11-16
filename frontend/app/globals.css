@@ -19,6 +19,7 @@
   --color-pet-100: #e2ecf5;
   --color-bata-700: #8a2615;
   --color-bata-100: #fae6e0;
+  --color-bata-200: #f3cfc4;
   --color-daun-700: #335512;
   --color-daun-100: #e4f0d6;
   --color-line-500: #767b73;
@@ -96,13 +97,77 @@ body {
 }
 
 :focus-visible {
-  outline: 3px solid var(--color-olive-700);
+  outline: 3px solid var(--warna-tombol, var(--color-olive-700));
   outline-offset: 2px;
+}
+
+/* Latar halaman */
+:root {
+  --hijau-tengah: color-mix(in srgb, var(--color-olive-100) 80%, var(--color-daun-700));
+  --mesh-halaman:
+    radial-gradient(ellipse 30vw 42lvh at 10% 8%, color-mix(in srgb, var(--color-olive-100) 65%, transparent) 0%, 35%, transparent 65%),
+    radial-gradient(ellipse 30vw 42lvh at 10% 108%, color-mix(in srgb, var(--color-olive-100) 65%, transparent) 0%, 35%, transparent 65%),
+    radial-gradient(ellipse 32vw 46lvh at 86% 26%, color-mix(in srgb, var(--color-olive-100) 60%, transparent) 0%, 35%, transparent 65%),
+    radial-gradient(ellipse 14vw 20lvh at 86% 26%, color-mix(in srgb, var(--hijau-tengah) 25%, transparent) 0%, 35%, transparent 65%),
+    radial-gradient(ellipse 26vw 36lvh at 34% 44%, color-mix(in srgb, var(--color-olive-100) 55%, transparent) 0%, 35%, transparent 65%),
+    radial-gradient(ellipse 28vw 40lvh at 78% 58%, color-mix(in srgb, var(--color-olive-100) 62%, transparent) 0%, 35%, transparent 65%),
+    radial-gradient(ellipse 30vw 44lvh at 8% 76%, color-mix(in srgb, var(--color-olive-100) 65%, transparent) 0%, 35%, transparent 65%),
+    radial-gradient(ellipse 26vw 36lvh at 64% 95%, color-mix(in srgb, var(--color-olive-100) 55%, transparent) 0%, 35%, transparent 65%),
+    radial-gradient(ellipse 26vw 36lvh at 64% -5%, color-mix(in srgb, var(--color-olive-100) 55%, transparent) 0%, 35%, transparent 65%);
+  --mesh-hero:
+    radial-gradient(ellipse 30vw 34lvh at 66% 24%, color-mix(in srgb, var(--color-daun-100) 85%, transparent) 0%, 35%, transparent 65%),
+    radial-gradient(ellipse 18vw 18lvh at 64% 58%, color-mix(in srgb, var(--color-daun-100) 65%, transparent) 0%, 35%, transparent 65%);
+
+  @media (width < 40rem) {
+    --mesh-halaman:
+      radial-gradient(ellipse 62vw 30lvh at 0% 6%, color-mix(in srgb, var(--color-olive-100) 62%, transparent) 0%, 35%, transparent 65%),
+      radial-gradient(ellipse 62vw 30lvh at 0% 106%, color-mix(in srgb, var(--color-olive-100) 62%, transparent) 0%, 35%, transparent 65%),
+      radial-gradient(ellipse 62vw 30lvh at 100% 26%, color-mix(in srgb, var(--color-olive-100) 58%, transparent) 0%, 35%, transparent 65%),
+      radial-gradient(ellipse 28vw 14lvh at 100% 26%, color-mix(in srgb, var(--hijau-tengah) 25%, transparent) 0%, 35%, transparent 65%),
+      radial-gradient(ellipse 56vw 26lvh at 30% 44%, color-mix(in srgb, var(--color-olive-100) 52%, transparent) 0%, 35%, transparent 65%),
+      radial-gradient(ellipse 62vw 30lvh at 100% 60%, color-mix(in srgb, var(--color-olive-100) 60%, transparent) 0%, 35%, transparent 65%),
+      radial-gradient(ellipse 62vw 30lvh at 0% 78%, color-mix(in srgb, var(--color-olive-100) 62%, transparent) 0%, 35%, transparent 65%),
+      radial-gradient(ellipse 56vw 26lvh at 80% 96%, color-mix(in srgb, var(--color-olive-100) 52%, transparent) 0%, 35%, transparent 65%),
+      radial-gradient(ellipse 56vw 26lvh at 80% -4%, color-mix(in srgb, var(--color-olive-100) 52%, transparent) 0%, 35%, transparent 65%);
+    --mesh-hero:
+      radial-gradient(ellipse 50vw 16lvh at 72% 22%, color-mix(in srgb, var(--color-daun-100) 85%, transparent) 0%, 35%, transparent 65%),
+      radial-gradient(ellipse 30vw 10lvh at 60% 36%, color-mix(in srgb, var(--color-daun-100) 65%, transparent) 0%, 35%, transparent 65%);
+  }
+}
+
+@utility bg-halaman-panjang {
+  position: relative;
+  isolation: isolate;
+  background-color: var(--color-putih);
+
+  &::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    pointer-events: none;
+    background-image: var(--mesh-halaman);
+    background-size: 100% 200lvh;
+    background-repeat: repeat-y;
+  }
+
+  &::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100lvh;
+    z-index: -1;
+    pointer-events: none;
+    background-image: var(--mesh-hero);
+    background-repeat: no-repeat;
+  }
 }
 
 /* Hover tombol */
 @utility hover-tombol {
-  @apply not-disabled:cursor-pointer motion-safe:transition-[scale,box-shadow] motion-safe:duration-300 motion-safe:ease-out motion-safe:not-disabled:hover:scale-(--skala-hover,1.05) motion-safe:not-disabled:focus-visible:scale-(--skala-hover,1.05) motion-safe:not-disabled:hover:shadow-[0_8px_24px_color-mix(in_srgb,var(--color-olive-800)_30%,transparent)] motion-safe:not-disabled:focus-visible:shadow-[0_8px_24px_color-mix(in_srgb,var(--color-olive-800)_30%,transparent)];
+  @apply not-disabled:cursor-pointer motion-safe:transition-[scale,box-shadow] motion-safe:duration-300 motion-safe:ease-out motion-safe:not-disabled:hover:scale-(--skala-hover,1.05) motion-safe:not-disabled:focus-visible:scale-(--skala-hover,1.05) motion-safe:not-disabled:hover:shadow-[0_8px_24px_color-mix(in_srgb,var(--warna-tombol,var(--color-olive-800))_30%,transparent)] motion-safe:not-disabled:focus-visible:shadow-[0_8px_24px_color-mix(in_srgb,var(--warna-tombol,var(--color-olive-800))_30%,transparent)];
 }
 
 @utility hover-tombol-ikon {

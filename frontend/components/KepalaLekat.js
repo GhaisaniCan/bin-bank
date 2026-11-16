@@ -17,7 +17,7 @@ export default function KepalaLekat({ children }) {
 
   return (
     <header
-      className={`sticky top-0 z-30 border-b-2 border-olive-100 bg-krem-50 transition-shadow duration-150 motion-reduce:transition-none ${
+      className={`sticky top-0 z-30 border-b border-line-300 bg-putih/95 backdrop-blur-sm transition-shadow duration-150 motion-reduce:transition-none ${
         digulir ? "shadow-1" : "shadow-0"
       }`}
     >

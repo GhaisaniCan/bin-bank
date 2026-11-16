@@ -56,7 +56,7 @@ Referensi diambil dari benda nyata yang dilihat warga setiap hari, bukan dari pr
 
 ### Bahan visual yang dipakai
 
-- Latar halaman krem hangat (`krem-50`) di landing page dan screen aktor, permukaan putih (`putih`), dengan teks tinta gelap (`ink`). Bidang hijau muda (`olive-50`, `olive-100`) hanya untuk area sekunder, item terpilih, dan hiasan.
+- Latar halaman landing page putih dengan mesh hijau muda (`bg-halaman-panjang`); latar screen aktor krem hangat polos (`krem-50`); permukaan putih (`putih`), dengan teks tinta gelap (`ink`). Bidang hijau muda (`olive-50`, `olive-100`) hanya untuk area sekunder, item terpilih, dan hiasan.
 - Garis tipis 1 px sebagai pemisah utama. Bayangan hanya untuk lapisan yang melayang (menu, dialog, toast).
 - Seluruh teks memakai Outfit; angka memakai angka tabular Outfit (`tnum`) supaya digit sejajar.
 - Status tampil sebagai **cap**: kata kapital di atas bidang warna. Status dibedakan oleh kata kapital dan warna; kata adalah penanda utama sehingga status tidak pernah bergantung pada warna saja (bagian 7, komponen Cap Status).
@@ -106,19 +106,19 @@ Palet mengikuti desain awal tim: putih sebagai latar, tinta gelap sebagai teks, 
 
 | Token | Hex | Peran |
 | --- | --- | --- |
-| `putih` | #FFFFFF | Permukaan terangkat: kartu, tabel, dialog, kolom isian; latar halaman umum dan sistem (U1, U2, X1 sampai X3) |
-| `krem-50` | #FFFEFB | Latar halaman landing page (L1: pembungkus halaman, kepala, dan kaki) dan screen aktor admin, petugas, nasabah (`KerangkaAplikasi` dan Bilah Menu) |
-| `olive-50` | #EAF3DE | Baris tabel selang-seling, area sekunder, skeleton, tombol sekunder saat hover |
+| `putih` | #FFFFFF | Permukaan terangkat: kartu, tabel, dialog, kolom isian; dasar latar mesh landing page; latar halaman umum dan sistem (U1, U2, X1 sampai X3) |
+| `krem-50` | #FFFEFB | Latar halaman screen aktor admin, petugas, nasabah (`KerangkaAplikasi` dan Bilah Menu), polos tanpa mesh |
+| `olive-50` | #EAF3DE | Bidang latar muda, baris tabel selang-seling, area sekunder, skeleton, tombol sekunder saat hover |
 | `ink-900` | #1D2420 | Teks isi, angka, judul |
 | `ink-700` | #394240 | Teks sekunder yang tetap penting (label kolom, keterangan) |
 | `ink-500` | #5A625E | Teks pendukung (bantuan isian, waktu, placeholder) |
 | `olive-700` | #4F5C23 | Aksi utama, tautan, focus ring |
 | `olive-800` | #3F4A1C | Tombol utama saat ditekan dan hover; tautan di atas `olive-50` |
-| `olive-100` | #CDE1B3 | Latar item terpilih, sorotan baris baru, bidang dekoratif |
+| `olive-100` | #CDE1B3 | Gumpalan latar mesh (52–65% di pusat), latar item terpilih, sorotan baris baru, bidang dekoratif |
 | `forest-900` | #114B38 | Merek: logo dan ilustrasi. Bukan untuk teks isi atau tombol |
 | `kardus-700` / `kardus-100` | #6B3F08 / #F8EBD2 | Status MENUNGGU, peringatan |
 | `pet-700` / `pet-100` | #1A4670 / #E2ECF5 | Status DISETUJUI, informasi |
-| `bata-700` / `bata-100` | #8A2615 / #FAE6E0 | Status DITOLAK dan DIBATALKAN, galat, aksi merusak |
+| `bata-700` / `bata-100` / `bata-200` | #8A2615 / #FAE6E0 / #F3CFC4 | Status DITOLAK dan DIBATALKAN, galat, aksi merusak; `bata-200` hanya latar hover tombol Bahaya |
 | `daun-700` / `daun-100` | #335512 / #E4F0D6 | Status SELESAI dan TERCATAT, keberhasilan |
 | `kuning-700` | #8A6500 | Judul kondisi "layanan tidak tersedia". Bukan untuk teks isi |
 | `line-500` | #767B73 | Batas komponen interaktif (isian, tombol sekunder, kotak centang) |
@@ -135,6 +135,69 @@ Palet mengikuti desain awal tim: putih sebagai latar, tinta gelap sebagai teks, 
 - Tidak ada gradien. Tidak ada transparansi pada permukaan, kecuali scrim di belakang dialog.
 - Kartu tidak pernah diberi garis tepi berwarna; warna status hanya hidup di dalam Cap Status.
 - Teks pendukung di atas `olive-100` memakai `ink-700`, bukan `ink-500` (4,49:1). Tautan di atas `olive-50` memakai `olive-800`, bukan `olive-700` (6,36:1).
+
+### Latar mesh halaman
+
+Latar halaman landing page (`/`) berupa mesh, dan hanya landing page: gumpalan `radial-gradient` berlapis pada satu lapisan, memudar ke transparan dan saling melebur di atas dasar `putih`, bukan gradien linear dan bukan warna rata. Hanya memakai token palet; tidak ada hex baru.
+
+**Variabel** (di `:root`, `app/globals.css`):
+- `--mesh-halaman`: daftar gumpalan, didefinisikan pada ubin selebar layar dan setinggi dua layar (`100% × 200lvh`), sehingga satu ubin berisi dua komposisi berbeda (layar pertama di 0–50%, layar kedua di 50–100%). Gumpalan yang melewati tepi atas atau bawah ubin diulang di sisi seberang (±100%) agar sambungan ubin tidak terputus. Di bawah 640 px variabel ini diganti daftar ponsel.
+- `--hijau-tengah`: hijau menengah untuk satu titik aksen saja, `color-mix(in srgb, olive-100 80%, daun-700)`. Palet tidak punya hijau di antara `olive-100` dan `olive-700`, jadi turunan ini dipakai, bukan hex baru.
+
+**Utilitas**:
+- `bg-halaman-panjang` (landing page `app/page.js`): `::before` `position: absolute; inset: 0` setinggi seluruh halaman, ubin `200lvh` diulang vertikal (`repeat-y`), sehingga tiap layar saat digulir menampilkan komposisi berbeda dan pola baru berulang setiap dua layar.
+- `bg-halaman-panjang` juga punya `::after` khusus hero: `position: absolute`, di puncak halaman, setinggi satu layar (`100lvh`), tanpa ulang, berisi `--mesh-hero` di atas `--mesh-halaman`. Seperti `::before`, lapisan ini hanya ada di landing page.
+- Pembungkus `position: relative; isolation: isolate` berlatar `putih`, lapisan `z-index: -1` dan `pointer-events: none`, statis tanpa animasi, tanpa `background-attachment: fixed`. Ukuran memakai `lvh` (tetap) agar ubin tidak berubah ukuran saat bilah alamat ponsel muncul atau hilang.
+
+**Kelembutan tepi**: setiap gumpalan memakai `warna 0%, 35%, transparent 65%`: pusat paling pekat, petunjuk warna di 35% menjaga inti tetap penuh, lalu memudar halus hingga transparan penuh di 65% jari-jari. Di luar 65% jari-jari tidak ada warna sama sekali, sehingga ada ruang putih jelas di antara gumpalan dan gumpalan tidak menyatu menjadi hamparan hijau. Sekitar 70% bidang halaman tampak putih (selisih kurang dari 8 per kanal RGB dari `putih`) di laptop dan ponsel. Tidak memakai `filter: blur()`, jadi ringan: uji gulir di peramban menghasilkan 60 fps stabil (p95 16,7 ms) di 1440 px dan 390 px.
+
+Gumpalan desktop (mulai 640 px), tiga gumpalan hijau per layar ditambah satu aksen. Posisi dalam persen ubin `200lvh` (0–50% layar pertama, 50–100% layar kedua); gumpalan yang melewati tepi ubin diulang di sisi seberang:
+
+| Posisi | Warna | Ukuran (jari-jari elips) | Opasitas pusat |
+| --- | --- | --- | --- |
+| Kiri atas (`10% 8%`) | `olive-100` | 30vw × 42lvh | 65% |
+| Kanan tengah (`86% 26%`) | `olive-100` | 32vw × 46lvh | 60% |
+| Aksen di dalam kanan tengah (`86% 26%`) | `hijau tengah` | 14vw × 20lvh | 25% |
+| Bawah kiri-tengah (`34% 44%`) | `olive-100` | 26vw × 36lvh | 55% |
+| Kanan atas layar kedua (`78% 58%`) | `olive-100` | 28vw × 40lvh | 62% |
+| Kiri tengah layar kedua (`8% 76%`) | `olive-100` | 30vw × 44lvh | 65% |
+| Kanan bawah layar kedua (`64% 95%`) | `olive-100` | 26vw × 36lvh | 55% |
+
+Gumpalan ponsel (di bawah 640 px), susunan sama dengan jari-jari lebih lebar relatif terhadap layar:
+
+| Posisi | Warna | Ukuran (jari-jari elips) | Opasitas pusat |
+| --- | --- | --- | --- |
+| Kiri atas (`0% 6%`) | `olive-100` | 62vw × 30lvh | 62% |
+| Kanan tengah (`100% 26%`) | `olive-100` | 62vw × 30lvh | 58% |
+| Aksen di dalam kanan tengah (`100% 26%`) | `hijau tengah` | 28vw × 14lvh | 25% |
+| Bawah kiri-tengah (`30% 44%`) | `olive-100` | 56vw × 26lvh | 52% |
+| Kanan atas layar kedua (`100% 60%`) | `olive-100` | 62vw × 30lvh | 60% |
+| Kiri tengah layar kedua (`0% 78%`) | `olive-100` | 62vw × 30lvh | 62% |
+| Kanan bawah layar kedua (`80% 96%`) | `olive-100` | 56vw × 26lvh | 52% |
+
+Gumpalan hero landing page (`--mesh-hero`, hanya `bg-halaman-panjang`), di sekitar ilustrasi tangan memegang kantong sampah, bukan di belakang teks; sisi kiri hero (teks dan tombol) tetap didominasi putih. Warna `daun-100`, sedikit lebih pucat daripada blob ilustrasi `olive-100`, sehingga menyatu dengan blob itu dan ilustrasi tetap menonjol. Posisi dalam persen layar pertama (`100lvh`), bukan ubin:
+
+| Posisi | Warna | Ukuran (jari-jari elips) | Opasitas pusat |
+| --- | --- | --- | --- |
+| Kiri dan atas tangan, antara kolom teks dan ilustrasi (`66% 24%`) | `daun-100` | 30vw × 34lvh | 85% |
+| Kaki ilustrasi (`64% 58%`) | `daun-100` | 18vw × 18lvh | 65% |
+
+Ponsel (di bawah 640 px), ilustrasi berada di kanan teks:
+
+| Posisi | Warna | Ukuran (jari-jari elips) | Opasitas pusat |
+| --- | --- | --- | --- |
+| Sekitar ilustrasi (`72% 22%`) | `daun-100` | 50vw × 16lvh | 85% |
+| Kaki ilustrasi (`60% 36%`) | `daun-100` | 30vw × 10lvh | 65% |
+
+Dengan gumpalan hero, layar pertama landing page kira-kira 64% putih di laptop dan tablet, 66% di ponsel, dan tidak ada pita selebar layar yang putih penuh (simulasi 1920 × 1080, 1440 × 900, 1280 × 720, 768 × 1024, 390 × 844).
+
+Aturan pemakaian:
+- Pembungkus di atas mesh tidak boleh berlatar opak. Kartu, tabel, dialog, dan kolom isian tetap `putih` sehingga menonjol seperti panel di atas mesh.
+- Kepala lekat landing page berlatar `putih` 95% dengan `backdrop-blur-sm` dan garis bawah `rule-1` (`line-300` 1 px), sehingga tidak ikut menghijau di atas gumpalan.
+- Hanya hijau segar: `olive-100` dan satu aksen `--hijau-tengah`. Jangan memakai `olive-700`, `daun-700`, atau `forest-900` langsung sebagai gumpalan: pada opasitas rendah di atas putih ketiganya tampak abu-abu atau kecokelatan.
+- Gumpalan tidak boleh saling menutupi hingga membentuk hamparan; jaga ruang putih di antaranya. Aksen hanya satu, di dalam gumpalan kanan tengah.
+- Kontras dihitung pada seluruh bidang mesh di atas dasar `putih` (simulasi tiap 6 px pada 1440 × 900, 1280 × 720, dan 390 × 844), bukan hanya di belakang teks sekarang. Titik terpekat desktop (pusat aksen) ≈ #D9E7C7: `ink-900` 12,3:1, `ink-700` 8,0:1, `ink-500` 4,9:1, `line-500` 3,4:1, `olive-700` 5,6:1. Titik terpekat ponsel ≈ #DBE8C9: `ink-500` 4,9:1, `line-500` 3,4:1. Semua lolos target teks 4,5:1 dan garis 3:1 di mana pun teks diletakkan. Bila opasitas dinaikkan, ulangi perhitungan ini.
+- Mesh hanya di landing page. Screen aktor (`KerangkaAplikasi`: admin, petugas, nasabah) berlatar `krem-50` polos tanpa mesh, dengan Bilah Menu `krem-50`. Layar umum dan sistem (U1, U2, X1 sampai X3, termasuk login) tidak memakai mesh dan tetap berlatar `putih`; latar `body` global tetap `putih`.
 
 ### Rasio kontras terverifikasi
 
@@ -163,6 +226,9 @@ Palet mengikuti desain awal tim: putih sebagai latar, tinta gelap sebagai teks, 
 | `daun-700` pada `daun-100` | 7,24:1 | Cap SELESAI, pesan berhasil | 7:1 |
 | `kuning-700` pada `putih` | 5,33:1 | Judul besar kondisi "layanan tidak tersedia" | 4,5:1 |
 | putih pada `bata-700` | 8,87:1 | Tombol aksi merusak | 7:1 |
+| `olive-700` pada `olive-50` | 6,36:1 | Tombol Sukses | 4,5:1 |
+| `olive-800` pada `olive-100` | 6,80:1 | Tombol Sukses saat hover | 4,5:1 |
+| `bata-700` pada `bata-200` | 6,14:1 | Tombol Bahaya saat hover | 4,5:1 |
 | putih pada `ink-900` | 15,84:1 | Toast | 7:1 |
 | `line-500` pada `putih` | 4,33:1 | Batas isian dan tombol sekunder di halaman dan kartu | 3:1 |
 | `line-500` pada `olive-50` | 3,79:1 | Batas komponen di area sekunder | 3:1 |
@@ -225,6 +291,8 @@ Semua jarak adalah kelipatan 4 px dan hanya delapan nilai yang boleh dipakai.
 ### Radius
 
 Sudut dibuat melengkung lembut agar antarmuka terasa ramah, tetapi bentuk dasarnya tetap persegi seperti halaman buku besar. Tidak ada bentuk pil dan tidak ada bentuk bulat penuh, dengan dua pengecualian yang disengaja: Grup Pil (Filter Chip dan Tab Status) berbentuk pil (`rounded-full`) agar terbaca sebagai saringan, bukan tombol aksi; dan Tombol bentuk Bulat (aksi Ubah dan Tambah di halaman daftar atau kelola) beserta pemicu Menu Aksi, yang berbentuk pil agar aksi di halaman daftar terpisah dari tombol formulir dan dialog bersudut `radius-2`. Bentuk pil tidak dipakai untuk Cap Status maupun komponen lain.
+
+Tombol ukuran Pil (`ukuran="pil"`) untuk aksi berpasangan di kartu, misalnya Setujui dan Tolak pada Kartu Pengajuan: `rounded-full`, lebar mengikuti teks (`w-fit`, tanpa lebar minimum), padding `space-5` × `space-2`, tinggi tampak 40 px dengan area sentuh 44 px, jarak antartombol `space-3`. Varian Sukses dan Bahaya berlatar muda (hijau muda dan merah muda) yang makin pekat saat hover, teks gelap tidak tebal; saat nonaktif atau memproses tetap berwarna dengan opasitas 50%, tanpa efek hover dan tanpa kursor pointer.
 
 | Token | Nilai | Pemakaian |
 | --- | --- | --- |
@@ -659,9 +727,9 @@ Tidak ada tombol utama di halaman ini; aksi menulis ada di menu **Catat Setoran*
 
 Alamat `/` (`app/page.js`), komponen server tanpa `KerangkaAplikasi` dan tanpa RoleGuard. Satu-satunya halaman yang memakai ilustrasi; aturan "tanpa ilustrasi" pada U1 dan X1 sampai X3 tidak berlaku di sini. Acuan visualnya desain Figma ponsel tim (bingkai 595 px); proporsi dan posisi mengikuti desain, sedangkan warna dan ukuran huruf memakai token terdekat (zaitun Figma #849347 diganti `olive-700`, huruf Figma diganti Outfit). Wadah tiap bagian sama dengan area konten aplikasi: lebar maksimum 1120 px di tengah, gutter `space-4` (ponsel), `space-5` (600 px ke atas), `space-6` (desktop). Jarak vertikal tiap bagian `space-6` di ponsel, `space-7` di tablet, `space-8` di desktop. Hanya satu `h1`; judul bagian berupa `h2` `text-landing-bagian` tebal `olive-700`. Ukuran huruf L1 memakai skala khusus Landing Page (bagian 3, Tipografi).
 
-Latar seluruh halaman krem hangat `krem-50` (pembungkus halaman, kepala lekat, dan kaki), bukan `putih`; latar `body` global tetap `putih`. Kepala lekat berlatar `krem-50` tidak transparan, jadi konten tidak tampak menembus saat digulir. Layar ponsel di bagian Apa itu BinBank? tetap `putih` agar terbaca sebagai layar.
+Latar seluruh halaman memakai `bg-halaman-panjang` pada pembungkus halaman (termasuk kaki), sehingga mesh tersebar sepanjang halaman, bukan `putih`; latar `body` global tetap `putih`. Kepala lekat berlatar `putih` 95% dengan `backdrop-blur-sm`, cukup pekat sehingga konten tidak tampak menembus saat digulir. Layar ponsel di bagian Apa itu BinBank? tetap `putih` agar terbaca sebagai layar.
 
-1. **Kepala**: `components/KepalaLekat.js`, latar `krem-50`, garis bawah 2 px `olive-100`, sewarna blob (pengecualian dari `rule-1` khusus L1), tinggi isi 64 px (`space-8`) di bawah 1024 px dan 72 px (`space-8` + `space-2`) mulai 1024 px, dengan logo, tulisan, dan tombol sejajar tengah vertikal. Kiri: Merek (`components/BilahMenu.js`: logo hati 32 px dan tulisan "BinBank" `text-h2` `forest-900`) bertautan ke `/` dengan target 48 px; Kanan: Tombol Masuk ukuran Ringkas (pil, tinggi tampak 40 px, area sentuh 44 px, teks `text-h3`). Isi kepala tidak memakai wadah 1120 px: Merek dan tombol hanya berjarak padding tepi layar yang sama di kiri dan kanan (`space-4` di ponsel, `space-5` mulai 600 px, `space-6` di desktop), simetris terhadap tepi layar; lebar kepala tidak termasuk scrollbar, jadi tombol tidak tertutup. Kepala melekat di atas saat digulir (`position: sticky`, `top: 0`, `z-30` di atas konten dan blob); karena tetap berada di alur halaman, hero mulai tepat di bawah garis kepala tanpa offset tambahan. Belum digulir tanpa bayangan (`shadow-0`); setelah digulir lebih dari 8 px muncul `shadow-1` di bawah garis dengan transisi 150 ms, 0 ms bila `prefers-reduced-motion`. Status gulir dibaca lewat `useSyncExternalStore` dengan snapshot server `false`, jadi render awal selalu tanpa bayangan.
+1. **Kepala**: `components/KepalaLekat.js`, latar `putih` 95% dengan `backdrop-blur-sm`, garis bawah `rule-1` (`line-300` 1 px), tinggi isi 64 px (`space-8`) di bawah 1024 px dan 72 px (`space-8` + `space-2`) mulai 1024 px, dengan logo, tulisan, dan tombol sejajar tengah vertikal. Kiri: Merek (`components/BilahMenu.js`: logo hati 32 px dan tulisan "BinBank" `text-h2` `forest-900`) bertautan ke `/` dengan target 48 px; Kanan: Tombol Masuk ukuran Ringkas (pil, tinggi tampak 40 px, area sentuh 44 px, teks `text-h3`). Isi kepala tidak memakai wadah 1120 px: Merek dan tombol hanya berjarak padding tepi layar yang sama di kiri dan kanan (`space-4` di ponsel, `space-5` mulai 600 px, `space-6` di desktop), simetris terhadap tepi layar; lebar kepala tidak termasuk scrollbar, jadi tombol tidak tertutup. Kepala melekat di atas saat digulir (`position: sticky`, `top: 0`, `z-30` di atas konten dan blob); karena tetap berada di alur halaman, hero mulai tepat di bawah garis kepala tanpa offset tambahan. Belum digulir tanpa bayangan (`shadow-0`); setelah digulir lebih dari 8 px muncul `shadow-1` di bawah garis dengan transisi 150 ms, 0 ms bila `prefers-reduced-motion`. Status gulir dibaca lewat `useSyncExternalStore` dengan snapshot server `false`, jadi render awal selalu tanpa bayangan.
 2. **Hero**: dua kolom bersisian di semua lebar (teks kira-kira 55%, ilustrasi 45%). Tagline "Dari Sampah, Jadi Saldo" (`text-body`, mulai 640 px `text-h3`; "Sampah" dan "Saldo" tebal `olive-700`, sisanya `ink-900`). `h1` dua baris: "BinBank:" tebal `olive-700` (`text-landing-judul`) dan "Bank Sampah Digital RW" tebal `ink-900` (`text-landing-subjudul`). Paragraf `text-landing-isi`, lalu tombol pil "Coba Sekarang" (teks `text-h3`) dengan ArrowRight: tinggi 40 px (area sentuh 44 px) di bawah 1024 px, 48 px di desktop. Ilustrasi `hero-tangan-sampah.webp` (alt "Tangan memegang kantong sampah daur ulang") dan `blob-hero.webp` berada dalam satu pembungkus yang diposisikan absolut terhadap bagian hero selebar layar, menempel di `right: 0`, sehingga lengan selalu terpotong tepi layar, bukan tepi wadah 1120 px. Lebar pembungkus 38% lebar layar di bawah 640 px (dikecilkan agar teks hero yang lebih besar tetap muat di 360 px), 44% pada 640–1023 px, dan 480 px mulai 1024 px; kolom kanan grid hanya pengganjal setinggi 1,28 kali ilustrasi agar teks tidak pernah tertimpa dan blob utuh secara vertikal. Blob (tidak diregangkan) selebar 83% pembungkus, sehingga tingginya 1,2 kali tinggi ilustrasi, dengan tepi kiri di 27% lebar ilustrasi (sedikit di kiri garis tengah kantong di 30%) dan pusat vertikal di 40,5% tinggi ilustrasi. Separuh kiri kantong, botol, dan apel berada di atas latar `putih`; separuh kanan kantong dan lengan di atas bidang hijau; sisi kanan blob melewati tepi kanan layar. Bagian hero hanya memotong horizontal (`overflow-x: clip`), sehingga lengkung atas dan bawah blob terlihat utuh dengan ruang `putih` di atas dan bawahnya (desktop 45 px di atas dan 45 px di bawah, 360 px 103 px di atas dan bawah). Pembungkus ilustrasi diposisikan terhadap area isi hero, bukan terhadap padding, sehingga padding bawah hero (`space-3` di ponsel, `space-2` di tablet, 0 di desktop) dapat dikurangi untuk menyeimbangkan jarak tanpa menggeser ilustrasi. Blob berada di belakang ilustrasi (`z-0` di bawah `z-10`). Semua ukuran blob relatif terhadap pembungkus, jadi proporsinya sama di setiap lebar layar.
 3. **Apa itu BinBank?**: ponsel `ponsel.webp` (layar diisi bidang `putih`) dan `blob-ponsel.webp` berada dalam satu pembungkus absolut yang menempel di `left: 0` bagian selebar layar: 38% lebar layar di bawah 1024 px, 300 px mulai 1024 px, dengan ponsel selebar 60% pembungkus di sisi kanannya (180 px di desktop). Blob selebar sekitar 2,5 kali ponsel (147% pembungkus), tepi kanannya di tepi kanan pembungkus, terpotong tepi kiri layar. Ponsel dan blok teks sama-sama digeser ke kanan sejauh 4% lebar wadah (`min(lebar bagian, 1120 px) × 0,04`, 45 px di desktop, sekitar 14 px di 360 px), sedangkan blob tidak ikut bergeser; jarak ponsel ke teks tetap, dan teks tetap berhenti di tepi kanan area isi wadah. Padding bagian ini dipasang pada `section` (grup ponsel dan grid teks dibungkus satu `div` relatif sehingga turun bersama): atas `space-7`, tablet `space-8`, desktop `space-8` + `space-6` (96 px); bawah `space-5`, tablet `space-7`, desktop `space-7`. Isi bagian sedikit lebih rendah daripada bagian lain, dan blob tetap di dalam batas bawah bagian. Judul lalu paragraf ("BinBank" tebal) tetap di wadah 1120 px, sejajar tengah dengan ponsel; kolom kiri grid menjadi pengganjal selebar `max(0, 348 px − jarak tepi layar ke wadah)` di desktop sehingga teks tidak tertimpa ponsel.
 4. **4 Fitur Utama**: judul rata tengah; empat butir dalam satu baris di semua lebar (`ul`, `grid-cols-4`). Tiap butir: lingkaran `olive-100` 64 px (desktop 96 px) berisi ikon garis `olive-700` 32 px (desktop 48 px), lalu teks rata tengah `ink-900` `text-landing-fitur` dengan kata kunci tebal. Kata panjang boleh dipenggal agar tidak meluap di 320 px.
@@ -746,6 +814,8 @@ Tinggi 48 px (ukuran Besar 56 px untuk Bilah Aksi Lekat), lebar minimal 96 px, p
 | Sekunder | Latar `putih`, teks `ink-900`, garis `rule-ui` | Latar `olive-50` | Aksi pendamping, aksi baris di daftar |
 | Merusak | Latar `bata-700`, teks putih, ikon Prohibit atau X di depan label | Label bergaris bawah 2 px | Tolak pengajuan, Batalkan setoran, Nonaktifkan |
 | Teks | Tanpa latar, teks `olive-700` bergaris bawah | Garis bawah menebal jadi 2 px | Tindakan ringan: Hapus baris, Tampilkan, Hapus filter, Hapus gambar (membuka Dialog Merusak) |
+| Sukses | Latar `olive-50`, teks `olive-700` medium (6,36:1), tanpa garis; cincin fokus `olive-700` | Latar makin pekat `olive-100`, teks `olive-800`; `hover-tombol` berbayang `olive-800` | Aksi setuju di kartu: Setujui pada Kartu Pengajuan |
+| Bahaya | Latar `bata-100`, teks `bata-700` medium (7,37:1), tanpa garis; cincin fokus dan bayangan `hover-tombol` `bata-700` lewat `--warna-tombol` | Latar makin pekat `bata-200`, teks tetap `bata-700`; `hover-tombol` berbayang `bata-700` | Aksi tolak di kartu: Tolak pada Kartu Pengajuan |
 
 Ukuran **Ringkas** (`ukuran="ringkas"`, bawaan `biasa`): tinggi tampak 40 px dengan area sentuh tetap 44 px lewat pseudo-elemen tak terlihat (2 px di atas dan bawah, tidak menambah tinggi tampilan), padding horizontal `space-4`, lebar mengikuti teks (tanpa lebar minimal 96 px), selalu memakai bentuk Bulat, teks `text-body` tebal; garis dan warna varian tidak berubah. Hanya untuk aksi baris di daftar atau tabel (mis. **Ubah** di A2), sejajar tengah dengan pemicu Menu Aksi berjarak `space-2`.
 
@@ -818,7 +888,7 @@ State: **Memuat** (lima baris skeleton), **Kosong** (Keadaan Kosong), **Galat** 
 | Tab Status | Grup Pil mode tab (`sebagaiTab`): `role=tablist`, pil dengan jumlah dalam kurung ("Menunggu (3)"). Tampilan sama dengan Filter Chip; tanpa garis bawah |
 | Filter Chip | Grup Pil mode filter: `role=group` dengan `aria-label`, berisi `<button type="button">` ber-`aria-pressed`. Pil `rounded-full`, tinggi minimal 44 px, padding horizontal `space-4`, `text-body`, jarak antar chip `space-2`, tanpa angka jumlah. Aktif: latar `olive-700`, teks `putih` tebal. Tidak aktif: latar `olive-50`, teks `ink-900`. Fokus memakai `focus-ring`. Di layar sempit baris digeser horizontal (scrollbar disembunyikan, chip tidak mengecil, teks tidak dibungkus); wadah diberi padding selebar gutter halaman di kiri dan kanan (`space-4`, `space-5` mulai 600 px, `space-6` mulai 1024 px), `space-5` di atas, dan `space-7` di bawah, diimbangi margin negatif sehingga jarak tampak tetap `space-2` di atas dan bawah; ruang ini menampung `focus-ring` serta bayangan hover tanpa terpotong dan halaman tidak bergeser horizontal. Hover memakai `hover-tombol`. Menyaring tampilan di klien, bukan memuat data |
 | Bilah Aksi Lekat | Wadah melekat di atas Bilah Menu, latar `putih`, `rule-1` di atas, padding `space-4`, menghormati area aman perangkat; berisi tombol Utama (dan Sekunder bila ada) |
-| Paginasi | Tombol Sekunder **Sebelumnya** dan **Berikutnya**, teks "Halaman 2 dari 7" di tengah; tanpa deret nomor halaman |
+| Paginasi | `components/Paginasi.js`. Dua tombol ikon panah bulat (`rounded-full`, 44 × 44 px): CaretLeft (halaman sebelumnya) di kiri dan CaretRight (halaman berikutnya) di kanan, ikon 20 px bobot bold, tanpa teks; teks "Halaman 2 dari 7" di tengah; tanpa deret nomor halaman. Aktif: latar `olive-50`, ikon `olive-700`, tanpa garis. Hover hanya berganti warna latar menjadi `olive-100` (transisi warna 150 ms), tanpa bayangan dan tanpa pembesaran. Nonaktif (halaman pertama atau terakhir, saat memuat, atau luring): latar `olive-50` dipudarkan, ikon berkurang opasitasnya, kursor biasa, tanpa hover. Fokus memakai `focus-ring` |
 | Menu Aksi | `components/MenuAksi.js`. Pemicu: ikon DotsThreeVertical 24 px dalam target 48 × 48 px (`size-7`, di atas minimum 44 px), `radius-2` (hanya membentuk `focus-ring`), tanpa garis dan latar di semua state, ikon `ink-900` berganti `olive-700` saat hover dengan transisi warna 150 ms, `aria-label` "Aksi lainnya untuk <nama>", `aria-haspopup=menu`, `aria-expanded`. Menu: `role=menu` di bawah pemicu rata kanan berjarak `space-1`, latar `putih`, `radius-2`, `shadow-1`, padding `space-2`. Item `role=menuitem` bergaya Item Menu (tinggi 48 px, `text-body` bobot biasa `font-normal` seperti item menu pengguna di kepala atas, ikon 24 px, tanpa garis bawah, teks `olive-700`, latar `olive-50` saat hover dan fokus). Item bahaya bertulisan `bata-700` dan dipisahkan dari item lain oleh garis `line-300` dengan jarak `space-2`; letaknya selalu paling bawah. Menu dirender di luar wadah tabel (posisi tetap terhadap layar) agar tidak terpotong `overflow`, dijaga `space-2` dari tepi layar, dan membuka ke atas bila ruang di bawah tidak cukup. Menutup dengan klik di luar, Esc (fokus kembali ke pemicu), Tab, atau setelah memilih item (fokus kembali ke pemicu sebelum aksi berjalan, sehingga dialog yang dibuka mengembalikan fokus ke pemicu). Keyboard: Enter, Spasi, atau ArrowDown membuka dan memfokuskan item pertama; ArrowUp membuka ke item terakhir; ArrowUp dan ArrowDown berpindah item (berputar), Home dan End ke ujung. Pemicu nonaktif (`ink-500`) saat luring atau saat baris diproses |
 | Tautan | `olive-700`, selalu bergaris bawah 1,5 px |
 | Tautan Arah | `components/TautanArah.js`, khusus layar nasabah. Tautan berdiri sendiri tanpa garis bawah: `olive-700` tebal, ikon ArrowRight 16 px di kanan teks (ArrowLeft di kiri untuk tautan kembali, prop `kembali`) berjarak `space-1`, tinggi minimal 48 px. Hover dan fokus: teks `olive-800`, ikon bergeser 4 px searah panah (150 ms, hanya bila `prefers-reduced-motion` tidak aktif); fokus memakai `focus-ring` |
@@ -1024,8 +1094,8 @@ Elemen HTML bawaan didahulukan; ARIA hanya menambal yang tidak tercakup.
 | Skeleton dan Memuat | Wadah `aria-busy="true"`; satu teks tersembunyi "Memuat" dalam `role="status"` |
 | Offline | Banner `role="status"`; saat koneksi kembali, perubahan teks diumumkan |
 | Kotak Rahasia | Teks dapat dipilih dan dibaca; tombol Salin mengumumkan "Tersalin" lewat wilayah live |
-| Paginasi | `nav` dengan `aria-label="Halaman daftar"`; "Halaman 2 dari 7" sebagai teks |
-| Gambar dan ikon | Pictogram, monogram, dan ikon dekoratif `aria-hidden="true"`; karena ikon selalu bersama kata, tidak ada ikon yang butuh nama sendiri |
+| Paginasi | `nav` dengan `aria-label="Halaman daftar"`; "Halaman 2 dari 7" sebagai teks; tombol panah memakai `aria-label` dan `title` "Halaman sebelumnya" dan "Halaman berikutnya", serta `disabled` dan `aria-disabled` saat nonaktif |
+| Gambar dan ikon | Pictogram, monogram, dan ikon dekoratif `aria-hidden="true"`; ikon selalu bersama kata kecuali tombol panah Paginasi, yang diberi nama lewat `aria-label` |
 
 ### Kognitif dan bahasa
 
