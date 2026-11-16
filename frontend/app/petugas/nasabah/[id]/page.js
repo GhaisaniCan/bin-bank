@@ -5,7 +5,7 @@ import Link from "next/link"
 import { useParams } from "next/navigation"
 import { formatRupiah } from "@/lib/format"
 import TabelMutasi from "@/components/TabelMutasi"
-import Tombol from "@/components/Tombol"
+import Paginasi from "@/components/Paginasi"
 
 const NASABAH_CONTOH = {
   1: { nama: "Sari Wulandari", email: "sari@contoh.com" },
@@ -96,17 +96,7 @@ export default function Halaman() {
         </h2>
         <div className="mt-4">
           <TabelMutasi baris={tampil} labelId="judul-mutasi" />
-          <nav aria-label="Halaman daftar" className="mt-4 flex items-center justify-between gap-3">
-            <Tombol varian="sekunder" disabled={halaman === 1} onClick={() => setHalaman(halaman - 1)}>
-              Sebelumnya
-            </Tombol>
-            <span className="text-small text-ink-700">
-              Halaman {halaman} dari {totalHalaman}
-            </span>
-            <Tombol varian="sekunder" disabled={halaman === totalHalaman} onClick={() => setHalaman(halaman + 1)}>
-              Berikutnya
-            </Tombol>
-          </nav>
+          <Paginasi halaman={halaman} totalHalaman={totalHalaman} onUbah={setHalaman} />
         </div>
       </section>
     </main>
