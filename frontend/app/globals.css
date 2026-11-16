@@ -19,6 +19,7 @@
   --color-pet-100: #e2ecf5;
   --color-bata-700: #8a2615;
   --color-bata-100: #fae6e0;
+  --color-bata-200: #f3cfc4;
   --color-daun-700: #335512;
   --color-daun-100: #e4f0d6;
   --color-line-500: #767b73;
@@ -96,13 +97,13 @@ body {
 }
 
 :focus-visible {
-  outline: 3px solid var(--color-olive-700);
+  outline: 3px solid var(--warna-tombol, var(--color-olive-700));
   outline-offset: 2px;
 }
 
 /* Hover tombol */
 @utility hover-tombol {
-  @apply not-disabled:cursor-pointer motion-safe:transition-[scale,box-shadow] motion-safe:duration-300 motion-safe:ease-out motion-safe:not-disabled:hover:scale-(--skala-hover,1.05) motion-safe:not-disabled:focus-visible:scale-(--skala-hover,1.05) motion-safe:not-disabled:hover:shadow-[0_8px_24px_color-mix(in_srgb,var(--color-olive-800)_30%,transparent)] motion-safe:not-disabled:focus-visible:shadow-[0_8px_24px_color-mix(in_srgb,var(--color-olive-800)_30%,transparent)];
+  @apply not-disabled:cursor-pointer motion-safe:transition-[scale,box-shadow] motion-safe:duration-300 motion-safe:ease-out motion-safe:not-disabled:hover:scale-(--skala-hover,1.05) motion-safe:not-disabled:focus-visible:scale-(--skala-hover,1.05) motion-safe:not-disabled:hover:shadow-[0_8px_24px_color-mix(in_srgb,var(--warna-tombol,var(--color-olive-800))_30%,transparent)] motion-safe:not-disabled:focus-visible:shadow-[0_8px_24px_color-mix(in_srgb,var(--warna-tombol,var(--color-olive-800))_30%,transparent)];
 }
 
 @utility hover-tombol-ikon {

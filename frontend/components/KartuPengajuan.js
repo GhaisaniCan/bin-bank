@@ -71,10 +71,10 @@ export default function KartuPengajuan({ pengajuan: p, onAksi }) {
 
       {p.status === "diajukan" && (
         <div className="mt-4 flex flex-wrap gap-3">
-          <Tombol varian="sekunder" onClick={() => onAksi?.("setujui", p)}>
+          <Tombol varian="sukses" ukuran="pil" onClick={() => onAksi?.("setujui", p)}>
             Setujui
           </Tombol>
-          <Tombol varian="sekunder" onClick={() => onAksi?.("tolak", p)}>
+          <Tombol varian="bahaya" ukuran="pil" onClick={() => onAksi?.("tolak", p)}>
             Tolak
           </Tombol>
         </div>

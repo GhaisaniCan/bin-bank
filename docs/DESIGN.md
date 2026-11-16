@@ -118,7 +118,7 @@ Palet mengikuti desain awal tim: putih sebagai latar, tinta gelap sebagai teks, 
 | `forest-900` | #114B38 | Merek: logo dan ilustrasi. Bukan untuk teks isi atau tombol |
 | `kardus-700` / `kardus-100` | #6B3F08 / #F8EBD2 | Status MENUNGGU, peringatan |
 | `pet-700` / `pet-100` | #1A4670 / #E2ECF5 | Status DISETUJUI, informasi |
-| `bata-700` / `bata-100` | #8A2615 / #FAE6E0 | Status DITOLAK dan DIBATALKAN, galat, aksi merusak |
+| `bata-700` / `bata-100` / `bata-200` | #8A2615 / #FAE6E0 / #F3CFC4 | Status DITOLAK dan DIBATALKAN, galat, aksi merusak; `bata-200` hanya latar hover tombol Bahaya |
 | `daun-700` / `daun-100` | #335512 / #E4F0D6 | Status SELESAI dan TERCATAT, keberhasilan |
 | `kuning-700` | #8A6500 | Judul kondisi "layanan tidak tersedia". Bukan untuk teks isi |
 | `line-500` | #767B73 | Batas komponen interaktif (isian, tombol sekunder, kotak centang) |
@@ -163,6 +163,9 @@ Palet mengikuti desain awal tim: putih sebagai latar, tinta gelap sebagai teks, 
 | `daun-700` pada `daun-100` | 7,24:1 | Cap SELESAI, pesan berhasil | 7:1 |
 | `kuning-700` pada `putih` | 5,33:1 | Judul besar kondisi "layanan tidak tersedia" | 4,5:1 |
 | putih pada `bata-700` | 8,87:1 | Tombol aksi merusak | 7:1 |
+| `olive-700` pada `olive-50` | 6,36:1 | Tombol Sukses | 4,5:1 |
+| `olive-800` pada `olive-100` | 6,80:1 | Tombol Sukses saat hover | 4,5:1 |
+| `bata-700` pada `bata-200` | 6,14:1 | Tombol Bahaya saat hover | 4,5:1 |
 | putih pada `ink-900` | 15,84:1 | Toast | 7:1 |
 | `line-500` pada `putih` | 4,33:1 | Batas isian dan tombol sekunder di halaman dan kartu | 3:1 |
 | `line-500` pada `olive-50` | 3,79:1 | Batas komponen di area sekunder | 3:1 |
@@ -225,6 +228,8 @@ Semua jarak adalah kelipatan 4 px dan hanya delapan nilai yang boleh dipakai.
 ### Radius
 
 Sudut dibuat melengkung lembut agar antarmuka terasa ramah, tetapi bentuk dasarnya tetap persegi seperti halaman buku besar. Tidak ada bentuk pil dan tidak ada bentuk bulat penuh, dengan dua pengecualian yang disengaja: Grup Pil (Filter Chip dan Tab Status) berbentuk pil (`rounded-full`) agar terbaca sebagai saringan, bukan tombol aksi; dan Tombol bentuk Bulat (aksi Ubah dan Tambah di halaman daftar atau kelola) beserta pemicu Menu Aksi, yang berbentuk pil agar aksi di halaman daftar terpisah dari tombol formulir dan dialog bersudut `radius-2`. Bentuk pil tidak dipakai untuk Cap Status maupun komponen lain.
+
+Tombol ukuran Pil (`ukuran="pil"`) untuk aksi berpasangan di kartu, misalnya Setujui dan Tolak pada Kartu Pengajuan: `rounded-full`, lebar mengikuti teks (`w-fit`, tanpa lebar minimum), padding `space-5` × `space-2`, tinggi tampak 40 px dengan area sentuh 44 px, jarak antartombol `space-3`. Varian Sukses dan Bahaya berlatar muda (hijau muda dan merah muda) yang makin pekat saat hover, teks gelap tidak tebal; saat nonaktif atau memproses tetap berwarna dengan opasitas 50%, tanpa efek hover dan tanpa kursor pointer.
 
 | Token | Nilai | Pemakaian |
 | --- | --- | --- |
@@ -746,6 +751,8 @@ Tinggi 48 px (ukuran Besar 56 px untuk Bilah Aksi Lekat), lebar minimal 96 px, p
 | Sekunder | Latar `putih`, teks `ink-900`, garis `rule-ui` | Latar `olive-50` | Aksi pendamping, aksi baris di daftar |
 | Merusak | Latar `bata-700`, teks putih, ikon Prohibit atau X di depan label | Label bergaris bawah 2 px | Tolak pengajuan, Batalkan setoran, Nonaktifkan |
 | Teks | Tanpa latar, teks `olive-700` bergaris bawah | Garis bawah menebal jadi 2 px | Tindakan ringan: Hapus baris, Tampilkan, Hapus filter, Hapus gambar (membuka Dialog Merusak) |
+| Sukses | Latar `olive-50`, teks `olive-700` medium (6,36:1), tanpa garis; cincin fokus `olive-700` | Latar makin pekat `olive-100`, teks `olive-800`; `hover-tombol` berbayang `olive-800` | Aksi setuju di kartu: Setujui pada Kartu Pengajuan |
+| Bahaya | Latar `bata-100`, teks `bata-700` medium (7,37:1), tanpa garis; cincin fokus dan bayangan `hover-tombol` `bata-700` lewat `--warna-tombol` | Latar makin pekat `bata-200`, teks tetap `bata-700`; `hover-tombol` berbayang `bata-700` | Aksi tolak di kartu: Tolak pada Kartu Pengajuan |
 
 Ukuran **Ringkas** (`ukuran="ringkas"`, bawaan `biasa`): tinggi tampak 40 px dengan area sentuh tetap 44 px lewat pseudo-elemen tak terlihat (2 px di atas dan bawah, tidak menambah tinggi tampilan), padding horizontal `space-4`, lebar mengikuti teks (tanpa lebar minimal 96 px), selalu memakai bentuk Bulat, teks `text-body` tebal; garis dan warna varian tidak berubah. Hanya untuk aksi baris di daftar atau tabel (mis. **Ubah** di A2), sejajar tengah dengan pemicu Menu Aksi berjarak `space-2`.
 
