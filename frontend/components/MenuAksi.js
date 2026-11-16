@@ -19,7 +19,7 @@ function ItemAksi({ item, refItem, onPilih, onKeyDown }) {
       disabled={item.nonaktif}
       onClick={onPilih}
       onKeyDown={onKeyDown}
-      className={`flex h-7 w-full items-center justify-start gap-1 whitespace-nowrap rounded-2 border-0 bg-transparent px-2 text-body font-bold hover:bg-olive-50 focus-visible:bg-olive-50 disabled:text-ink-500 disabled:hover:bg-transparent ${
+      className={`flex h-7 w-full items-center justify-start gap-1 whitespace-nowrap rounded-2 border-0 bg-transparent px-2 text-body font-normal hover:bg-olive-50 focus-visible:bg-olive-50 disabled:text-ink-500 disabled:hover:bg-transparent ${
         item.bahaya ? "text-bata-700" : "text-olive-700 hover:text-olive-800"
       }`}
     >
@@ -175,7 +175,7 @@ export default function MenuAksi({ label, item = [], disabled = false }) {
         disabled={disabled}
         onClick={() => (terbuka ? tutup() : buka("pertama"))}
         onKeyDown={tombolPemicu}
-        className="flex size-7 shrink-0 items-center justify-center rounded-full border-0 bg-transparent text-ink-900 hover:bg-olive-50 focus-visible:bg-olive-50 disabled:text-ink-500 disabled:hover:bg-transparent hover-tombol-ikon"
+        className="flex size-7 shrink-0 items-center justify-center rounded-2 border-0 bg-transparent text-ink-900 enabled:cursor-pointer enabled:hover:text-olive-700 motion-safe:transition-colors motion-safe:duration-150 disabled:text-ink-500"
       >
         <DotsThreeVertical size={24} weight="regular" aria-hidden="true" />
       </button>
