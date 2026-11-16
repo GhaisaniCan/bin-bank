@@ -1,6 +1,7 @@
 "use client"
 
 import { useState } from "react"
+import { Check, Copy } from "@phosphor-icons/react"
 import Tombol from "@/components/Tombol"
 import { formatJam, formatRupiah, formatTanggal } from "@/lib/format"
 
@@ -29,9 +30,19 @@ export default function KartuPengajuan({ pengajuan: p, onAksi }) {
         <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1">
           <span className="text-body">{p.namaEwallet}</span>
           <span className="text-body tabular-nums">{p.nomorEwallet}</span>
-          <Tombol varian="teks" onClick={salin}>
-            {tersalin ? "Tersalin" : "Salin nomor"}
-          </Tombol>
+          <button
+            type="button"
+            onClick={salin}
+            aria-label="Salin nomor"
+            title="Salin nomor"
+            className="flex size-[44px] shrink-0 items-center justify-center rounded-2 border-0 bg-transparent text-forest-900 hover:bg-olive-50 focus-visible:bg-olive-50 hover-tombol-ikon"
+          >
+            {tersalin ? (
+              <Check size={20} weight="regular" aria-hidden="true" />
+            ) : (
+              <Copy size={20} weight="regular" aria-hidden="true" />
+            )}
+          </button>
           <span className="sr-only" aria-live="polite">
             {tersalin ? "Nomor tersalin" : ""}
           </span>

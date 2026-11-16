@@ -245,6 +245,7 @@ Di dunia buku kas, hierarki dibuat dengan garis, bukan bayangan. Bayangan hanya 
 | `shadow-0` | tanpa bayangan | Kartu, tombol, tabel |
 | `shadow-1` | 0 1px 2px rgba(29,36,32,0.16), 0 4px 12px rgba(29,36,32,0.10) | Menu dan popover |
 | `shadow-2` | 0 8px 24px rgba(29,36,32,0.20) | Dialog dan bottom sheet |
+| `shadow-kartu` | 0 10px 30px -8px `forest-900` 18%, 0 2px 6px -2px `forest-900` 10% | Kartu Ringkasan (pengecualian `shadow-0`: kartu tautan yang terangkat) |
 | `scrim` | `ink-900` pada 50% | Latar di belakang dialog |
 | `focus-ring` | 3 px solid `olive-700`, offset 2 px | Semua elemen interaktif saat fokus keyboard |
 
@@ -261,10 +262,12 @@ Semua tombol memakai satu efek hover yang didefinisikan sebagai utilitas Tailwin
 | Utilitas | Efek | Dipakai untuk |
 | --- | --- | --- |
 | `hover-tombol` | Membesar `scale` 1,05 dengan bayangan `0 8px 24px` `olive-800` 30%, transisi `scale` dan `box-shadow` 300 ms ease-out; juga saat `focus-visible`; kursor pointer | Tombol Utama, Sekunder, dan Merusak (`Tombol`), Tombol Masuk, Filter Chip, tautan bergaya tombol |
-| `hover-tombol-ikon` | Sama dengan `hover-tombol`, skala 1,03 | Tombol ikon rapat: Tombol Tutup, pemicu Menu Aksi, tombol lihat password, tombol kalender |
-| `hover-kartu` | Membesar 1,05 dengan bayangan `0 12px 32px` `olive-700` 22%, naik ke `z-10` | Kartu Harga |
+| `hover-tombol-ikon` | Sama dengan `hover-tombol`, skala 1,03 | Tombol ikon rapat: Tombol Tutup, tombol lihat password |
+| `hover-kartu` | Membesar 1,05 dengan bayangan `0 12px 32px` `olive-700` 22%, naik ke `z-10` | Kartu Harga, Kartu Ringkasan |
 
 Cara memakai: tambahkan nama utilitas ke `className` tombol, di samping kelas warnanya. Komponen `Tombol` dan `TombolMasuk` sudah memasangnya sendiri, kecuali varian Teks. Efek hanya berjalan bila `prefers-reduced-motion` tidak aktif dan perangkat mendukung hover, sehingga tap di ponsel tidak memicunya. Tombol `disabled`, termasuk yang sedang memproses, tidak membesar, tidak berbayang, dan kursornya tidak berubah. Perubahan warna latar saat hover tetap instan. Skala bekerja lewat `scale`, jadi tata letak tidak bergeser dan `translate` bawaan elemen tetap utuh. Varian Teks, tautan teks, item menu, tombol profil di kepala atas, Bilah Menu, dan baris tabel tidak memakai efek ini.
+
+Tombol ikon kalender di Isian Tanggal, pemicu Menu Aksi (tombol tiga titik), dan bagian profil di kepala atas tidak memakai `hover-tombol-ikon`: saat hover hanya warna yang berganti, tanpa kotak, lingkaran, latar, bayangan, atau pembesaran; kursor pointer dan `focus-ring` tetap. Tombol kalender berikon `olive-700` yang berganti `olive-800` (transisi warna 150 ms) dalam target 36 × 36 px tanpa latar dan garis; isian `type=date` bawaan peramban di baliknya tersembunyi (`opacity-0`, tanpa `pointer-events`), sehingga tidak menampilkan kotak indikator. Pemicu Menu Aksi berganti warna ikon ke `olive-700` (transisi 150 ms). Bagian profil hanya berganti warna nama seperti dijelaskan di Kepala atas.
 
 ### Grup Pil untuk tab dan filter
 
@@ -626,9 +629,18 @@ Tidak ada tombol utama di halaman ini; aksi menulis ada di menu **Catat Setoran*
 
 1. Kepala Halaman: "Penarikan".
 2. Tab Status: MENUNGGU, DISETUJUI, DITOLAK, SELESAI, masing-masing dengan jumlah. Bawaan MENUNGGU.
-3. Daftar Kartu Pengajuan: nama nasabah, tanggal, nominal (`text-amount`), metode; untuk E-wallet, nama dan nomor e-wallet ditampilkan dalam angka tabular dengan tombol **Salin nomor**.
+3. Daftar Kartu Pengajuan: nama nasabah, tanggal, nominal (`text-amount`), metode; untuk E-wallet, nama dan nomor e-wallet ditampilkan dalam angka tabular dengan tombol ikon Copy 20 px `forest-900` tanpa kata (pengecualian aturan ikon bersama kata; `aria-label` dan `title` "Salin nomor", target 44 × 44 px, latar `olive-50` saat hover dan fokus, `hover-tombol-ikon`), berganti ikon Check selama 2 detik setelah tersalin.
 4. Aksi baris bergantung tab: MENUNGGU punya **Setujui** dan **Tolak** (keduanya Sekunder); DISETUJUI punya **Tandai selesai** (Sekunder); DITOLAK menampilkan alasan; SELESAI menampilkan pelaku, waktu, dan catatan.
 5. Paginasi.
+
+### A1. Beranda Admin
+
+- Ringkasan berupa grid Kartu Ringkasan (`components/KartuRingkasan.js`) selebar area konten (tanpa batas lebar halaman): 1 kolom di bawah 1024 px, 3 kolom mulai 1024 px; jarak `space-5`, `space-6` mulai 1280 px; ruang bawah grid `space-3` agar bayangan dan pembesaran tidak terpotong. Catatan "Setoran yang dibatalkan tidak dihitung." `text-small` `ink-700` di bawah grid.
+- Kartu: latar `putih` tanpa garis tepi, `radius-3`, tinggi minimal 240 px, padding `space-5` (ponsel, 1024 sampai 1279 px) atau `space-6` (600 sampai 1023 px dan mulai 1280 px). Kartu terangkat dengan `shadow-kartu`; ketiga kartu sama tinggi.
+- Urutan teks: judul di atas `text-h2` 400 `forest-900` (`text-h3` pada 1024 sampai 1279 px, maksimal dua baris di lebar laptop); angka utama di bawahnya, didorong ke bagian bawah kartu, 700 angka tabular `forest-900`: `text-display` di ponsel, `text-display-lg` 600 sampai 1023 px, `text-h1` 1024 sampai 1279 px, `text-display` mulai 1280 px, `text-display-lg` mulai 1440 px; boleh pindah baris agar Rp panjang tidak meluber. Keterangan `text-body` `ink-700` di dasar kartu.
+- Pojok kanan atas: ikon 24 px dalam lingkaran `olive-50` 48 px (56 px bila kartu lebar) (Wallet untuk saldo, FileText untuk pengajuan, Scales untuk setoran). Pojok kanan bawah: CaretRight 24 px `forest-900` sebagai petunjuk tautan.
+- Seluruh kartu satu elemen `<a>` tanpa tautan bersarang. Hover memakai `hover-kartu`, fokus papan ketik memakai `focus-ring` global.
+- Memuat: tiga `KerangkaKartuRingkasan` (blok `olive-50` statis) dalam grid yang sama. Galat dan luring tetap Pesan Inline di atas grid.
 
 ### A2. Jenis Sampah
 
@@ -693,7 +705,7 @@ Tanpa ilustrasi dan tanpa kartu. Seperti U1, satu kolom selebar 400 px di tengah
 | P9 | Kepala Halaman, Isian Teks nama, Isian Teks email, Isian Kata Sandi awal | Daftarkan nasabah | Isian, Tombol, Kotak Rahasia Sekali Tampil |
 | P11 | Dialog: ringkasan pengajuan, pilihan Setujui atau Tolak; Tolak menampilkan isian alasan | Setujui Rp 50.000 | Dialog, Pesan Inline, Isian Teks |
 | P12 | Dialog: ringkasan, isian catatan opsional | Konfirmasi dana sudah diserahkan | Dialog, Isian Teks |
-| A1 | Kepala Halaman, tiga baris angka (total saldo nasabah, pengajuan MENUNGGU, setoran hari ini) berbentuk daftar berlabel, bukan tiga kotak | Tidak ada | Tabel Buku, Tautan |
+| A1 | Kepala Halaman, tiga Kartu Ringkasan (total saldo nasabah, pengajuan MENUNGGU, setoran hari ini) dalam daftar berlabel "Ringkasan" | Tidak ada | Kartu Ringkasan |
 | A3 | Dialog: Isian Teks nama, Isian Uang harga per kg, catatan tetap tentang berlaku untuk setoran berikutnya, Pilihan Kategori (wajib), Unggah Gambar (opsional). Simpan mengirim data dulu, lalu gambar bila ada berkas baru; bila gambar gagal setelah data tersimpan, form tetap terbuka dengan Pesan Inline galat "Gambar gagal diunggah" dan Simpan dapat diulang | Simpan jenis sampah | Dialog, Isian |
 | A4 | Kepala Halaman, Kotak Cari, filter peran dan status, Tabel Buku (nama, email, peran, status, aksi), Paginasi | Buat akun baru | Tabel Buku, Cap Status, Tombol |
 | A5 | Kepala Halaman, pilihan peran (Petugas atau Admin), Isian nama, email, password awal | Buat akun | Pilihan Metode (varian pilihan peran), Isian, Kotak Rahasia Sekali Tampil |
@@ -794,6 +806,7 @@ State: **Memuat** (lima baris skeleton), **Kosong** (Keadaan Kosong), **Galat** 
 | Lembar Konfirmasi | Rincian setoran sebagai bacaan: nasabah, baris, garis ganda, total | Konfirmasi (di P4), Bukti (di P5), Hanya-baca (di N3 dan P7) | Terisi, Dibatalkan (dicoret dan disertai alasan) |
 | Kartu Pengajuan | Nama atau tanggal, nominal, metode, Cap Status, detail e-wallet, aksi baris | Per status: MENUNGGU, DISETUJUI, DITOLAK, SELESAI; Nasabah dan Staf | Default, Memproses, Sudah diproses pihak lain (pesan dan aksi dinonaktifkan) |
 | Kartu Harga | Bidang gambar persegi latar `olive-50` `radius-2` (`object-contain`, `alt=""`), nama `text-body` 700 `ink-900`, harga "Rp 2.500/kg" `text-amount` 700 angka tabular `forest-900`. Garis `line-300`, `radius-2`, padding `space-4`, tanpa bayangan. Hanya-baca | Dengan gambar, Tanpa gambar (ikon Recycle) | Memuat (kerangka `olive-50`), Terisi |
+| Kartu Ringkasan | Satu tautan utuh (`components/KartuRingkasan.js`): judul, angka utama, keterangan, ikon opsional, chevron. Tanpa garis tepi, `radius-3`, `shadow-kartu`, hover `hover-kartu` | Dengan ikon, Tanpa ikon | Memuat (`KerangkaKartuRingkasan`), Terisi |
 | Kepala Konteks Nasabah | Bilah lekat berisi nama dan email nasabah yang sedang dikerjakan serta tautan Ganti | Tunggal | Default |
 
 ### Struktur dan navigasi
@@ -806,7 +819,7 @@ State: **Memuat** (lima baris skeleton), **Kosong** (Keadaan Kosong), **Galat** 
 | Filter Chip | Grup Pil mode filter: `role=group` dengan `aria-label`, berisi `<button type="button">` ber-`aria-pressed`. Pil `rounded-full`, tinggi minimal 44 px, padding horizontal `space-4`, `text-body`, jarak antar chip `space-2`, tanpa angka jumlah. Aktif: latar `olive-700`, teks `putih` tebal. Tidak aktif: latar `olive-50`, teks `ink-900`. Fokus memakai `focus-ring`. Di layar sempit baris digeser horizontal (scrollbar disembunyikan, chip tidak mengecil, teks tidak dibungkus); wadah diberi padding selebar gutter halaman di kiri dan kanan (`space-4`, `space-5` mulai 600 px, `space-6` mulai 1024 px), `space-5` di atas, dan `space-7` di bawah, diimbangi margin negatif sehingga jarak tampak tetap `space-2` di atas dan bawah; ruang ini menampung `focus-ring` serta bayangan hover tanpa terpotong dan halaman tidak bergeser horizontal. Hover memakai `hover-tombol`. Menyaring tampilan di klien, bukan memuat data |
 | Bilah Aksi Lekat | Wadah melekat di atas Bilah Menu, latar `putih`, `rule-1` di atas, padding `space-4`, menghormati area aman perangkat; berisi tombol Utama (dan Sekunder bila ada) |
 | Paginasi | Tombol Sekunder **Sebelumnya** dan **Berikutnya**, teks "Halaman 2 dari 7" di tengah; tanpa deret nomor halaman |
-| Menu Aksi | `components/MenuAksi.js`. Pemicu: ikon DotsThreeVertical 24 px dalam target 48 × 48 px (`size-7`, di atas minimum 44 px), bulat penuh (`rounded-full`) agar serasi dengan Tombol Ringkas, tanpa garis dan latar, latar `olive-50` saat hover dan fokus, `aria-label` "Aksi lainnya untuk <nama>", `aria-haspopup=menu`, `aria-expanded`. Menu: `role=menu` di bawah pemicu rata kanan berjarak `space-1`, latar `putih`, `radius-2`, `shadow-1`, padding `space-2`. Item `role=menuitem` bergaya Item Menu (tinggi 48 px, `text-body` tebal, ikon 24 px, tanpa garis bawah, teks `olive-700`, latar `olive-50` saat hover dan fokus). Item bahaya bertulisan `bata-700` dan dipisahkan dari item lain oleh garis `line-300` dengan jarak `space-2`; letaknya selalu paling bawah. Menu dirender di luar wadah tabel (posisi tetap terhadap layar) agar tidak terpotong `overflow`, dijaga `space-2` dari tepi layar, dan membuka ke atas bila ruang di bawah tidak cukup. Menutup dengan klik di luar, Esc (fokus kembali ke pemicu), Tab, atau setelah memilih item (fokus kembali ke pemicu sebelum aksi berjalan, sehingga dialog yang dibuka mengembalikan fokus ke pemicu). Keyboard: Enter, Spasi, atau ArrowDown membuka dan memfokuskan item pertama; ArrowUp membuka ke item terakhir; ArrowUp dan ArrowDown berpindah item (berputar), Home dan End ke ujung. Pemicu nonaktif (`ink-500`) saat luring atau saat baris diproses |
+| Menu Aksi | `components/MenuAksi.js`. Pemicu: ikon DotsThreeVertical 24 px dalam target 48 × 48 px (`size-7`, di atas minimum 44 px), `radius-2` (hanya membentuk `focus-ring`), tanpa garis dan latar di semua state, ikon `ink-900` berganti `olive-700` saat hover dengan transisi warna 150 ms, `aria-label` "Aksi lainnya untuk <nama>", `aria-haspopup=menu`, `aria-expanded`. Menu: `role=menu` di bawah pemicu rata kanan berjarak `space-1`, latar `putih`, `radius-2`, `shadow-1`, padding `space-2`. Item `role=menuitem` bergaya Item Menu (tinggi 48 px, `text-body` bobot biasa `font-normal` seperti item menu pengguna di kepala atas, ikon 24 px, tanpa garis bawah, teks `olive-700`, latar `olive-50` saat hover dan fokus). Item bahaya bertulisan `bata-700` dan dipisahkan dari item lain oleh garis `line-300` dengan jarak `space-2`; letaknya selalu paling bawah. Menu dirender di luar wadah tabel (posisi tetap terhadap layar) agar tidak terpotong `overflow`, dijaga `space-2` dari tepi layar, dan membuka ke atas bila ruang di bawah tidak cukup. Menutup dengan klik di luar, Esc (fokus kembali ke pemicu), Tab, atau setelah memilih item (fokus kembali ke pemicu sebelum aksi berjalan, sehingga dialog yang dibuka mengembalikan fokus ke pemicu). Keyboard: Enter, Spasi, atau ArrowDown membuka dan memfokuskan item pertama; ArrowUp membuka ke item terakhir; ArrowUp dan ArrowDown berpindah item (berputar), Home dan End ke ujung. Pemicu nonaktif (`ink-500`) saat luring atau saat baris diproses |
 | Tautan | `olive-700`, selalu bergaris bawah 1,5 px |
 | Tautan Arah | `components/TautanArah.js`, khusus layar nasabah. Tautan berdiri sendiri tanpa garis bawah: `olive-700` tebal, ikon ArrowRight 16 px di kanan teks (ArrowLeft di kiri untuk tautan kembali, prop `kembali`) berjarak `space-1`, tinggi minimal 48 px. Hover dan fokus: teks `olive-800`, ikon bergeser 4 px searah panah (150 ms, hanya bila `prefers-reduced-motion` tidak aktif); fokus memakai `focus-ring` |
 

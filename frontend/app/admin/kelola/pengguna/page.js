@@ -8,7 +8,7 @@ import { ambilUser } from "@/lib/auth"
 import { useDaring } from "@/lib/koneksi"
 import { tampilkanToast } from "@/lib/toast"
 import CapStatus from "@/components/CapStatus"
-import FilterChip from "@/components/FilterChip"
+import GrupPil from "@/components/GrupPil"
 import MenuAksi from "@/components/MenuAksi"
 import Paginasi from "@/components/Paginasi"
 import PesanInline from "@/components/PesanInline"
@@ -209,9 +209,9 @@ export default function Halaman() {
         </p>
       </div>
 
-      <div className="mt-3 flex flex-col gap-1">
-        <FilterChip label="Saring menurut peran" pilihan={FILTER_PERAN} aktif={peran} onUbah={gantiFilter(setPeran)} />
-        <FilterChip
+      <div className="mt-3 flex flex-col gap-3">
+        <GrupPil label="Saring menurut peran" pilihan={FILTER_PERAN} aktif={peran} onUbah={gantiFilter(setPeran)} />
+        <GrupPil
           label="Saring menurut status"
           pilihan={FILTER_STATUS}
           aktif={status}
