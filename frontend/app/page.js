@@ -42,7 +42,7 @@ const kontak = [
 // Halaman
 export default function Halaman() {
   return (
-    <div className="flex min-h-dvh flex-col bg-krem-50">
+    <div className="flex min-h-dvh flex-col bg-halaman-panjang">
       {/* Kepala */}
       <KepalaLekat>
         <div className="flex h-8 items-center justify-between gap-2 px-4 min-[600px]:px-5 lg:h-[calc(var(--spacing-8)+var(--spacing-2))] lg:px-6">
