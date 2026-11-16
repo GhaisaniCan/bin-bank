@@ -1,12 +1,13 @@
 "use client"
 
-import { Suspense, useCallback, useEffect, useRef, useState } from "react"
+import { Suspense, useCallback, useEffect, useState } from "react"
 import { useSearchParams } from "next/navigation"
 import { WarningOctagon, WifiSlash } from "@phosphor-icons/react"
 import { api } from "@/lib/api"
 import { formatRupiah, formatTanggal } from "@/lib/format"
 import { useDaring } from "@/lib/koneksi"
 import CapStatus from "@/components/CapStatus"
+import GrupPil from "@/components/GrupPil"
 import IsianTanggal from "@/components/IsianTanggal"
 import PesanInline from "@/components/PesanInline"
 import Tombol from "@/components/Tombol"
@@ -39,52 +40,6 @@ function formatBerat(kg) {
 
 function formatJumlah(n) {
   return (Number(n) || 0).toLocaleString("id-ID")
-}
-
-// Tab
-function TabLaporan({ aktif, onUbah }) {
-  const refTab = useRef([])
-
-  function tekan(e, i) {
-    let ke = null
-    if (e.key === "ArrowRight") ke = (i + 1) % TAB.length
-    else if (e.key === "ArrowLeft") ke = (i - 1 + TAB.length) % TAB.length
-    else if (e.key === "Home") ke = 0
-    else if (e.key === "End") ke = TAB.length - 1
-    if (ke === null) return
-    e.preventDefault()
-    refTab.current[ke]?.focus()
-    onUbah(TAB[ke].id)
-  }
-
-  return (
-    <div role="tablist" aria-label="Jenis laporan" className="mt-4 flex gap-2 border-b border-line-300">
-      {TAB.map((t, i) => {
-        const terpilih = t.id === aktif
-        return (
-          <button
-            key={t.id}
-            ref={(el) => {
-              refTab.current[i] = el
-            }}
-            role="tab"
-            type="button"
-            id={`tab-${t.id}`}
-            aria-selected={terpilih}
-            aria-controls={`panel-${t.id}`}
-            tabIndex={terpilih ? 0 : -1}
-            onClick={() => onUbah(t.id)}
-            onKeyDown={(e) => tekan(e, i)}
-            className={`-mb-px min-h-7 border-b-[3px] px-3 text-body text-ink-900 ${
-              terpilih ? "border-ink-900 font-bold" : "border-transparent hover:bg-olive-50"
-            }`}
-          >
-            {t.label}
-          </button>
-        )
-      })}
-    </div>
-  )
 }
 
 // Tabel setoran
@@ -247,7 +202,9 @@ function IsiLaporan() {
     <main className="pb-6">
       <h1 className="text-h1 font-bold text-forest-900">Laporan</h1>
 
-      <TabLaporan aktif={tab} onUbah={setTab} />
+      <div className="mt-4">
+        <GrupPil pilihan={TAB} aktif={tab} onUbah={setTab} label="Jenis laporan" sebagaiTab idPanel={`panel-${tab}`} />
+      </div>
 
       <form onSubmit={tampilkan} noValidate className="mt-5">
         <div className="grid gap-4 min-[600px]:grid-cols-2 min-[1024px]:grid-cols-[1fr_1fr_auto] min-[1024px]:items-end">

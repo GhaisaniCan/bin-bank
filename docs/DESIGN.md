@@ -262,12 +262,12 @@ Semua tombol memakai satu efek hover yang didefinisikan sebagai utilitas Tailwin
 | Utilitas | Efek | Dipakai untuk |
 | --- | --- | --- |
 | `hover-tombol` | Membesar `scale` 1,05 dengan bayangan `0 8px 24px` `olive-800` 30%, transisi `scale` dan `box-shadow` 300 ms ease-out; juga saat `focus-visible`; kursor pointer | Tombol Utama, Sekunder, dan Merusak (`Tombol`), Tombol Masuk, Filter Chip, tautan bergaya tombol |
-| `hover-tombol-ikon` | Sama dengan `hover-tombol`, skala 1,03 | Tombol ikon rapat: Tombol Tutup, tombol lihat password, tombol kalender |
+| `hover-tombol-ikon` | Sama dengan `hover-tombol`, skala 1,03 | Tombol ikon rapat: Tombol Tutup, tombol lihat password |
 | `hover-kartu` | Membesar 1,05 dengan bayangan `0 12px 32px` `olive-700` 22%, naik ke `z-10` | Kartu Harga, Kartu Ringkasan |
 
 Cara memakai: tambahkan nama utilitas ke `className` tombol, di samping kelas warnanya. Komponen `Tombol` dan `TombolMasuk` sudah memasangnya sendiri, kecuali varian Teks. Efek hanya berjalan bila `prefers-reduced-motion` tidak aktif dan perangkat mendukung hover, sehingga tap di ponsel tidak memicunya. Tombol `disabled`, termasuk yang sedang memproses, tidak membesar, tidak berbayang, dan kursornya tidak berubah. Perubahan warna latar saat hover tetap instan. Skala bekerja lewat `scale`, jadi tata letak tidak bergeser dan `translate` bawaan elemen tetap utuh. Varian Teks, tautan teks, item menu, tombol profil di kepala atas, Bilah Menu, dan baris tabel tidak memakai efek ini.
 
-Pemicu Menu Aksi (tombol tiga titik) dan bagian profil di kepala atas sengaja tanpa efek hover membesar dan bayangan. Pemicu Menu Aksi hanya berganti warna ikon ke `olive-700` saat hover (transisi 150 ms), tanpa lingkaran atau latar; kursor pointer dan `focus-ring` tetap.
+Tombol ikon kalender di Isian Tanggal, pemicu Menu Aksi (tombol tiga titik), dan bagian profil di kepala atas tidak memakai `hover-tombol-ikon`: saat hover hanya warna yang berganti, tanpa kotak, lingkaran, latar, bayangan, atau pembesaran; kursor pointer dan `focus-ring` tetap. Tombol kalender berikon `olive-700` yang berganti `olive-800` (transisi warna 150 ms) dalam target 36 × 36 px tanpa latar dan garis; isian `type=date` bawaan peramban di baliknya tersembunyi (`opacity-0`, tanpa `pointer-events`), sehingga tidak menampilkan kotak indikator. Pemicu Menu Aksi berganti warna ikon ke `olive-700` (transisi 150 ms). Bagian profil hanya berganti warna nama seperti dijelaskan di Kepala atas.
 
 ### Grup Pil untuk tab dan filter
 
