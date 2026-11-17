@@ -270,3 +270,6 @@ Untuk menjaga konsistensi dan keteraturan proses pengembangan, setiap anggota ke
 
 ## Link Laporan
 [Laporan M1](https://drive.google.com/drive/folders/17cAvS_kADuyAK6d_yNE4U3xiEHBzJa7F?usp=sharing)
+
+## Link Web App
+[BinBank](https://binbank-gamma.vercel.app/)
