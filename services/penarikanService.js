@@ -31,6 +31,29 @@ async function hitungTertahan(nasabahId, session) {
   return hasil[0] ? hasil[0].total : 0
 }
 
+async function tambahSaldoNasabah(data) {
+  const daftarId = [...new Set(data.map((p) => String(p.nasabah?._id || p.nasabah)))]
+  const idObjek = daftarId.map((id) => new mongoose.Types.ObjectId(id))
+
+  const [pengguna, tertahan] = await Promise.all([
+    User.find({ _id: { $in: idObjek }, role: "nasabah" }).select("saldo"),
+    Penarikan.aggregate([
+      { $match: { nasabah: { $in: idObjek }, status: "diajukan" } },
+      { $group: { _id: "$nasabah", total: { $sum: "$jumlah" } } },
+    ]),
+  ])
+
+  const saldo = new Map(pengguna.map((u) => [String(u._id), u.saldo ?? 0]))
+  const tahan = new Map(tertahan.map((t) => [String(t._id), t.total]))
+
+  return data.map((p) => {
+    const id = String(p.nasabah?._id || p.nasabah)
+    const item = p.toObject()
+    item.saldoNasabah = saldo.has(id) ? saldo.get(id) - (tahan.get(id) || 0) : null
+    return item
+  })
+}
+
 function ambilPaginasi(halaman, limit) {
   const halamanAktif = Math.max(1, Number.parseInt(halaman, 10) || 1)
   const limitAktif = Math.min(
@@ -236,10 +259,13 @@ async function daftarPenarikan({ status, nasabah, dari, sampai, halaman, limit }
   const rentang = bangunFilterTanggal(dari, sampai)
   if (rentang) filter.createdAt = rentang
 
-  return ambilDaftar(filter, halaman, limit, [
+  const hasil = await ambilDaftar(filter, halaman, limit, [
     ["nasabah", "nama email"],
     ["diprosesOleh", "nama"],
+    ["dikonfirmasiOleh", "nama"],
   ])
+  hasil.data = await tambahSaldoNasabah(hasil.data)
+  return hasil
 }
 
 // Daftar untuk nasabah (miliknya sendiri)

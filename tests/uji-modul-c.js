@@ -473,6 +473,8 @@ async function main() {
       harus(h.status === 403, `status ${h.status} bukan 403`);
       const p = await panggil("PATCH", `/${diajukan._id}/proses`, tokenNasabah, { keputusan: "setuju" });
       harus(p.status === 403, `proses oleh nasabah ${p.status} bukan 403`);
+      const s = await panggil("PATCH", `/${diajukan._id}/selesai`, tokenNasabah, {});
+      harus(s.status === 403, `selesai oleh nasabah ${s.status} bukan 403`);
     });
 
     await cek("ID penarikan tidak valid 400", async () => {
@@ -530,6 +532,41 @@ async function main() {
       const h = await panggil("PATCH", `/${diajukan._id}/proses`, tokenPetugas, { keputusan: "setuju" });
       harus(h.status === 200, `status ${h.status} bukan 200`);
       harus(h.data.data.status === "disetujui", "status bukan disetujui");
+    });
+
+    await cek("daftar menyertakan saldoNasabah tersedia dan dikonfirmasiOleh", async () => {
+      const lain = await User.create({ nama: "Rina Lain", email: "rina@mail.com", password: "hash", role: "nasabah", saldo: 5000 });
+      await Penarikan.create([
+        { nasabah: lain._id, jumlah: 1200, metode: "tunai", status: "diajukan" },
+        { nasabah: lain._id, jumlah: 800, metode: "tunai", status: "diajukan" },
+        {
+          nasabah: lain._id,
+          jumlah: 300,
+          metode: "tunai",
+          status: "selesai",
+          diprosesOleh: petugas._id,
+          dikonfirmasiOleh: petugas._id,
+          dikonfirmasiPada: new Date(),
+        },
+      ]);
+
+      const segar = await User.findById(nasabah._id).select("saldo");
+      const tahanBudi = (await Penarikan.find({ nasabah: nasabah._id, status: "diajukan" })).reduce((a, p) => a + p.jumlah, 0);
+      const harapan = { [String(nasabah._id)]: segar.saldo - tahanBudi, [String(lain._id)]: 5000 - 2000 };
+
+      const h = await panggil("GET", "/?status=semua&limit=100", tokenPetugas);
+      harus(h.status === 200, `status ${h.status} bukan 200`);
+      harus(h.data.data.length > 0, "daftar kosong");
+      for (const p of h.data.data) {
+        harus(p.saldoNasabah === harapan[String(p.nasabah._id)], `saldoNasabah ${p.saldoNasabah} untuk ${p.nasabah.nama} salah`);
+      }
+      const dikonfirmasi = h.data.data.find((p) => String(p.nasabah._id) === String(lain._id) && p.status === "selesai");
+      harus(dikonfirmasi.dikonfirmasiOleh && dikonfirmasi.dikonfirmasiOleh.nama === "Siti Petugas", "dikonfirmasiOleh tidak dipopulasi");
+      harus(dikonfirmasi.dikonfirmasiOleh.email === undefined, "dikonfirmasiOleh membocorkan kolom selain nama");
+      harus(h.data.paginasi && h.data.paginasi.total === h.data.data.length, "paginasi berubah");
+
+      const kosong = await panggil("GET", "/?status=ditolak", tokenPetugas);
+      harus(kosong.status === 200 && Array.isArray(kosong.data.data), "daftar kosong gagal");
     });
 
     await new Promise((selesaiTutup) => server.close(selesaiTutup));

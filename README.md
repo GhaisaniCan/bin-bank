@@ -213,7 +213,7 @@ Buku besar mutasi keuangan (ACID Transaction) yang tidak bisa dihapus.
 ### Modul D (Saldo & Penarikan)
 | Method | Endpoint                  | Deskripsi                                           | Autentikasi                  |
 | ------ | -------------------------- | ------------------------------------------------------ | ------------------------------- |
-| GET    | `/penarikan`              | Daftar penarikan, bawaan status `diajukan` (`?status=` diajukan/disetujui/ditolak/selesai/semua, `?nasabah=`, `?dari=`, `?sampai=`, `?halaman=`, `?limit=`) | **Petugas**, **Admin** |
+| GET    | `/penarikan`              | Daftar penarikan, bawaan status `diajukan` (`?status=` diajukan/disetujui/ditolak/selesai/semua, `?nasabah=`, `?dari=`, `?sampai=`, `?halaman=`, `?limit=`); setiap item memuat `nasabah` (nama, email), `diprosesOleh` (nama), `dikonfirmasiOleh` (nama), dan `saldoNasabah` | **Petugas**, **Admin** |
 | GET    | `/penarikan/saya`         | Daftar pengajuan penarikan milik nasabah sendiri (`?status=`, `?halaman=`, `?limit=`) | **Nasabah** |
 | GET    | `/penarikan/saldo`        | Cek saldo, saldo tertahan, dan saldo tersedia milik nasabah sendiri | **Nasabah** |
 | GET    | `/penarikan/riwayat`      | Riwayat mutasi buku besar milik nasabah (`?halaman=`, `?limit=`) | **Nasabah** |
@@ -232,6 +232,8 @@ diajukan --(proses: setuju)--> disetujui --(selesai)--> selesai
 ```
 
 Saldo tersedia adalah saldo dikurangi total pengajuan berstatus `diajukan`, dan pengajuan tidak boleh melebihi saldo tersedia. Saldo nasabah didebit saat penarikan disetujui; persetujuan dan pencatatan buku besar berjalan dalam satu transaksi. Status `selesai` hanya dapat dicapai dari `disetujui`, dan setiap perubahan status mencatat petugas serta waktunya.
+
+Field `saldoNasabah` pada `GET /penarikan` adalah saldo tersedia nasabah saat daftar diambil (saldo dikurangi total pengajuan `diajukan` miliknya, termasuk pengajuan itu sendiri bila masih `diajukan`). Nilainya dihitung sekali per nasabah unik di halaman tersebut dan bernilai `null` bila akun nasabah tidak ditemukan. Field ini hanya untuk tampilan; keputusan akhir tetap di server saat memproses.
 
 Kode status galat endpoint `/penarikan` (badan respons tetap `{ message }`):
 
