@@ -6,7 +6,7 @@ import { CheckCircle, Info, Recycle, WarningOctagon, WifiSlash } from "@phosphor
 import { api } from "@/lib/api"
 import { useDaring } from "@/lib/koneksi"
 import { formatJam, formatRupiah } from "@/lib/format"
-import { gambarSampah, kelompokSampah } from "@/lib/gambarSampah"
+import { gambarSampah, kelompokSampah, urlGambarJenis } from "@/lib/gambarSampah"
 import GrupPil from "@/components/GrupPil"
 import PesanInline from "@/components/PesanInline"
 import Tombol from "@/components/Tombol"
@@ -19,15 +19,17 @@ const KELOMPOK = [
   { id: "lainnya", label: "Lainnya" },
 ]
 
+const ID_KELOMPOK = KELOMPOK.filter((k) => k.id !== "semua").map((k) => k.id)
+
 function siapkan(data) {
   return data
-    .filter((j) => j.aktif !== false)
+    .filter((j) => j.aktif === true)
     .map((j) => ({
       id: j._id,
       nama: j.nama,
       harga: `${formatRupiah(j.hargaPerKg)}/kg`,
-      gambar: gambarSampah(j.nama),
-      kelompok: kelompokSampah(j.nama),
+      gambar: [urlGambarJenis(j), gambarSampah(j.nama)].filter(Boolean),
+      kelompok: ID_KELOMPOK.includes(j.kategori) ? j.kategori : kelompokSampah(j.nama),
     }))
     .sort((a, b) => a.nama.localeCompare(b.nama, "id"))
 }
@@ -53,11 +55,24 @@ function SkeletonHarga() {
 
 // Kartu harga
 function KartuHarga({ jenis }) {
+  const [gagal, setGagal] = useState([])
+  const sumber = jenis.gambar.find((g) => !gagal.includes(g))
+  const tandaiGagal = () => setGagal((d) => [...d, sumber])
   return (
     <li className={`${KELAS_KARTU} hover-kartu`}>
       <div className={KELAS_GAMBAR}>
-        {jenis.gambar ? (
-          <Image src={jenis.gambar} alt="" width={96} height={96} sizes="96px" className="size-full object-contain" />
+        {sumber ? (
+          <Image
+            key={sumber}
+            src={sumber}
+            unoptimized={sumber.startsWith("/api/")}
+            alt=""
+            width={96}
+            height={96}
+            sizes="96px"
+            onError={tandaiGagal}
+            className="size-full object-contain"
+          />
         ) : (
           <Recycle size={96} weight="regular" aria-hidden="true" className="text-ink-700" />
         )}
@@ -83,9 +98,14 @@ export default function Halaman() {
   const [kelompok, setKelompok] = useState("semua")
 
   const adaData = daftar?.length > 0
+  const pilihan = useMemo(
+    () => KELOMPOK.filter((k) => k.id === "semua" || (daftar ?? []).some((j) => j.kelompok === k.id)),
+    [daftar]
+  )
+  const kelompokAktif = pilihan.some((k) => k.id === kelompok) ? kelompok : "semua"
   const tersaring = useMemo(
-    () => (daftar ?? []).filter((j) => kelompok === "semua" || j.kelompok === kelompok),
-    [daftar, kelompok]
+    () => (daftar ?? []).filter((j) => kelompokAktif === "semua" || j.kelompok === kelompokAktif),
+    [daftar, kelompokAktif]
   )
 
   const muatUlang = useCallback(() => {
@@ -158,7 +178,7 @@ export default function Halaman() {
 
       {adaData && (
         <div className="mt-2">
-          <GrupPil pilihan={KELOMPOK} aktif={kelompok} onUbah={setKelompok} label="Kelompok sampah" />
+          <GrupPil pilihan={pilihan} aktif={kelompokAktif} onUbah={setKelompok} label="Kelompok sampah" />
         </div>
       )}
 
