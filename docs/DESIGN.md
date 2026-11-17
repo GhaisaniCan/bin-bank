@@ -335,7 +335,7 @@ Semua tombol memakai satu efek hover yang didefinisikan sebagai utilitas Tailwin
 
 Cara memakai: tambahkan nama utilitas ke `className` tombol, di samping kelas warnanya. Komponen `Tombol` dan `TombolMasuk` sudah memasangnya sendiri, kecuali varian Teks. Efek hanya berjalan bila `prefers-reduced-motion` tidak aktif dan perangkat mendukung hover, sehingga tap di ponsel tidak memicunya. Tombol `disabled`, termasuk yang sedang memproses, tidak membesar, tidak berbayang, dan kursornya tidak berubah. Perubahan warna latar saat hover tetap instan. Skala bekerja lewat `scale`, jadi tata letak tidak bergeser dan `translate` bawaan elemen tetap utuh. Varian Teks, tautan teks, item menu, tombol profil di kepala atas, Bilah Menu, dan baris tabel tidak memakai efek ini.
 
-Tombol ikon kalender di Isian Tanggal, pemicu Menu Aksi (tombol tiga titik), dan bagian profil di kepala atas tidak memakai `hover-tombol-ikon`: saat hover hanya warna yang berganti, tanpa kotak, lingkaran, latar, bayangan, atau pembesaran; kursor pointer dan `focus-ring` tetap. Tombol kalender berikon `olive-700` yang berganti `olive-800` (transisi warna 150 ms) dalam target 36 × 36 px tanpa latar dan garis; isian `type=date` bawaan peramban di baliknya tersembunyi (`opacity-0`, tanpa `pointer-events`), sehingga tidak menampilkan kotak indikator. Pemicu Menu Aksi berganti warna ikon ke `olive-700` (transisi 150 ms). Bagian profil hanya berganti warna nama seperti dijelaskan di Kepala atas.
+Tombol ikon kalender di Isian Tanggal, pemicu Menu Aksi (tombol tiga titik), tombol ikon mata di Isian Kata Sandi, dan bagian profil di kepala atas tidak memakai `hover-tombol-ikon`: saat hover hanya warna yang berganti, tanpa kotak, lingkaran, latar, bayangan, atau pembesaran; kursor pointer dan `focus-ring` tetap. Tombol kalender berikon `olive-700` yang berganti `olive-800` (transisi warna 150 ms) dalam target 36 × 36 px tanpa latar dan garis; isian `type=date` bawaan peramban di baliknya tersembunyi (`opacity-0`, tanpa `pointer-events`), sehingga tidak menampilkan kotak indikator. Pemicu Menu Aksi berganti warna ikon ke `olive-700` (transisi 150 ms). Bagian profil hanya berganti warna nama seperti dijelaskan di Kepala atas.
 
 ### Grup Pil untuk tab dan filter
 
@@ -359,7 +359,7 @@ Setiap peran hanya melihat menu miliknya (PRD F1.5). Di ponsel, menu berupa bila
 | Peran | Item menu | Item utama |
 | --- | --- | --- |
 | Nasabah | Beranda, Riwayat, Tarik Saldo, Harga | Tarik Saldo |
-| Petugas | Beranda, Catat Setoran, Setoran, Penarikan, Nasabah | Catat Setoran |
+| Petugas | Beranda, Catat Setoran, Setoran, Penarikan | Catat Setoran |
 | Admin | Beranda, Setoran, Penarikan, Laporan, Kelola | Tidak ada; pekerjaan admin bervariasi |
 
 "Kelola" milik admin memuat Jenis Sampah, Pengguna, dan Daftar Harga. Menu Profil dan Keluar berada di kepala halaman (nama pengguna), tersedia untuk semua peran.
@@ -389,7 +389,7 @@ Setiap peran hanya melihat menu miliknya (PRD F1.5). Di ponsel, menu berupa bila
 | ID | Screen | Bentuk | Tujuan | Fitur |
 | --- | --- | --- | --- | --- |
 | P1 | Beranda Petugas | Halaman | Pintu masuk kerja: tombol Catat Setoran, jumlah pengajuan yang perlu diproses, setoran terakhir | F4, F8 |
-| P2 | Cari Nasabah | Halaman | Mencari nasabah menurut nama atau email; hasil menampilkan nama dan email untuk membedakan nama kembar. Dipakai untuk memulai setoran dan untuk melihat saldo. **Kunci** | F2.8, F4.1 |
+| P2 | Catat Setoran (cari nasabah) | Halaman | Halaman menu Catat Setoran (`/petugas/setoran/baru` tanpa parameter): mencari nasabah menurut nama atau email; hasil menampilkan nama dan email untuk membedakan nama kembar, dengan aksi Catat setoran (ke P3) dan Lihat profil (ke P8). Rute lama `/petugas/cari-nasabah` dan `/petugas/nasabah` dialihkan ke sini. **Kunci** | F2.8, F4.1 |
 | P3 | Form Setoran | Halaman | Mengisi baris jenis dan berat; total terlihat sementara sebagai perkiraan, nilai resmi dihitung server. **Kunci** | F4.1, F4.3 |
 | P4 | Konfirmasi Setoran | Halaman | Ringkasan nasabah, rincian, total; satu-satunya jalan menuju penyimpanan. **Kunci** | F4.5 |
 | P5 | Setoran Tersimpan | Halaman | Bukti: rincian, total nilai, saldo baru nasabah; pintu menuju setoran berikutnya. **Kunci** | F4.9 |
@@ -441,8 +441,8 @@ Sepuluh journey utama, mengikuti urutan demo end-to-end di PRD bagian 9. Kode da
 
 | Langkah | Screen | Pengguna | Sistem |
 | --- | --- | --- | --- |
-| 1 | P1 | Menekan **Catat Setoran** | Membuka Cari Nasabah |
-| 2 | P2 | Mengetik nama atau email, memilih satu baris hasil | Hasil muncul mulai dua huruf; setiap baris menampilkan nama dan email |
+| 1 | P1 | Menekan **Catat Setoran** (Beranda atau menu) | Membuka P2: halaman Catat Setoran dengan kolom pencarian nasabah |
+| 2 | P2 | Mengetik nama atau email, menekan **Catat setoran** pada satu hasil | Hasil muncul mulai dua huruf; setiap hasil menampilkan nama dan email; P3 dibuka dengan `?nasabah=<id>` |
 | 3 | P3 | Menambah baris: memilih jenis sampah, mengisi berat | Subtotal tiap baris dan total tampil sebagai perkiraan berlabel; nama nasabah tetap di kepala halaman |
 | 4 | P3 | Menekan **Periksa setoran** | Memeriksa isian; galat ditandai per baris |
 | 5 | P4 | Membaca ringkasan: nasabah, baris, berat, harga, subtotal, total bergaris ganda | Menampilkan semuanya sebagai teks, bukan isian |
@@ -488,7 +488,7 @@ Cabang:
 
 ### J6. Petugas mendaftarkan nasabah
 
-1. Dari P2 (tautan saat hasil kosong) atau menu **Nasabah**, ke Daftarkan Nasabah (P9).
+1. Dari P2 (tautan **Daftarkan nasabah baru** di bawah kolom pencarian), ke Daftarkan Nasabah (P9).
 2. Mengisi nama, email, password awal; menekan **Daftarkan nasabah**.
 3. Jika email sudah dipakai: galat di isian email, "Email ini sudah terdaftar atas nama \[nama\]".
 4. Berhasil: layar sukses memuat nama, email, dan password awal yang tampil sekali, dengan peringatan bahwa password awal tidak bisa dilihat lagi dan nasabah wajib menggantinya saat masuk. Tombol **Catat setoran untuk nasabah ini** dan **Daftarkan nasabah lain**.
@@ -558,7 +558,7 @@ Semua screen aktor dibungkus `KerangkaAplikasi` (`components/KerangkaAplikasi.js
 ### U1. Masuk
 
 1. Nama "BinBank" sebagai teks `text-h2`, bukan logo bergambar. Di bawahnya judul h1 "Masuk".
-2. Isian Teks Email, lalu Isian Kata Sandi dengan tombol teks **Tampilkan** di sisinya.
+2. Isian Teks Email, lalu Isian Kata Sandi dengan tombol ikon mata di sisi kanan.
 3. Pesan Inline galat bila gagal, ditempatkan di atas isian.
 4. **Aksi utama:** Masuk (lebar penuh).
 5. Teks bantuan di bawah tombol: "Lupa password? Minta admin atau petugas RW mengatur ulang." Tanpa tautan, karena tidak ada fitur kirim email.
@@ -651,14 +651,14 @@ Catatan implementasi (melengkapi tulisan di atas dan bagian 8):
 - Kosong per tab: Semua "Belum ada pengajuan" dengan satu kalimat dan tautan **Tarik saldo**; tab lain hanya judul h3.
 - Sorotan `olive-100` untuk pengajuan baru belum diterapkan.
 
-### P2. Cari Nasabah
+### P2. Catat Setoran (cari nasabah)
 
-1. Kepala Halaman: "Cari nasabah" atau, bila datang dari Catat Setoran, "Setoran untuk siapa?".
-2. Kotak Cari, otomatis fokus, label terlihat "Nama atau email".
-3. Daftar hasil: tiap baris selebar penuh, tinggi minimal 64 px, nama dengan `text-body-strong` di atas, email dengan `text-small` di bawah. Mengetuk baris adalah satu-satunya aksi.
-4. Tautan sekunder di bawah: **Daftarkan nasabah baru**.
+1. Kepala Halaman: "Catat Setoran", subjudul "Cari nasabah, lalu catat setorannya."
+2. Kotak Cari (`components/PencarianNasabah.js`, memakai Isian Teks), otomatis fokus, label terlihat "Nama atau email", bantuan "Ketik minimal dua huruf nama atau email".
+3. Daftar hasil: tiap hasil berupa kartu `putih` `rounded-2` bergaris `line-300` (selaras Kartu Pengajuan), nama dengan `text-body-strong` di atas, email dengan `text-small` di bawah, lalu dua tautan berbentuk pil: utama **Catat setoran** (ke P3 dengan `?nasabah=<id>`) dan sekunder **Lihat profil** (ke P8).
+4. Di bawah hasil: **Daftarkan nasabah baru** (ke P9), selalu tampil, berupa tautan bergaya Tombol Sekunder (`kelasTombol` dari `components/Tombol.js`, `ukuran="ringkas"`, `rounded-full`, teks bobot biasa, ikon UserPlus 20 px di kiri, `hover-tombol`), selebar penuh di bawah 600 px dan selebar teks mulai 600 px.
 
-Tidak ada tombol utama; pemilihan baris adalah aksinya. Saldo tidak tampil di hasil agar daftar ringan dan pemilihan tidak bergantung pada angka.
+Menu aktif di Bilah Menu: Catat Setoran. Saldo tidak tampil di hasil agar daftar ringan dan pemilihan tidak bergantung pada angka. Tautan **Ganti** di P3 dan tautan pada keadaan kosong P3, P4, P5, P8 kembali ke halaman ini.
 
 ### P3. Form Setoran
 
@@ -767,8 +767,8 @@ Tanpa ilustrasi dan tanpa kartu. Seperti U1, satu kolom selebar 400 px di tengah
 | U4 | Kepala Halaman, grid Kartu Harga (gambar, nama, harga per kg) | Tidak ada | Kartu Harga | Bidang latar `olive-50`, `radius-2`, tanpa garis tepi, padding `space-4`, isi rata tengah. Gambar 96 px (`object-contain`, `alt=""`) di tengah atas, menonjol separuh tingginya (48 px) keluar dari tepi atas kartu. Di bawahnya nama `text-body` 700 `ink-900`, garis pendek 40 px tebal 2 px `olive-700`, lalu harga "Rp 2.500/kg" `text-amount` 700 angka tabular `forest-900`. Hanya-baca | Dengan gambar, Tanpa gambar (ikon Recycle 96 px) | Memuat (kerangka `line-300` di atas `olive-50`), Terisi |
 | N2 | Kepala Halaman, Lembar Saldo ringkas, Tabel Buku mutasi, Paginasi | Tidak ada | Lembar Saldo, Tabel Buku, Paginasi |
 | N3 | Kepala Halaman dengan Cap Status, nasabah dan tanggal, rincian, total di bawah garis ganda | Tidak ada | Lembar Konfirmasi (varian hanya-baca), Cap Status |
-| P1 | Kepala Halaman, tombol Catat Setoran, kartu "Perlu diproses" dengan jumlah MENUNGGU dan DISETUJUI, lima setoran terakhir | Catat Setoran | Tombol, Tabel Buku |
-| P7 | Kepala Halaman dengan Cap Status, nasabah, rincian, total; bila DIBATALKAN: alasan, pelaku, waktu | Batalkan setoran (hanya admin, bergaya Merusak) | Lembar Konfirmasi, Cap Status, Tombol |
+| P1 | Kepala Halaman, tombol Catat Setoran, bagian "Perlu diproses" berisi dua Kartu Ringkasan varian ringkas (pengajuan MENUNGGU, dana DISETUJUI yang perlu diserahkan; keduanya ke Antrean Penarikan), berderet `flex-wrap` berjarak `space-3` (berdampingan juga di ponsel, turun ke bawah hanya bila tidak muat), lima setoran terakhir dengan **Lihat semua setoran** (ke P6) sebagai tautan bergaya Tombol Sekunder pil, teks bobot biasa, ikon ArrowRight 20 px di kanan, rata kiri, selebar penuh di bawah 600 px | Catat Setoran | Tombol, Kartu Ringkasan, Tabel Buku |
+| P7 | Kepala Halaman dengan Cap Status, nasabah, rincian, total; bila DIBATALKAN: alasan, pelaku, waktu; di bawah rincian (dan pada keadaan tidak ditemukan) **Kembali ke daftar setoran** (ke P6) sebagai tautan bergaya Tombol Sekunder pil, teks bobot biasa, ikon ArrowLeft 20 px di kiri, rata kiri, selebar penuh di bawah 600 px | Batalkan setoran (hanya admin, bergaya Merusak) | Lembar Konfirmasi, Cap Status, Tombol |
 | P8 | Kepala Halaman dengan nama dan email nasabah, Lembar Saldo, tombol Catat Setoran (petugas), Tabel Buku mutasi, Paginasi | Catat setoran untuk nasabah ini (petugas) | Lembar Saldo, Tabel Buku, Paginasi |
 | P9 | Kepala Halaman, Isian Teks nama, Isian Teks email, Isian Kata Sandi awal | Daftarkan nasabah | Isian, Tombol, Kotak Rahasia Sekali Tampil |
 | P11 | Dialog: ringkasan pengajuan, pilihan Setujui atau Tolak; Tolak menampilkan isian alasan | Setujui Rp 50.000 | Dialog, Pesan Inline, Isian Teks |
@@ -832,7 +832,7 @@ Label selalu tampak di atas isian; placeholder tidak pernah menggantikan label. 
 | Isian Teks | Nama, email, alasan (area teks 3 baris untuk alasan) | Galat: garis 2 px `bata-700`, ikon Warning dan teks galat di bawahnya; Hanya-baca: latar `olive-50`, tanpa garis |
 | Isian Uang | Awalan "Rp" tetap di dalam isian, bilangan bulat saja, pemisah ribuan titik muncul saat mengetik, papan angka numerik | Galat jika melebihi saldo, menyebut angka batasnya |
 | Isian Berat | Tinggi 64 px, teks `text-amount` 24 px angka tabular, akhiran "kg" tetap, papan angka desimal; menerima koma atau titik, dinormalkan ke dua desimal saat meninggalkan isian | Galat "Berat harus lebih dari 0" |
-| Isian Kata Sandi | Teks tersembunyi, tombol ikon di dalam isian sisi kanan: Eye saat tersembunyi (menampilkan), EyeSlash saat terlihat (menyembunyikan), 24 px `ink-700`, tombol tanpa latar dan tanpa garis di semua state dengan hover berupa perubahan warna ikon ke `olive-700` secara instan, area sentuh 48 x 48 px, nama aksesibel "Tampilkan password" atau "Sembunyikan password" dengan `aria-pressed`; isian diberi padding kanan agar teks tidak menimpa ikon; atribut `autocomplete` sesuai (`current-password`, `new-password`) | Galat; kekuatan password tidak diberi meter warna, cukup aturan tertulis |
+| Isian Kata Sandi | Teks tersembunyi, tombol ikon di dalam isian sisi kanan: Eye saat tersembunyi (menampilkan), EyeSlash saat terlihat (menyembunyikan), 24 px `ink-700`, tombol tanpa latar dan tanpa garis di semua state dengan hover hanya berupa perubahan warna ikon ke `olive-700` (transisi warna 150 ms, `motion-safe`), tanpa `hover-tombol-ikon`, pembesaran, atau bayangan; fokus keyboard memakai `focus-ring`, area sentuh 48 x 48 px, nama aksesibel "Tampilkan password" atau "Sembunyikan password" dengan `aria-pressed`; isian diberi padding kanan agar teks tidak menimpa ikon; atribut `autocomplete` sesuai (`current-password`, `new-password`) | Galat; kekuatan password tidak diberi meter warna, cukup aturan tertulis |
 | Kotak Cari | Pola combobox; mulai mencari pada dua karakter; hasil menampilkan nama dan email | Mencari (teks "Mencari..."), Ada hasil, Tidak ada hasil, Galat jaringan |
 | Pilihan Jenis Sampah | Daftar pilihan khusus (bukan elemen select bawaan) agar bisa menampilkan pictogram dan harga per kg; di ponsel terbuka sebagai sheet dengan opsi 56 px, di desktop sebagai popover | Terpilih ditandai ikon Check dan latar `olive-100`; jenis nonaktif tidak muncul |
 | Pilihan Metode | Grup radio berbentuk baris besar 56 px: lingkaran radio, label, penjelasan satu baris. Dipakai juga untuk pilihan peran | Terpilih: titik radio terisi, latar `olive-100`, garis 2 px `ink-900` (bentuk, bukan hanya warna) |
@@ -876,7 +876,7 @@ State: **Memuat** (lima baris skeleton), **Kosong** (Keadaan Kosong), **Galat** 
 | Lembar Konfirmasi | Rincian setoran sebagai bacaan: nasabah, baris, garis ganda, total | Konfirmasi (di P4), Bukti (di P5), Hanya-baca (di N3 dan P7) | Terisi, Dibatalkan (dicoret dan disertai alasan) |
 | Kartu Pengajuan | Nama atau tanggal, nominal, metode, Cap Status, detail e-wallet, aksi baris | Per status: MENUNGGU, DISETUJUI, DITOLAK, SELESAI; Nasabah dan Staf | Default, Memproses, Sudah diproses pihak lain (pesan dan aksi dinonaktifkan) |
 | Kartu Harga | Bidang gambar persegi latar `olive-50` `radius-2` (`object-contain`, `alt=""`), nama `text-body` 700 `ink-900`, harga "Rp 2.500/kg" `text-amount` 700 angka tabular `forest-900`. Garis `line-300`, `radius-2`, padding `space-4`, tanpa bayangan. Hanya-baca | Dengan gambar, Tanpa gambar (ikon Recycle) | Memuat (kerangka `olive-50`), Terisi |
-| Kartu Ringkasan | Satu tautan utuh (`components/KartuRingkasan.js`): judul, angka utama, keterangan, ikon opsional, chevron. Tanpa garis tepi, `radius-3`, `shadow-kartu`, hover `hover-kartu` | Dengan ikon, Tanpa ikon | Memuat (`KerangkaKartuRingkasan`), Terisi |
+| Kartu Ringkasan | Satu tautan utuh (`components/KartuRingkasan.js`): judul, angka utama, keterangan, ikon opsional, chevron. Tanpa garis tepi, `radius-3`, `shadow-kartu`, hover `hover-kartu` | Dengan ikon, Tanpa ikon; ukuran Biasa (Beranda admin) dan Ringkas (`ukuran="ringkas"`, Beranda petugas: tinggi mengikuti isi tanpa tinggi paksa, lebar sama untuk semua kartu, basis 9,5rem dan maks. 13rem, padding `space-4`; ditumpuk vertikal dengan jarak tetap `space-3`: ikon bulat 36 px di kiri atas, judul `text-body` bobot biasa boleh dua baris, angka 32 px tebal dengan chevron 20 px sejajar di kanan; kartu sebaris disamakan tingginya lewat `items-stretch`, sisa ruang jatuh di bawah angka; tanpa keterangan) | Memuat (`KerangkaKartuRingkasan`), Terisi |
 | Kepala Konteks Nasabah | Bilah lekat berisi nama dan email nasabah yang sedang dikerjakan serta tautan Ganti | Tunggal | Default |
 
 ### Struktur dan navigasi
@@ -942,7 +942,7 @@ PRD menyatakan BinBank dipakai saat ada koneksi dan tidak punya mode offline (U5
 | N2 Riwayat Mutasi | "Belum ada mutasi" | Galat baca; galat saat Berikutnya tidak menghapus halaman yang sudah ada | Tidak berlaku | Halaman termuat tetap tampil; Paginasi nonaktif |
 | N4 Ajukan Penarikan | Saldo tersedia Rp 0: isian disembunyikan, tampil "Saldo tersedia Rp 0. Belum ada yang bisa ditarik." Bila ada pengajuan menunggu yang menghabiskan saldo: "Seluruh saldo sedang menunggu keputusan pengajuan sebelumnya" | Melebihi saldo tersedia (menyebut angkanya); e-wallet tanpa nama atau nomor; gagal kirim tidak pasti: "Pengajuan belum dipastikan terkirim. Periksa halaman Pengajuan Saya sebelum mengajukan lagi" dengan tautan | Pindah ke N5, pengajuan baru MENUNGGU disorot, toast "Pengajuan terkirim" | Tombol Ajukan nonaktif dengan alasan; isian tetap |
 | N5 Pengajuan Saya | "Belum ada pengajuan penarikan" dengan tautan **Tarik saldo** | Galat baca | Pengajuan baru disorot `olive-100` | Data terakhir dengan stempel waktu |
-| P2 Cari Nasabah | Belum mengetik: "Ketik minimal dua huruf nama atau email". Tidak ada hasil: "Tidak ada nasabah dengan nama atau email itu" dan tautan **Daftarkan nasabah baru** | "Pencarian gagal. Coba lagi" | Daftar hasil | Kotak Cari nonaktif dengan alasan |
+| P2 Catat Setoran (cari nasabah) | Belum mengetik: "Ketik minimal dua huruf nama atau email". Tidak ada hasil: "Tidak ada nasabah dengan nama atau email itu" dan tautan **Daftarkan nasabah baru** | "Pencarian gagal. Coba lagi" | Daftar hasil | Kotak Cari nonaktif dengan alasan |
 | P3 Form Setoran | Satu Baris Rincian kosong; bila tidak ada jenis aktif: "Belum ada jenis sampah aktif. Minta admin menambahkannya" dan tombol Periksa nonaktif | Berat tidak valid per baris; jenis belum dipilih; daftar jenis gagal dimuat | Lanjut ke P4 | Tetap bisa mengisi dan menekan Periksa setoran (tanpa server); harga yang tampil bisa ketinggalan, diberi stempel waktu |
 | P4 Konfirmasi Setoran | Tidak berlaku | Harga atau jenis berubah: kembali ke P3 dengan baris ditandai. Berat ditolak server: kembali ke P3 dengan pesan per baris. Nasabah nonaktif: "Akun nasabah ini tidak aktif" (menunggu OQ-24). Gagal tidak pasti: seperti J2 | P5 | Tombol Simpan nonaktif: "Tidak ada koneksi. Setoran belum disimpan. Rincian tetap di layar selama halaman tidak ditutup." |
 | P5 Setoran Tersimpan | Tidak berlaku | Bila saldo baru gagal dibaca, bukti tetap tampil dan saldo diberi "Belum termuat" | Layar ini adalah keberhasilannya; Cap TERCATAT | Bukti tetap tampil karena berasal dari respons simpan |
@@ -1047,7 +1047,7 @@ Semua halaman memakai `<html lang="id">`, judul dokumen unik berpola "Setoran ba
 | Screen | Urutan fokus |
 | --- | --- |
 | U1 Masuk | Lewati, Email, Password, Tampilkan, Masuk |
-| P2 Cari Nasabah | Lewati, Menu, Kotak Cari, hasil (panah atas bawah), Daftarkan nasabah baru |
+| P2 Catat Setoran (cari nasabah) | Lewati, Menu, Kotak Cari, \[Catat setoran, Lihat profil\] per hasil, Daftarkan nasabah baru |
 | P3 Form Setoran | Lewati, Menu, Ganti nasabah, \[Jenis, Berat, Hapus baris\] per baris, Tambah jenis lain, Periksa setoran |
 | P4 Konfirmasi | h1, Simpan setoran, Kembali dan ubah (tombol utama sebelum tombol batal, tetapi dipisah 16 px atau lebih) |
 | N4 Ajukan Penarikan | Lewati, Menu, Nominal, Metode (grup radio), \[Nama e-wallet, Nomor e-wallet\], Ajukan penarikan |

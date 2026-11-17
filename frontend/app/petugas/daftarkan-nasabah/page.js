@@ -2,8 +2,9 @@
 import Link from "next/link"
 
 import { useState } from "react"
+import IsianKataSandi from "@/components/IsianKataSandi"
 
-const dasarIsian = "h-12 w-full rounded-2 bg-putih px-3 text-body"
+const dasarIsian = "h-12 w-full rounded-2 bg-putih px-3 text-body placeholder:text-ink-500"
 
 function kelasIsian(salah) {
   return `${dasarIsian} ${salah ? "border-2 border-bata-700" : "border border-line-500"}`
@@ -22,7 +23,6 @@ export default function Halaman() {
   const [nama, setNama] = useState("")
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
-  const [lihat, setLihat] = useState(false)
   const [galat, setGalat] = useState({})
   const [berhasil, setBerhasil] = useState(null)
 
@@ -54,7 +54,6 @@ export default function Halaman() {
     setNama("")
     setEmail("")
     setPassword("")
-    setLihat(false)
     setGalat({})
     setBerhasil(null)
   }
@@ -107,6 +106,7 @@ export default function Halaman() {
           <input
             id="nama"
             type="text"
+            placeholder="Masukkan nama nasabah"
             value={nama}
             onChange={(e) => setNama(e.target.value)}
             aria-invalid={galat.nama ? "true" : "false"}
@@ -123,6 +123,7 @@ export default function Halaman() {
           <input
             id="email"
             type="email"
+            placeholder="Masukkan email nasabah"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             aria-invalid={galat.email ? "true" : "false"}
@@ -132,32 +133,18 @@ export default function Halaman() {
         </div>
         <Galat id="galat-email" pesan={galat.email} />
 
-        <label htmlFor="password" className="mt-4 block text-body font-bold">
-          Password awal
-        </label>
-        <div className="relative mt-2">
-          <input
+        <div className="mt-4">
+          <IsianKataSandi
             id="password"
-            type={lihat ? "text" : "password"}
+            label="Password awal"
+            placeholder="Masukkan password awal nasabah"
+            autoComplete="new-password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            autoComplete="new-password"
-            aria-invalid={galat.password ? "true" : "false"}
-            aria-describedby={galat.password ? "galat-password" : undefined}
-            className={`${kelasIsian(galat.password)} pr-24`}
+            galat={galat.password}
+            bantuan="Nasabah wajib menggantinya saat masuk pertama kali"
           />
-          <button
-            type="button"
-            onClick={() => setLihat(!lihat)}
-            className="absolute right-3 top-1/2 -translate-y-1/2 text-body text-olive-700 underline"
-          >
-            {lihat ? "Sembunyikan" : "Tampilkan"}
-          </button>
         </div>
-        <Galat id="galat-password" pesan={galat.password} />
-        <p className="mt-2 text-small text-ink-500">
-          Nasabah wajib menggantinya saat masuk pertama kali
-        </p>
 
         <button
           type="submit"

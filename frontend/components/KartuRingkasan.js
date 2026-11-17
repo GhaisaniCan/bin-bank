@@ -15,8 +15,30 @@ export function KerangkaKartuRingkasan() {
   )
 }
 
+const KELAS_KARTU_RINGKAS = "flex w-full flex-col rounded-3 bg-putih p-4 shadow-kartu"
+
+// Kartu ringkas
+function KartuRingkas({ href, label, angka, ikon: Ikon }) {
+  return (
+    <Link href={href} className={`${KELAS_KARTU_RINGKAS} hover-kartu text-forest-900 no-underline`}>
+      {Ikon && (
+        <span className="flex size-[36px] shrink-0 items-center justify-center rounded-full bg-olive-50">
+          <Ikon size={20} weight="regular" aria-hidden="true" />
+        </span>
+      )}
+      <span className="mt-3 text-body font-normal">{label}</span>
+      <span className="mt-3 flex items-end justify-between gap-2">
+        <span className="min-w-0 break-words text-[32px] font-bold leading-[38px] tabular-nums">{angka}</span>
+        <CaretRight size={20} weight="bold" aria-hidden="true" className="mb-2 shrink-0" />
+      </span>
+    </Link>
+  )
+}
+
 // Kartu
-export default function KartuRingkasan({ href, label, angka, keterangan, ikon: Ikon }) {
+export default function KartuRingkasan({ href, label, angka, keterangan, ikon: Ikon, ukuran = "biasa" }) {
+  if (ukuran === "ringkas") return <KartuRingkas href={href} label={label} angka={angka} ikon={Ikon} />
+
   return (
     <Link href={href} className={`${KELAS_KARTU} hover-kartu text-forest-900 no-underline`}>
       <span className="flex items-start justify-between gap-3">

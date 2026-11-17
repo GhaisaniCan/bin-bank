@@ -2,15 +2,16 @@
 
 import { useEffect, useState } from "react"
 import Link from "next/link"
+import { ArrowRight, MagnifyingGlass } from "@phosphor-icons/react"
 import CapStatus from "@/components/CapStatus"
 import LembarSetoran from "@/components/LembarSetoran"
+import { kelasTombol } from "@/components/Tombol"
 import { ambilUser } from "@/lib/auth"
 import { formatRupiah } from "@/lib/format"
 
 const KUNCI_HASIL = "binbank_hasil_setoran"
 
-const kelasTautan =
-  "inline-flex min-h-7 items-center text-body text-olive-700 underline decoration-1 hover:decoration-2"
+const kelasTombolNavigasi = `${kelasTombol({ varian: "sekunder", ukuran: "ringkas", tebal: "font-normal" })} gap-2 hover:bg-olive-50 active:bg-olive-50`
 
 const kelasUtama =
   "inline-flex h-7 w-full min-w-[96px] items-center justify-center rounded-2 bg-olive-700 px-4 text-body font-bold text-putih hover:bg-olive-800 active:bg-olive-800 hover-tombol min-[600px]:w-auto"
@@ -35,12 +36,14 @@ export default function Halaman() {
     return (
       <main className="pb-6">
         <h1 className="text-h1 font-bold text-forest-900">Tidak ada setoran yang baru disimpan</h1>
-        <div className="mt-4 flex flex-col items-start gap-1">
-          <Link href="/petugas/cari-nasabah" className={kelasTautan}>
+        <div className="mt-4 flex flex-wrap items-center gap-3">
+          <Link href="/petugas/setoran/baru" className={kelasTombolNavigasi}>
+            <MagnifyingGlass size={20} weight="regular" aria-hidden="true" className="shrink-0" />
             Cari nasabah
           </Link>
-          <Link href="/petugas/setoran" className={kelasTautan}>
+          <Link href="/petugas/setoran" className={kelasTombolNavigasi}>
             Lihat daftar setoran
+            <ArrowRight size={20} weight="regular" aria-hidden="true" className="shrink-0" />
           </Link>
         </div>
       </main>
@@ -74,7 +77,7 @@ export default function Halaman() {
 
       <div className="mt-5 flex flex-col gap-4 min-[600px]:flex-row">
         <Link
-          href="/petugas/cari-nasabah"
+          href="/petugas/setoran/baru"
           onClick={() => sessionStorage.removeItem(KUNCI_HASIL)}
           className={kelasUtama}
         >

@@ -2,10 +2,12 @@
 
 import { useState } from "react"
 import Link from "next/link"
+import { MagnifyingGlass } from "@phosphor-icons/react"
 import { useParams } from "next/navigation"
 import { formatRupiah } from "@/lib/format"
 import TabelMutasi from "@/components/TabelMutasi"
 import Paginasi from "@/components/Paginasi"
+import { kelasTombol } from "@/components/Tombol"
 
 const NASABAH_CONTOH = {
   1: { nama: "Sari Wulandari", email: "sari@contoh.com" },
@@ -13,6 +15,8 @@ const NASABAH_CONTOH = {
   3: { nama: "Sari Dewi", email: "saridewi@contoh.com" },
   4: { nama: "Joko Prasetyo", email: "joko@contoh.com" },
 }
+
+const kelasTombolNavigasi = `${kelasTombol({ varian: "sekunder", ukuran: "ringkas", tebal: "font-normal" })} gap-2 hover:bg-olive-50 active:bg-olive-50`
 
 const SALDO_CONTOH = { saldo: 128500, saldoTersedia: 108500, saldoTertahan: 20000 }
 
@@ -42,10 +46,8 @@ export default function Halaman() {
       <main className="pb-6">
         <h1 className="text-h1 font-bold text-forest-900">Nasabah tidak ditemukan</h1>
         <p className="mt-2 text-body text-ink-700">Periksa kembali, atau cari nasabah lain.</p>
-        <Link
-          href="/petugas/cari-nasabah"
-          className="mt-4 inline-flex min-h-7 items-center text-body text-olive-700 underline decoration-1 hover:decoration-2"
-        >
+        <Link href="/petugas/setoran/baru" className={`${kelasTombolNavigasi} mt-4`}>
+          <MagnifyingGlass size={20} weight="regular" aria-hidden="true" className="shrink-0" />
           Cari nasabah
         </Link>
       </main>
