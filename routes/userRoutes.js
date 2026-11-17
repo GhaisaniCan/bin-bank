@@ -19,6 +19,16 @@ router.get("/", authenticate, authorize("admin", "petugas"), async (req, res) =>
   }
 })
 
+// Detail akun
+router.get("/:id", authenticate, authorize("admin", "petugas"), async (req, res) => {
+  try {
+    const data = await userService.detailUser(req.user, req.params.id)
+    res.status(200).json({ message: "Data pengguna berhasil diambil", data })
+  } catch (err) {
+    kirimError(res, err)
+  }
+})
+
 // Buat akun
 router.post("/", authenticate, authorize("admin", "petugas"), async (req, res) => {
   try {

@@ -184,6 +184,7 @@ Buku besar mutasi keuangan (ACID Transaction) yang tidak bisa dihapus.
 | GET    | `/auth/profile`       | Menampilkan profil pengguna yang sedang login                              | Semua Role                   |
 | PATCH  | `/auth/password`      | Mengganti password sendiri (`passwordLama`, `passwordBaru`); mengembalikan token baru | Semua Role        |
 | GET    | `/users`              | Daftar akun (filter `?role=`, `?cari=` nama atau email, `?status=` aktif/nonaktif); paginasi bila `?halaman=` atau `?limit=` diisi (bawaan 20, maksimal 100); Petugas hanya melihat nasabah | **Admin**, **Petugas** |
+| GET    | `/users/:id`          | Detail satu akun: hanya `_id`, `nama`, `email`, `status` (`aktif`/`nonaktif`); Petugas hanya boleh melihat nasabah (selain itu 403); ID tidak valid 400, tidak ditemukan 404 | **Admin**, **Petugas** |
 | POST   | `/users`              | Membuat akun (email harus berformat valid); Petugas hanya boleh membuat akun nasabah | **Admin**, **Petugas** |
 | PATCH  | `/users/:id/password` | Mereset password pengguna (`passwordBaru`, minimal 8 karakter)             | **Admin**                    |
 | PATCH  | `/users/:id/status`   | Mengaktifkan atau menonaktifkan akun (`aktif`: `true` atau `false`)        | **Admin**                    |

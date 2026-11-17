@@ -1,17 +1,15 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import Link from "next/link"
-import { UserPlus } from "@phosphor-icons/react"
+import { UserPlus, WarningOctagon } from "@phosphor-icons/react"
 import IsianTeks from "@/components/IsianTeks"
-import { kelasTombol } from "@/components/Tombol"
+import PesanInline from "@/components/PesanInline"
+import Tombol, { kelasTombol } from "@/components/Tombol"
+import { api } from "@/lib/api"
 
-const NASABAH_CONTOH = [
-  { id: "1", nama: "Sari Wulandari", email: "sari@contoh.com" },
-  { id: "2", nama: "Budi Santoso", email: "budi@contoh.com" },
-  { id: "3", nama: "Sari Dewi", email: "saridewi@contoh.com" },
-  { id: "4", nama: "Joko Prasetyo", email: "joko@contoh.com" },
-]
+const LIMIT_HASIL = 10
+const JEDA_KETIK = 300
 
 const kelasPilUtama =
   "relative inline-flex h-[40px] w-fit items-center justify-center rounded-full bg-olive-700 px-5 text-body font-bold text-putih hover:bg-olive-800 active:bg-olive-800 hover-tombol after:absolute after:inset-x-0 after:-inset-y-[2px]"
@@ -21,13 +19,39 @@ const kelasPilSekunder =
 
 export default function PencarianNasabah({ hrefPilih, hrefProfil }) {
   const [kata, setKata] = useState("")
-  const q = kata.trim().toLowerCase()
-  const hasil =
-    q.length >= 2
-      ? NASABAH_CONTOH.filter(
-          (n) => n.nama.toLowerCase().includes(q) || n.email.toLowerCase().includes(q)
-        )
-      : []
+  const [putaran, setPutaran] = useState(0)
+  const [hasil, setHasil] = useState({ q: null, putaran: -1, data: [], total: 0, galat: false })
+  const q = kata.trim()
+  const cukup = q.length >= 2
+
+  const terkini = hasil.q === q && hasil.putaran === putaran
+  const memuat = cukup && !terkini
+  const galat = cukup && terkini && hasil.galat
+  const daftar = cukup && terkini && !hasil.galat ? hasil.data : []
+  const kosong = cukup && terkini && !hasil.galat && daftar.length === 0
+
+  // Pencarian
+  useEffect(() => {
+    if (q.length < 2) return
+    const pengendali = new AbortController()
+    const dasar = { q, putaran, data: [], total: 0, galat: false }
+    const jeda = setTimeout(() => {
+      const kueri = new URLSearchParams({ cari: q, halaman: "1", limit: String(LIMIT_HASIL) })
+      api(`/users?${kueri}`, { galatInline: true, signal: pengendali.signal })
+        .then((respons) => {
+          if (pengendali.signal.aborted) return
+          const data = (respons?.data ?? []).map((n) => ({ id: String(n._id), nama: n.nama, email: n.email }))
+          setHasil({ ...dasar, data, total: respons?.paginasi?.total ?? data.length })
+        })
+        .catch(() => {
+          if (!pengendali.signal.aborted) setHasil({ ...dasar, galat: true })
+        })
+    }, JEDA_KETIK)
+    return () => {
+      clearTimeout(jeda)
+      pengendali.abort()
+    }
+  }, [q, putaran])
 
   return (
     <div>
@@ -41,30 +65,53 @@ export default function PencarianNasabah({ hrefPilih, hrefProfil }) {
         autoFocus
       />
 
-      {q.length >= 2 && hasil.length === 0 && (
-        <p className="mt-5 text-body" role="status">
-          Tidak ada nasabah dengan nama atau email itu
-        </p>
-      )}
+      <div aria-busy={memuat || undefined}>
+        {memuat && (
+          <p className="mt-5 text-body text-ink-700" role="status">
+            Mencari nasabah…
+          </p>
+        )}
 
-      {hasil.length > 0 && (
-        <ul className="mt-5 flex flex-col gap-3" aria-label="Hasil pencarian nasabah">
-          {hasil.map((n) => (
-            <li key={n.id} className="rounded-2 border border-line-300 bg-putih p-4">
-              <p className="text-body font-bold">{n.nama}</p>
-              <p className="text-small text-ink-700">{n.email}</p>
-              <div className="mt-3 flex flex-wrap gap-3">
-                <Link href={hrefPilih(n.id)} className={kelasPilUtama}>
-                  Catat setoran
-                </Link>
-                <Link href={hrefProfil(n.id)} className={kelasPilSekunder}>
-                  Lihat profil
-                </Link>
-              </div>
-            </li>
-          ))}
-        </ul>
-      )}
+        {galat && (
+          <PesanInline varian="galat" ikon={WarningOctagon} isi="Data belum bisa dimuat" className="mt-5">
+            <Tombol varian="sekunder" onClick={() => setPutaran((n) => n + 1)}>
+              Coba lagi
+            </Tombol>
+          </PesanInline>
+        )}
+
+        {kosong && (
+          <p className="mt-5 text-body" role="status">
+            Tidak ada nasabah yang cocok
+          </p>
+        )}
+
+        {daftar.length > 0 && (
+          <>
+            <ul className="mt-5 flex flex-col gap-3" aria-label="Hasil pencarian nasabah">
+              {daftar.map((n) => (
+                <li key={n.id} className="rounded-2 border border-line-300 bg-putih p-4">
+                  <p className="text-body font-bold">{n.nama}</p>
+                  <p className="text-small text-ink-700">{n.email}</p>
+                  <div className="mt-3 flex flex-wrap gap-3">
+                    <Link href={hrefPilih(n.id)} className={kelasPilUtama}>
+                      Catat setoran
+                    </Link>
+                    <Link href={hrefProfil(n.id)} className={kelasPilSekunder}>
+                      Lihat profil
+                    </Link>
+                  </div>
+                </li>
+              ))}
+            </ul>
+            {hasil.total > LIMIT_HASIL && (
+              <p className="mt-3 text-small text-ink-700" role="status">
+                Menampilkan {daftar.length} dari {hasil.total}, persempit pencarian.
+              </p>
+            )}
+          </>
+        )}
+      </div>
 
       <Link
         href="/petugas/daftarkan-nasabah"

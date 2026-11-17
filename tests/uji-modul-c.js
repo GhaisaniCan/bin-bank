@@ -360,6 +360,32 @@ async function main() {
     }
   });
 
+  console.log("\nDetail pengguna");
+
+  await cek("detail pengguna: petugas hanya melihat nasabah, tanpa field sensitif", async () => {
+    const userService = require("../services/userService");
+    const admin = await User.create({ nama: "Admin RW", email: "admin@mail.com", password: "hash", role: "admin" });
+    const olehPetugas = { id: petugas._id, role: "petugas" };
+    const kode = async (pembuat, id) => {
+      try {
+        await userService.detailUser(pembuat, id);
+        return 200;
+      } catch (error) {
+        return error.statusCode;
+      }
+    };
+
+    const hasil = await userService.detailUser(olehPetugas, String(nasabah._id));
+    harus(hasil.nama === "Budi Santoso" && hasil.email === "budi@mail.com", "nama atau email salah");
+    harus(hasil.status === "aktif", `status ${hasil.status} bukan aktif`);
+    harus(Object.keys(hasil).sort().join(",") === "_id,email,nama,status", `field berlebih: ${Object.keys(hasil)}`);
+    harus((await kode(olehPetugas, String(admin._id))) === 403, "petugas membuka admin tidak 403");
+    harus((await kode(olehPetugas, String(petugas._id))) === 403, "petugas membuka petugas tidak 403");
+    harus((await kode({ id: admin._id, role: "admin" }, String(petugas._id))) === 200, "admin ditolak");
+    harus((await kode(olehPetugas, "bukan-objectid")) === 400, "ID tidak valid bukan 400");
+    harus((await kode(olehPetugas, String(new mongoose.Types.ObjectId()))) === 404, "tidak ditemukan bukan 404");
+  });
+
   console.log(`\nHasil: ${lulus} lulus, ${gagal} gagal\n`);
 
   await mongoose.disconnect();
