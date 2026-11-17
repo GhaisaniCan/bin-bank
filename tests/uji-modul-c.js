@@ -40,8 +40,8 @@ async function main() {
 
   const nasabah = await User.create({ nama: "Budi Santoso", email: "budi@mail.com", password: "hash", role: "nasabah" });
   const petugas = await User.create({ nama: "Siti Petugas", email: "siti@mail.com", password: "hash", role: "petugas" });
-  const pet = await JenisSampah.create({ nama: "Plastik PET", harga_per_kg: 3000 });
-  const kardus = await JenisSampah.create({ nama: "Kardus", harga_per_kg: 1500 });
+  const pet = await JenisSampah.create({ nama: "Plastik PET", hargaPerKg: 3000 });
+  const kardus = await JenisSampah.create({ nama: "Kardus", hargaPerKg: 1500 });
 
   console.log("\nFitur 4 — Pencatatan Setoran");
 
@@ -68,11 +68,11 @@ async function main() {
   });
 
   await cek("perubahan harga tidak mengubah setoran lama", async () => {
-    await JenisSampah.findByIdAndUpdate(pet._id, { harga_per_kg: 9999 });
+    await JenisSampah.findByIdAndUpdate(pet._id, { hargaPerKg: 9999 });
     const lama = await Setoran.findById(setoranPertama._id);
     harus(lama.rincian[0].hargaPerKg === 3000, "setoran lama ikut berubah");
     harus(lama.totalNilai === 9300, "totalNilai lama ikut berubah");
-    await JenisSampah.findByIdAndUpdate(pet._id, { harga_per_kg: 3000 });
+    await JenisSampah.findByIdAndUpdate(pet._id, { hargaPerKg: 3000 });
   });
 
   await cek("berat 0 ditolak", async () => {
@@ -384,6 +384,37 @@ async function main() {
     harus((await kode({ id: admin._id, role: "admin" }, String(petugas._id))) === 200, "admin ditolak");
     harus((await kode(olehPetugas, "bukan-objectid")) === 400, "ID tidak valid bukan 400");
     harus((await kode(olehPetugas, String(new mongoose.Types.ObjectId()))) === 404, "tidak ditemukan bukan 404");
+  });
+
+  console.log("\nSaldo nasabah untuk petugas");
+
+  await cek("saldo nasabah menyertakan saldo tersedia dan tertahan", async () => {
+    const nasabahService = require("../services/nasabahService");
+    const Penarikan = require("../models/Penarikan");
+    const saldo = (await User.findById(nasabah._id)).saldo;
+    await Penarikan.create([
+      { nasabah: nasabah._id, jumlah: 1000, metode: "tunai", status: "diajukan" },
+      { nasabah: nasabah._id, jumlah: 500, metode: "tunai", status: "diajukan" },
+      { nasabah: nasabah._id, jumlah: 700, metode: "tunai", status: "disetujui" },
+    ]);
+
+    const hasil = await nasabahService.saldoNasabah(String(nasabah._id));
+    harus(hasil.nasabah === String(nasabah._id), "field nasabah berubah");
+    harus(hasil.saldo === saldo, `saldo ${hasil.saldo} bukan ${saldo}`);
+    harus(hasil.saldoTertahan === 1500, `saldoTertahan ${hasil.saldoTertahan} bukan 1500`);
+    harus(hasil.saldoTersedia === saldo - 1500, `saldoTersedia ${hasil.saldoTersedia} bukan ${saldo - 1500}`);
+
+    const kode = async (id) => {
+      try {
+        await nasabahService.saldoNasabah(id);
+        return 200;
+      } catch (error) {
+        return error.statusCode;
+      }
+    };
+    harus((await kode("bukan-objectid")) === 400, "ID tidak valid bukan 400");
+    harus((await kode(String(new mongoose.Types.ObjectId()))) === 404, "tidak ditemukan bukan 404");
+    harus((await kode(String(petugas._id))) === 404, "akun petugas tidak 404");
   });
 
   console.log(`\nHasil: ${lulus} lulus, ${gagal} gagal\n`);

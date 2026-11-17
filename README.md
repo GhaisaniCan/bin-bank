@@ -220,7 +220,7 @@ Buku besar mutasi keuangan (ACID Transaction) yang tidak bisa dihapus.
 | POST   | `/penarikan/ajukan`       | Mengajukan penarikan (`jumlah` bilangan bulat, `metode`); untuk `e-wallet` wajib `namaEwallet` dan `nomorEwallet`; tidak boleh melebihi saldo tersedia | **Nasabah** |
 | PATCH  | `/penarikan/:id/proses`   | Menyetujui (`keputusan: setuju`, saldo didebit) atau menolak (`keputusan: tolak`, `catatan` alasan wajib) pengajuan | **Petugas**, **Admin** |
 | PATCH  | `/penarikan/:id/selesai`  | Menandai penarikan `disetujui` sebagai `selesai` (dana sudah diserahkan; `catatan` opsional) | **Petugas**, **Admin** |
-| GET    | `/nasabah/:id/saldo`      | Melihat saldo seorang nasabah                       | **Petugas**, **Admin**          |
+| GET    | `/nasabah/:id/saldo`      | Melihat saldo, saldo tersedia, dan saldo tertahan seorang nasabah | **Petugas**, **Admin**          |
 | GET    | `/nasabah/:id/riwayat`    | Melihat riwayat mutasi seorang nasabah (`?halaman=`, `?limit=`) | **Petugas**, **Admin** |
 
 ### Alur Status Penarikan

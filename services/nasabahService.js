@@ -1,5 +1,6 @@
 const mongoose = require("mongoose")
 const ledgerService = require("./ledgerService")
+const penarikanService = require("./penarikanService")
 const AppError = require("../utils/AppError")
 
 // Pembantu
@@ -12,8 +13,8 @@ function pastikanIdValid(id) {
 // Saldo nasabah
 async function saldoNasabah(id) {
   pastikanIdValid(id)
-  const saldo = await ledgerService.getSaldo(id)
-  return { nasabah: id, saldo }
+  const { saldo, saldoTertahan, saldoTersedia } = await penarikanService.getSaldoNasabah(id)
+  return { nasabah: id, saldo, saldoTersedia, saldoTertahan }
 }
 
 // Riwayat nasabah
