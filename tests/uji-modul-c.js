@@ -417,6 +417,124 @@ async function main() {
     harus((await kode(String(petugas._id))) === 404, "akun petugas tidak 404");
   });
 
+  console.log("\nKode status endpoint penarikan");
+
+  {
+    const express = require("express");
+    const jwt = require("jsonwebtoken");
+    const Penarikan = require("../models/Penarikan");
+    const penarikanService = require("../services/penarikanService");
+    const AppError = require("../utils/AppError");
+
+    process.env.JWT_SECRET = process.env.JWT_SECRET || "rahasia-uji-lokal";
+    const app = express();
+    app.use(express.json());
+    app.use("/penarikan", require("../controllers/penarikanController"));
+    const server = app.listen(0);
+    const alamat = `http://127.0.0.1:${server.address().port}/penarikan`;
+
+    const token = (user) => jwt.sign({ id: String(user._id), role: user.role }, process.env.JWT_SECRET);
+    const tokenNasabah = token(nasabah);
+    const tokenPetugas = token(petugas);
+
+    const panggil = async (metode, jalur, tokenPengguna, body) => {
+      const res = await fetch(`${alamat}${jalur}`, {
+        method: metode,
+        headers: { Authorization: `Bearer ${tokenPengguna}`, "Content-Type": "application/json" },
+        body: body === undefined ? undefined : JSON.stringify(body),
+      });
+      return { status: res.status, data: await res.json() };
+    };
+
+    const idAcak = String(new mongoose.Types.ObjectId());
+    const [diajukan, selesai] = await Penarikan.create([
+      { nasabah: nasabah._id, jumlah: 100, metode: "tunai", status: "diajukan" },
+      { nasabah: nasabah._id, jumlah: 100, metode: "tunai", status: "selesai" },
+    ]);
+
+    await cek("ajukan melebihi saldo tersedia 400 dengan pesan server", async () => {
+      const h = await panggil("POST", "/ajukan", tokenNasabah, { jumlah: 999999999, metode: "tunai" });
+      harus(h.status === 400, `status ${h.status} bukan 400`);
+      harus(h.data.message === "Saldo tersedia tidak mencukupi untuk penarikan ini", "pesan berubah");
+    });
+
+    await cek("ajukan dengan metode tidak dikenal 400", async () => {
+      const h = await panggil("POST", "/ajukan", tokenNasabah, { jumlah: 100, metode: "transfer" });
+      harus(h.status === 400, `status ${h.status} bukan 400`);
+    });
+
+    await cek("filter status tidak dikenal 400", async () => {
+      const h = await panggil("GET", "/?status=entah", tokenPetugas);
+      harus(h.status === 400, `status ${h.status} bukan 400`);
+    });
+
+    await cek("nasabah membuka endpoint petugas 403", async () => {
+      const h = await panggil("GET", "/", tokenNasabah);
+      harus(h.status === 403, `status ${h.status} bukan 403`);
+      const p = await panggil("PATCH", `/${diajukan._id}/proses`, tokenNasabah, { keputusan: "setuju" });
+      harus(p.status === 403, `proses oleh nasabah ${p.status} bukan 403`);
+    });
+
+    await cek("ID penarikan tidak valid 400", async () => {
+      const p = await panggil("PATCH", "/bukan-id/proses", tokenPetugas, { keputusan: "setuju" });
+      harus(p.status === 400, `proses ${p.status} bukan 400`);
+      const s = await panggil("PATCH", "/bukan-id/selesai", tokenPetugas, {});
+      harus(s.status === 400, `selesai ${s.status} bukan 400`);
+    });
+
+    await cek("tolak tanpa alasan 400", async () => {
+      const h = await panggil("PATCH", `/${diajukan._id}/proses`, tokenPetugas, { keputusan: "tolak" });
+      harus(h.status === 400, `status ${h.status} bukan 400`);
+    });
+
+    await cek("penarikan tidak ditemukan 404", async () => {
+      const p = await panggil("PATCH", `/${idAcak}/proses`, tokenPetugas, { keputusan: "setuju" });
+      harus(p.status === 404, `proses ${p.status} bukan 404`);
+      const s = await panggil("PATCH", `/${idAcak}/selesai`, tokenPetugas, {});
+      harus(s.status === 404, `selesai ${s.status} bukan 404`);
+    });
+
+    await cek("status tidak sesuai 409", async () => {
+      const p = await panggil("PATCH", `/${selesai._id}/proses`, tokenPetugas, { keputusan: "setuju" });
+      harus(p.status === 409, `proses penarikan selesai ${p.status} bukan 409`);
+      const s = await panggil("PATCH", `/${diajukan._id}/selesai`, tokenPetugas, {});
+      harus(s.status === 409, `selesai penarikan diajukan ${s.status} bukan 409`);
+    });
+
+    await cek("galat tak terduga 500 tanpa membocorkan detail", async () => {
+      const asli = penarikanService.getSaldoNasabah;
+      const logAsli = console.error;
+      const log = [];
+      console.error = (...isi) => log.push(isi);
+      try {
+        penarikanService.getSaldoNasabah = async () => {
+          throw new Error("MongoNetworkError: detail-internal");
+        };
+        const a = await panggil("GET", "/saldo", tokenNasabah);
+        penarikanService.getSaldoNasabah = async () => {
+          throw new AppError("Model User belum terdaftar", 500);
+        };
+        const b = await panggil("GET", "/saldo", tokenNasabah);
+        harus(a.status === 500 && b.status === 500, `status ${a.status}/${b.status} bukan 500`);
+        harus(a.data.message === "Terjadi kesalahan pada server", "pesan 500 bukan pesan umum");
+        harus(!JSON.stringify([a.data, b.data]).includes("detail-internal"), "detail internal bocor");
+        harus(!JSON.stringify(b.data).includes("Model User"), "pesan AppError 500 bocor");
+        harus(log.length === 2, "galat tidak dicatat di server");
+      } finally {
+        penarikanService.getSaldoNasabah = asli;
+        console.error = logAsli;
+      }
+    });
+
+    await cek("alur normal tetap 200", async () => {
+      const h = await panggil("PATCH", `/${diajukan._id}/proses`, tokenPetugas, { keputusan: "setuju" });
+      harus(h.status === 200, `status ${h.status} bukan 200`);
+      harus(h.data.data.status === "disetujui", "status bukan disetujui");
+    });
+
+    await new Promise((selesaiTutup) => server.close(selesaiTutup));
+  }
+
   console.log(`\nHasil: ${lulus} lulus, ${gagal} gagal\n`);
 
   await mongoose.disconnect();

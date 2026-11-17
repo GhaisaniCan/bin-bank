@@ -233,6 +233,17 @@ diajukan --(proses: setuju)--> disetujui --(selesai)--> selesai
 
 Saldo tersedia adalah saldo dikurangi total pengajuan berstatus `diajukan`, dan pengajuan tidak boleh melebihi saldo tersedia. Saldo nasabah didebit saat penarikan disetujui; persetujuan dan pencatatan buku besar berjalan dalam satu transaksi. Status `selesai` hanya dapat dicapai dari `disetujui`, dan setiap perubahan status mencatat petugas serta waktunya.
 
+Kode status galat endpoint `/penarikan` (badan respons tetap `{ message }`):
+
+| Kode | Kapan |
+| ---- | ----- |
+| 400  | Masukan tidak valid: `jumlah`, `metode`, data e-wallet, `keputusan`, alasan tolak kosong, ID tidak valid, filter `status`/tanggal salah, atau saldo (tersedia) tidak mencukupi |
+| 401  | Token tidak ada, tidak valid, atau kedaluwarsa |
+| 403  | Peran tidak berhak membuka endpoint |
+| 404  | Penarikan atau nasabah tidak ditemukan |
+| 409  | Status tidak sesuai: memproses penarikan yang bukan `diajukan`, atau menyelesaikan penarikan yang bukan `disetujui` |
+| 500  | Galat server tak terduga; pesan umum "Terjadi kesalahan pada server", detail hanya dicatat di log server |
+
 ## Autentikasi
 
 Setelah berhasil melakukan login, pengguna akan memperoleh **JWT token**. Token tersebut harus disertakan pada header setiap request yang memerlukan autentikasi dengan format berikut:
