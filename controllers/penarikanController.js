@@ -3,6 +3,15 @@ const router = express.Router()
 const penarikanService = require("../services/penarikanService")
 const authenticate = require("../middlewares/authenticate")
 const authorize = require("../middlewares/authorize")
+const AppError = require("../utils/AppError")
+
+function kirimError(res, err) {
+  if (err instanceof AppError && err.statusCode < 500) {
+    return res.status(err.statusCode).json({ message: err.message })
+  }
+  console.error("[penarikanController]", err)
+  res.status(500).json({ message: "Terjadi kesalahan pada server" })
+}
 
 // Petugas/admin melihat daftar penarikan
 router.get("/", authenticate, authorize("petugas", "admin"), async (req, res) => {
@@ -11,7 +20,7 @@ router.get("/", authenticate, authorize("petugas", "admin"), async (req, res) =>
     const hasil = await penarikanService.daftarPenarikan({ status, nasabah, dari, sampai, halaman, limit })
     res.status(200).json({ message: "Daftar penarikan berhasil diambil", ...hasil })
   } catch (err) {
-    res.status(400).json({ message: err.message })
+    kirimError(res, err)
   }
 })
 
@@ -22,7 +31,7 @@ router.get("/saya", authenticate, authorize("nasabah"), async (req, res) => {
     const hasil = await penarikanService.daftarPenarikanSaya(req.user.id, { status, halaman, limit })
     res.status(200).json({ message: "Daftar pengajuan berhasil diambil", ...hasil })
   } catch (err) {
-    res.status(400).json({ message: err.message })
+    kirimError(res, err)
   }
 })
 
@@ -32,7 +41,7 @@ router.get("/saldo", authenticate, authorize("nasabah"), async (req, res) => {
     const data = await penarikanService.getSaldoNasabah(req.user.id)
     res.status(200).json({ message: "Saldo berhasil diambil", data })
   } catch (err) {
-    res.status(400).json({ message: err.message })
+    kirimError(res, err)
   }
 })
 
@@ -43,7 +52,7 @@ router.get("/riwayat", authenticate, authorize("nasabah"), async (req, res) => {
     const hasil = await penarikanService.getRiwayatNasabah(req.user.id, { halaman, limit })
     res.status(200).json({ message: "Riwayat berhasil diambil", data: hasil.data, paginasi: hasil.paginasi })
   } catch (err) {
-    res.status(400).json({ message: err.message })
+    kirimError(res, err)
   }
 })
 
@@ -54,7 +63,7 @@ router.post("/ajukan", authenticate, authorize("nasabah"), async (req, res) => {
     const data = await penarikanService.ajukanPenarikan(req.user.id, jumlah, metode, namaEwallet, nomorEwallet)
     res.status(201).json({ message: "Pengajuan penarikan berhasil dibuat", data })
   } catch (err) {
-    res.status(400).json({ message: err.message })
+    kirimError(res, err)
   }
 })
 
@@ -65,7 +74,7 @@ router.patch("/:id/proses", authenticate, authorize("petugas", "admin"), async (
     const data = await penarikanService.prosesPenarikan(req.params.id, keputusan, req.user.id, catatan)
     res.status(200).json({ message: "Penarikan berhasil diproses", data })
   } catch (err) {
-    res.status(400).json({ message: err.message })
+    kirimError(res, err)
   }
 })
 
@@ -76,7 +85,7 @@ router.patch("/:id/selesai", authenticate, authorize("petugas", "admin"), async 
     const data = await penarikanService.selesaikanPenarikan(req.params.id, req.user.id, catatan)
     res.status(200).json({ message: "Penarikan ditandai selesai", data })
   } catch (err) {
-    res.status(400).json({ message: err.message })
+    kirimError(res, err)
   }
 })
 

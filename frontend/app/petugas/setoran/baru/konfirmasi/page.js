@@ -1,31 +1,51 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useMemo, useRef, useState, useSyncExternalStore } from "react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
-import { MagnifyingGlass, Warning } from "@phosphor-icons/react"
+import { MagnifyingGlass, Warning, WarningOctagon } from "@phosphor-icons/react"
 import PesanInline from "@/components/PesanInline"
 import Tombol, { kelasTombol } from "@/components/Tombol"
 import { formatBerat } from "@/components/TabelSetoran"
 import { formatRupiah } from "@/lib/format"
+import { api } from "@/lib/api"
 
 const KUNCI_DRAF = "binbank_draf_setoran"
 const KUNCI_HASIL = "binbank_hasil_setoran"
+const PESAN_TERPUTUS = "Belum dipastikan tersimpan. Periksa daftar setoran sebelum mencoba lagi."
 
 const kelasTombolNavigasi = `${kelasTombol({ varian: "sekunder", ukuran: "ringkas", tebal: "font-normal" })} gap-2 hover:bg-olive-50 active:bg-olive-50`
 
+function tanpaLangganan() {
+  return () => {}
+}
+
+function drafSesi() {
+  try {
+    return sessionStorage.getItem(KUNCI_DRAF)
+  } catch {
+    return null
+  }
+}
+
+function drafServer() {
+  return undefined
+}
+
 export default function Halaman() {
   const router = useRouter()
-  const [draf, setDraf] = useState(undefined)
-  const [memproses, setMemproses] = useState(false)
-
-  useEffect(() => {
+  const mentah = useSyncExternalStore(tanpaLangganan, drafSesi, drafServer)
+  const draf = useMemo(() => {
+    if (mentah === undefined) return undefined
     try {
-      setDraf(JSON.parse(sessionStorage.getItem(KUNCI_DRAF)))
+      return JSON.parse(mentah)
     } catch {
-      setDraf(null)
+      return null
     }
-  }, [])
+  }, [mentah])
+  const [memproses, setMemproses] = useState(false)
+  const [galat, setGalat] = useState(null)
+  const terkirim = useRef(false)
 
   if (draf === undefined) return null
 
@@ -42,20 +62,41 @@ export default function Halaman() {
     )
   }
 
-  function simpan() {
+  const belumPasti = galat?.belumPasti === true
+
+  async function simpan() {
+    if (terkirim.current || belumPasti) return
+    terkirim.current = true
     setMemproses(true)
-    setTimeout(() => {
+    setGalat(null)
+
+    const body = {
+      nasabah: draf.nasabahId,
+      rincian: draf.rincian.map((r) => ({ jenisSampah: r.jenisId, berat: Number(r.berat) })),
+    }
+    if (typeof draf.catatan === "string" && draf.catatan.trim()) body.catatan = draf.catatan.trim()
+
+    try {
+      const respons = await api("/setoran", { method: "POST", body, galatInline: true, aksesInline: true })
       sessionStorage.setItem(
         KUNCI_HASIL,
         JSON.stringify({
-          ...draf,
-          tanggal: new Date().toISOString(),
-          saldoBaru: 128500 + draf.totalNilai,
+          setoran: respons.data.setoran,
+          saldoTerkini: respons.data.saldoTerkini,
+          emailNasabah: draf.nasabah?.email ?? "",
         })
       )
-      sessionStorage.removeItem(KUNCI_DRAF)
       router.push("/petugas/setoran/baru/tersimpan")
-    }, 800)
+    } catch (err) {
+      const status = err?.status ?? 0
+      if (status === 0 || status >= 500) {
+        setGalat({ belumPasti: true, pesan: PESAN_TERPUTUS })
+      } else {
+        setGalat({ belumPasti: false, pesan: err.message })
+        terkirim.current = false
+      }
+      setMemproses(false)
+    }
   }
 
   function kembali() {
@@ -141,9 +182,20 @@ export default function Halaman() {
         </div>
       </section>
 
+      {galat && (
+        <PesanInline varian="galat" ikon={WarningOctagon} isi={galat.pesan} className="mt-5">
+          {galat.belumPasti && (
+            <Link href="/petugas/setoran" className="text-body font-bold text-olive-700 underline">
+              Lihat daftar setoran
+            </Link>
+          )}
+        </PesanInline>
+      )}
+
       <div className="mt-5">
         <Tombol
           memproses={memproses}
+          disabled={belumPasti}
           teksMemproses="Menyimpan..."
           onClick={simpan}
           className="w-full min-[600px]:w-auto"

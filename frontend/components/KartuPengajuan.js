@@ -90,3 +90,17 @@ export default function KartuPengajuan({ pengajuan: p, onAksi }) {
     </li>
   )
 }
+
+export function SkeletonPengajuan({ jumlah = 3 }) {
+  return (
+    <ul aria-hidden="true" className="flex flex-col gap-3">
+      {Array.from({ length: jumlah }, (_, i) => (
+        <li key={i} className="flex flex-col gap-2 rounded-2 border border-line-300 bg-putih p-4">
+          <div className="h-5 w-1/3 rounded-1 bg-olive-50" />
+          <div className="h-6 w-1/4 rounded-1 bg-olive-50" />
+          <div className="h-4 w-1/2 rounded-1 bg-olive-50" />
+        </li>
+      ))}
+    </ul>
+  )
+}

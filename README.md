@@ -184,6 +184,7 @@ Buku besar mutasi keuangan (ACID Transaction) yang tidak bisa dihapus.
 | GET    | `/auth/profile`       | Menampilkan profil pengguna yang sedang login                              | Semua Role                   |
 | PATCH  | `/auth/password`      | Mengganti password sendiri (`passwordLama`, `passwordBaru`); mengembalikan token baru | Semua Role        |
 | GET    | `/users`              | Daftar akun (filter `?role=`, `?cari=` nama atau email, `?status=` aktif/nonaktif); paginasi bila `?halaman=` atau `?limit=` diisi (bawaan 20, maksimal 100); Petugas hanya melihat nasabah | **Admin**, **Petugas** |
+| GET    | `/users/:id`          | Detail satu akun: hanya `_id`, `nama`, `email`, `status` (`aktif`/`nonaktif`); Petugas hanya boleh melihat nasabah (selain itu 403); ID tidak valid 400, tidak ditemukan 404 | **Admin**, **Petugas** |
 | POST   | `/users`              | Membuat akun (email harus berformat valid); Petugas hanya boleh membuat akun nasabah | **Admin**, **Petugas** |
 | PATCH  | `/users/:id/password` | Mereset password pengguna (`passwordBaru`, minimal 8 karakter)             | **Admin**                    |
 | PATCH  | `/users/:id/status`   | Mengaktifkan atau menonaktifkan akun (`aktif`: `true` atau `false`)        | **Admin**                    |
@@ -212,14 +213,14 @@ Buku besar mutasi keuangan (ACID Transaction) yang tidak bisa dihapus.
 ### Modul D (Saldo & Penarikan)
 | Method | Endpoint                  | Deskripsi                                           | Autentikasi                  |
 | ------ | -------------------------- | ------------------------------------------------------ | ------------------------------- |
-| GET    | `/penarikan`              | Daftar penarikan, bawaan status `diajukan` (`?status=` diajukan/disetujui/ditolak/selesai/semua, `?nasabah=`, `?dari=`, `?sampai=`, `?halaman=`, `?limit=`) | **Petugas**, **Admin** |
+| GET    | `/penarikan`              | Daftar penarikan, bawaan status `diajukan` (`?status=` diajukan/disetujui/ditolak/selesai/semua, `?nasabah=`, `?dari=`, `?sampai=`, `?halaman=`, `?limit=`); setiap item memuat `nasabah` (nama, email), `diprosesOleh` (nama), `dikonfirmasiOleh` (nama), dan `saldoNasabah` | **Petugas**, **Admin** |
 | GET    | `/penarikan/saya`         | Daftar pengajuan penarikan milik nasabah sendiri (`?status=`, `?halaman=`, `?limit=`) | **Nasabah** |
 | GET    | `/penarikan/saldo`        | Cek saldo, saldo tertahan, dan saldo tersedia milik nasabah sendiri | **Nasabah** |
 | GET    | `/penarikan/riwayat`      | Riwayat mutasi buku besar milik nasabah (`?halaman=`, `?limit=`) | **Nasabah** |
 | POST   | `/penarikan/ajukan`       | Mengajukan penarikan (`jumlah` bilangan bulat, `metode`); untuk `e-wallet` wajib `namaEwallet` dan `nomorEwallet`; tidak boleh melebihi saldo tersedia | **Nasabah** |
 | PATCH  | `/penarikan/:id/proses`   | Menyetujui (`keputusan: setuju`, saldo didebit) atau menolak (`keputusan: tolak`, `catatan` alasan wajib) pengajuan | **Petugas**, **Admin** |
 | PATCH  | `/penarikan/:id/selesai`  | Menandai penarikan `disetujui` sebagai `selesai` (dana sudah diserahkan; `catatan` opsional) | **Petugas**, **Admin** |
-| GET    | `/nasabah/:id/saldo`      | Melihat saldo seorang nasabah                       | **Petugas**, **Admin**          |
+| GET    | `/nasabah/:id/saldo`      | Melihat saldo, saldo tersedia, dan saldo tertahan seorang nasabah | **Petugas**, **Admin**          |
 | GET    | `/nasabah/:id/riwayat`    | Melihat riwayat mutasi seorang nasabah (`?halaman=`, `?limit=`) | **Petugas**, **Admin** |
 
 ### Alur Status Penarikan
@@ -231,6 +232,19 @@ diajukan --(proses: setuju)--> disetujui --(selesai)--> selesai
 ```
 
 Saldo tersedia adalah saldo dikurangi total pengajuan berstatus `diajukan`, dan pengajuan tidak boleh melebihi saldo tersedia. Saldo nasabah didebit saat penarikan disetujui; persetujuan dan pencatatan buku besar berjalan dalam satu transaksi. Status `selesai` hanya dapat dicapai dari `disetujui`, dan setiap perubahan status mencatat petugas serta waktunya.
+
+Field `saldoNasabah` pada `GET /penarikan` adalah saldo tersedia nasabah saat daftar diambil (saldo dikurangi total pengajuan `diajukan` miliknya, termasuk pengajuan itu sendiri bila masih `diajukan`). Nilainya dihitung sekali per nasabah unik di halaman tersebut dan bernilai `null` bila akun nasabah tidak ditemukan. Field ini hanya untuk tampilan; keputusan akhir tetap di server saat memproses.
+
+Kode status galat endpoint `/penarikan` (badan respons tetap `{ message }`):
+
+| Kode | Kapan |
+| ---- | ----- |
+| 400  | Masukan tidak valid: `jumlah`, `metode`, data e-wallet, `keputusan`, alasan tolak kosong, ID tidak valid, filter `status`/tanggal salah, atau saldo (tersedia) tidak mencukupi |
+| 401  | Token tidak ada, tidak valid, atau kedaluwarsa |
+| 403  | Peran tidak berhak membuka endpoint |
+| 404  | Penarikan atau nasabah tidak ditemukan |
+| 409  | Status tidak sesuai: memproses penarikan yang bukan `diajukan`, atau menyelesaikan penarikan yang bukan `disetujui` |
+| 500  | Galat server tak terduga; pesan umum "Terjadi kesalahan pada server", detail hanya dicatat di log server |
 
 ## Autentikasi
 

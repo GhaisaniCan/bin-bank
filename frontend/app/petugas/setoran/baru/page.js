@@ -2,20 +2,16 @@
 
 import { Suspense, useEffect, useRef, useState } from "react"
 import Link from "next/link"
-import { MagnifyingGlass, UserSwitch } from "@phosphor-icons/react"
+import { MagnifyingGlass, UserSwitch, WarningOctagon } from "@phosphor-icons/react"
 import { useRouter, useSearchParams } from "next/navigation"
 import { formatRupiah } from "@/lib/format"
 import { formatBerat } from "@/components/TabelSetoran"
 import Tombol, { kelasTombol } from "@/components/Tombol"
 import PencarianNasabah from "@/components/PencarianNasabah"
+import PesanInline from "@/components/PesanInline"
 import { api } from "@/lib/api"
 
-const NASABAH_CONTOH = {
-  1: { nama: "Sari Wulandari", email: "sari@contoh.com" },
-  2: { nama: "Budi Santoso", email: "budi@contoh.com" },
-  3: { nama: "Sari Dewi", email: "saridewi@contoh.com" },
-  4: { nama: "Joko Prasetyo", email: "joko@contoh.com" },
-}
+const STATUS_TIDAK_DITEMUKAN = [400, 403, 404]
 
 function siapkanJenis(data) {
   return data
@@ -68,7 +64,12 @@ function FormSetoran() {
   const router = useRouter()
   const params = useSearchParams()
   const nasabahId = params.get("nasabah")
-  const nasabah = nasabahId ? NASABAH_CONTOH[nasabahId] : null
+  const [putaranNasabah, setPutaranNasabah] = useState(0)
+  const [hasilNasabah, setHasilNasabah] = useState({ id: null, putaran: -1, nasabah: null, tidakDitemukan: false, galat: false })
+  const nasabahTerkini = hasilNasabah.id === nasabahId && hasilNasabah.putaran === putaranNasabah
+  const nasabah = nasabahTerkini ? hasilNasabah.nasabah : null
+  const nasabahTidakDitemukan = nasabahTerkini && hasilNasabah.tidakDitemukan
+  const galatNasabah = nasabahTerkini && hasilNasabah.galat
 
   const kunci = useRef(1)
   const [baris, setBaris] = useState([{ kunci: 0, jenisId: "", berat: "" }])
@@ -77,6 +78,28 @@ function FormSetoran() {
   const [memuatJenis, setMemuatJenis] = useState(true)
   const [galatJenis, setGalatJenis] = useState(false)
   const [putaranJenis, setPutaranJenis] = useState(0)
+
+  // Data nasabah
+  useEffect(() => {
+    if (!nasabahId) return
+    let hidup = true
+    const dasar = { id: nasabahId, putaran: putaranNasabah, nasabah: null, tidakDitemukan: false, galat: false }
+    api(`/users/${encodeURIComponent(nasabahId)}`, { galatInline: true, aksesInline: true })
+      .then((respons) => {
+        if (!hidup) return
+        const data = respons?.data
+        if (!data) setHasilNasabah({ ...dasar, tidakDitemukan: true })
+        else setHasilNasabah({ ...dasar, nasabah: { nama: data.nama, email: data.email } })
+      })
+      .catch((err) => {
+        if (!hidup) return
+        const hilang = STATUS_TIDAK_DITEMUKAN.includes(err.status) && !err.data?.wajibGantiPassword
+        setHasilNasabah({ ...dasar, tidakDitemukan: hilang, galat: !hilang })
+      })
+    return () => {
+      hidup = false
+    }
+  }, [nasabahId, putaranNasabah])
 
   useEffect(() => {
     if (!nasabahId) return
@@ -188,14 +211,38 @@ function FormSetoran() {
     )
   }
 
-  if (!nasabah) {
+  const tautanCari = (
+    <Link href="/petugas/setoran/baru" className={`${kelasTombolNavigasi} mt-4`}>
+      <MagnifyingGlass size={20} weight="regular" aria-hidden="true" className="shrink-0" />
+      Cari nasabah
+    </Link>
+  )
+
+  if (nasabahTidakDitemukan) {
     return (
       <main className="pb-6">
         <h1 className="text-h1 font-bold text-forest-900">Nasabah tidak ditemukan</h1>
-        <Link href="/petugas/setoran/baru" className={`${kelasTombolNavigasi} mt-4`}>
-          <MagnifyingGlass size={20} weight="regular" aria-hidden="true" className="shrink-0" />
-          Cari nasabah
-        </Link>
+        {tautanCari}
+      </main>
+    )
+  }
+
+  if (!nasabah) {
+    return (
+      <main aria-busy={!galatNasabah || undefined} className="pb-6">
+        <h1 className="text-h1 font-bold text-forest-900">Setoran baru</h1>
+        {galatNasabah ? (
+          <PesanInline varian="galat" ikon={WarningOctagon} isi="Data belum bisa dimuat" className="mt-4">
+            <Tombol varian="sekunder" onClick={() => setPutaranNasabah((n) => n + 1)}>
+              Coba lagi
+            </Tombol>
+          </PesanInline>
+        ) : (
+          <p className="mt-4 text-body text-ink-700" role="status">
+            Memuat data nasabah…
+          </p>
+        )}
+        {tautanCari}
       </main>
     )
   }

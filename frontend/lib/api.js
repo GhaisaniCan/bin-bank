@@ -10,7 +10,7 @@ export class ApiError extends Error {
   }
 }
 
-export async function api(path, { method = "GET", body, tanpaRedirect = false, galatInline = false, aksesInline = false } = {}) {
+export async function api(path, { method = "GET", body, tanpaRedirect = false, galatInline = false, aksesInline = false, signal } = {}) {
   const headers = {}
   const token = ambilToken()
   if (token) headers.Authorization = `Bearer ${token}`
@@ -23,8 +23,10 @@ export async function api(path, { method = "GET", body, tanpaRedirect = false, g
       method,
       headers,
       body: body === undefined ? undefined : formData ? body : JSON.stringify(body),
+      signal,
     })
-  } catch {
+  } catch (err) {
+    if (signal?.aborted) throw err
     if (!tanpaRedirect && !galatInline) window.location.href = "/layanan-tidak-tersedia"
     throw new ApiError("Layanan tidak tersedia", 0)
   }

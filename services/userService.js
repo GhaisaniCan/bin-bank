@@ -115,6 +115,21 @@ async function daftarUser(pembuat, { role, cari, status, halaman, limit } = {}) 
   }
 }
 
+// Detail akun
+async function detailUser(pembuat, id) {
+  if (!mongoose.isValidObjectId(id)) {
+    throw new AppError("Id pengguna tidak valid", 400)
+  }
+
+  const user = await User.findById(id).select("nama email role aktif")
+  if (!user) throw new AppError("Pengguna tidak ditemukan", 404)
+  if (pembuat.role === "petugas" && user.role !== "nasabah") {
+    throw new AppError("Petugas hanya boleh melihat akun nasabah", 403)
+  }
+
+  return { _id: user._id, nama: user.nama, email: user.email, status: user.aktif === false ? "nonaktif" : "aktif" }
+}
+
 // Ubah status akun
 async function ubahStatus(pembuat, id, aktif) {
   if (!mongoose.isValidObjectId(id)) {
@@ -133,4 +148,4 @@ async function ubahStatus(pembuat, id, aktif) {
   return ringkas(user)
 }
 
-module.exports = { resetPassword, buatUser, daftarUser, ubahStatus }
+module.exports = { resetPassword, buatUser, daftarUser, detailUser, ubahStatus }

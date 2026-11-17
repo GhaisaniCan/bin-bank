@@ -1,23 +1,33 @@
 "use client"
 
 import { useState } from "react"
+import { WarningOctagon } from "@phosphor-icons/react"
 import Dialog from "@/components/Dialog"
+import PesanInline from "@/components/PesanInline"
 import Tombol from "@/components/Tombol"
 import { formatRupiah } from "@/lib/format"
 
-export default function DialogProses({ pengajuan: p, mode, onKonfirmasi, onTutup }) {
+export default function DialogProses({
+  pengajuan: p,
+  mode,
+  namaPetugas,
+  memproses = false,
+  terkirim = false,
+  pesan = "",
+  onKonfirmasi,
+  onTutup,
+}) {
   const [alasan, setAlasan] = useState("")
-  const [memproses, setMemproses] = useState(false)
 
   const setuju = mode === "setujui"
   const ewallet = p.metode?.toLowerCase() === "e-wallet"
-  const sisa = p.saldoNasabah - p.jumlah
-  const kurang = setuju && sisa < 0
+  const adaSaldo = typeof p.saldoNasabah === "number"
+  const kurang = setuju && adaSaldo && p.saldoNasabah < 0
   const alasanKosong = !setuju && alasan.trim() === ""
 
   function kirim() {
-    setMemproses(true)
-    setTimeout(() => onKonfirmasi(setuju ? {} : { alasan: alasan.trim() }), 700)
+    if (memproses || terkirim || alasanKosong) return
+    onKonfirmasi(setuju ? {} : { alasan: alasan.trim() })
   }
 
   return (
@@ -38,25 +48,27 @@ export default function DialogProses({ pengajuan: p, mode, onKonfirmasi, onTutup
           </dd>
         </div>
         {setuju && (
-          <>
-            <div>
-              <dt className="text-small text-ink-700">Saldo nasabah sekarang</dt>
-              <dd className="text-body tabular-nums">{formatRupiah(p.saldoNasabah)}</dd>
-            </div>
-            <div>
-              <dt className="text-small text-ink-700">Saldo setelah disetujui</dt>
-              <dd className="text-body font-bold tabular-nums">{kurang ? "-" : formatRupiah(sisa)}</dd>
-            </div>
-          </>
+          <div>
+            <dt className="text-small text-ink-700">Saldo tersedia nasabah</dt>
+            <dd className="text-body font-bold tabular-nums">{adaSaldo ? formatRupiah(p.saldoNasabah) : "-"}</dd>
+            <dd className="text-small text-ink-500">Sudah dikurangi pengajuan yang menunggu, termasuk pengajuan ini</dd>
+          </div>
+        )}
+        {namaPetugas && (
+          <div>
+            <dt className="text-small text-ink-700">Diproses oleh</dt>
+            <dd className="text-body">{namaPetugas}</dd>
+          </div>
         )}
       </dl>
 
       {kurang && (
         <p role="alert" className="mt-4 text-body font-bold text-bata-700">
-          Saldo nasabah kini {formatRupiah(p.saldoNasabah)}, kurang dari {formatRupiah(p.jumlah)}. Pengajuan tetap
-          menunggu.
+          Saldo tersedia nasabah kini {formatRupiah(p.saldoNasabah)}. Server akan menolak bila saldo tidak mencukupi.
         </p>
       )}
+
+      {pesan && <PesanInline varian="galat" ikon={WarningOctagon} isi={pesan} className="mt-4" />}
 
       {!setuju && (
         <div className="mt-4">
@@ -68,7 +80,7 @@ export default function DialogProses({ pengajuan: p, mode, onKonfirmasi, onTutup
             rows={3}
             value={alasan}
             onChange={(e) => setAlasan(e.target.value)}
-            disabled={memproses}
+            disabled={memproses || terkirim}
             className="mt-2 w-full rounded-2 border border-line-500 bg-putih px-3 py-3 text-body"
           />
           <p className="mt-2 text-small text-ink-500">
@@ -79,16 +91,16 @@ export default function DialogProses({ pengajuan: p, mode, onKonfirmasi, onTutup
 
       <div className="mt-5 flex flex-wrap gap-3">
         {setuju ? (
-          <Tombol varian="utama" disabled={kurang} memproses={memproses} onClick={kirim}>
+          <Tombol varian="utama" disabled={terkirim} memproses={memproses} onClick={kirim}>
             Setujui {formatRupiah(p.jumlah)}
           </Tombol>
         ) : (
-          <Tombol varian="merusak" disabled={alasanKosong} memproses={memproses} onClick={kirim}>
+          <Tombol varian="merusak" disabled={alasanKosong || terkirim} memproses={memproses} onClick={kirim}>
             Tolak pengajuan
           </Tombol>
         )}
         <Tombol varian="sekunder" disabled={memproses} onClick={onTutup}>
-          Batal
+          {terkirim && !memproses ? "Tutup" : "Batal"}
         </Tombol>
       </div>
     </Dialog>
