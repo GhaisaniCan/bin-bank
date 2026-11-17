@@ -166,11 +166,25 @@ async function catatSetoran({ nasabah, petugas, rincian, catatan }) {
   }
 }
 
-async function daftarSetoran({ nasabah, dari, sampai, status, halaman, limit } = {}) {
+function escapeRegex(teks) {
+  return teks.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
+async function daftarSetoran({ nasabah, cari, dari, sampai, status, halaman, limit } = {}) {
   const filter = {};
 
   if (nasabah) {
     filter.nasabah = pastikanObjectId(nasabah, "ID nasabah");
+  }
+
+  if (typeof cari === "string" && cari.trim()) {
+    const User = ambilModel("User");
+    const pola = new RegExp(escapeRegex(cari.trim()), "i");
+    const cocok = await User.find({ role: "nasabah", $or: [{ nama: pola }, { email: pola }] }).select("_id");
+    const daftarId = cocok.map((u) => u._id);
+    filter.nasabah = filter.nasabah
+      ? { $in: daftarId.filter((idNasabah) => String(idNasabah) === String(filter.nasabah)) }
+      : { $in: daftarId };
   }
 
   if (status) {
@@ -216,7 +230,7 @@ async function daftarSetoran({ nasabah, dari, sampai, status, halaman, limit } =
       .sort({ tanggal: -1, createdAt: -1 })
       .skip((halamanAktif - 1) * limitAktif)
       .limit(limitAktif)
-      .populate("nasabah", "nama")
+      .populate("nasabah", "nama email")
       .populate("petugas", "nama"),
     Setoran.countDocuments(filter),
   ]);
@@ -236,7 +250,7 @@ async function detailSetoran(setoranId, pengguna) {
   pastikanObjectId(setoranId, "ID setoran");
 
   const setoran = await Setoran.findById(setoranId)
-    .populate("nasabah", "nama")
+    .populate("nasabah", "nama email")
     .populate("petugas", "nama");
 
   if (!setoran) {

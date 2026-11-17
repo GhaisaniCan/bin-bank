@@ -66,9 +66,10 @@ async function catatSetoran(req, res) {
 
 async function daftarSetoran(req, res) {
   try {
-    const { nasabah, dari, sampai, status, halaman, limit } = req.query;
+    const { nasabah, cari, dari, sampai, status, halaman, limit } = req.query;
     const hasil = await setoranService.daftarSetoran({
       nasabah,
+      cari,
       dari,
       sampai,
       status,
