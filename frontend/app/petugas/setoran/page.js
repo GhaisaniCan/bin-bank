@@ -1,21 +1,13 @@
 "use client"
 
-import { useState } from "react"
+import { useCallback, useEffect, useState } from "react"
+import { WarningOctagon } from "@phosphor-icons/react"
 import TabelSetoran from "@/components/TabelSetoran"
 import Paginasi from "@/components/Paginasi"
+import PesanInline from "@/components/PesanInline"
 import Tombol from "@/components/Tombol"
 import IsianTanggal from "@/components/IsianTanggal"
-
-const NAMA = ["Sari Wulandari", "Budi Santoso", "Sari Dewi", "Joko Prasetyo"]
-
-const SETORAN_CONTOH = Array.from({ length: 12 }, (_, i) => ({
-  _id: `s${i + 1}`,
-  nasabah: { nama: NAMA[i % 4] },
-  tanggal: new Date(2026, 10, 13 - i, 10).toISOString(),
-  totalBerat: 2.5 + i * 0.75,
-  totalNilai: 12500 + i * 4000,
-  status: i === 2 ? "DIBATALKAN" : "TERCATAT",
-}))
+import { api } from "@/lib/api"
 
 const PER_HALAMAN = 5
 const KOSONG = { dari: "", sampai: "", kata: "" }
@@ -25,31 +17,55 @@ function kelasIsian(salah) {
   return `${dasarIsian} ${salah ? "border-2 border-bata-700" : "border border-line-500"}`
 }
 
-function tanggalLokal(iso) {
-  const d = new Date(iso)
-  const p = (n) => String(n).padStart(2, "0")
-  return `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())}`
-}
-
 export default function Halaman() {
   const [halaman, setHalaman] = useState(1)
   const [isian, setIsian] = useState(KOSONG)
   const [filter, setFilter] = useState(KOSONG)
   const [galat, setGalat] = useState("")
+  const [daftar, setDaftar] = useState([])
+  const [paginasi, setPaginasi] = useState(null)
+  const [memuat, setMemuat] = useState(true)
+  const [galatBaca, setGalatBaca] = useState(false)
+  const [putaran, setPutaran] = useState(0)
 
-  const q = filter.kata.trim().toLowerCase()
+  const q = filter.kata.trim()
   const aktif = Boolean(filter.dari || filter.sampai || q)
+  const totalHalaman = Math.max(1, paginasi?.totalHalaman ?? 1)
 
-  const hasil = SETORAN_CONTOH.filter((s) => {
-    const tgl = tanggalLokal(s.tanggal)
-    if (filter.dari && tgl < filter.dari) return false
-    if (filter.sampai && tgl > filter.sampai) return false
-    if (q && !s.nasabah.nama.toLowerCase().includes(q)) return false
-    return true
-  })
+  // Data
+  useEffect(() => {
+    let hidup = true
+    const kueri = new URLSearchParams({ halaman: String(halaman), limit: String(PER_HALAMAN) })
+    if (filter.dari) kueri.set("dari", filter.dari)
+    if (filter.sampai) kueri.set("sampai", filter.sampai)
+    if (q) kueri.set("cari", q)
+    api(`/setoran?${kueri}`, { galatInline: true })
+      .then((hasil) => {
+        if (!hidup) return
+        setDaftar(hasil?.data ?? [])
+        setPaginasi(hasil?.paginasi ?? null)
+        setGalatBaca(false)
+      })
+      .catch(() => {
+        if (hidup) setGalatBaca(true)
+      })
+      .finally(() => {
+        if (hidup) setMemuat(false)
+      })
+    return () => {
+      hidup = false
+    }
+  }, [filter.dari, filter.sampai, q, halaman, putaran])
 
-  const totalHalaman = Math.max(1, Math.ceil(hasil.length / PER_HALAMAN))
-  const tampil = hasil.slice((halaman - 1) * PER_HALAMAN, halaman * PER_HALAMAN)
+  const muatUlang = useCallback(() => {
+    setMemuat(true)
+    setPutaran((n) => n + 1)
+  }, [])
+
+  function gantiHalaman(h) {
+    setMemuat(true)
+    setHalaman(h)
+  }
 
   function terapkan(e) {
     e.preventDefault()
@@ -60,6 +76,7 @@ export default function Halaman() {
     setGalat("")
     setFilter(isian)
     setHalaman(1)
+    muatUlang()
   }
 
   function hapus() {
@@ -67,6 +84,7 @@ export default function Halaman() {
     setFilter(KOSONG)
     setGalat("")
     setHalaman(1)
+    muatUlang()
   }
 
   return (
@@ -129,8 +147,18 @@ export default function Halaman() {
         </div>
       </form>
 
-      <div className="mt-6">
-        {hasil.length === 0 ? (
+      <div aria-busy={memuat || undefined} className="mt-6">
+        {galatBaca && !memuat ? (
+          <PesanInline varian="galat" ikon={WarningOctagon} isi="Data belum bisa dimuat">
+            <Tombol varian="sekunder" onClick={muatUlang}>
+              Coba lagi
+            </Tombol>
+          </PesanInline>
+        ) : memuat && !paginasi ? (
+          <p className="text-body text-ink-700" role="status">
+            Memuat setoran…
+          </p>
+        ) : daftar.length === 0 ? (
           <div>
             <h2 className="text-h3 font-bold">
               {aktif ? "Tidak ada setoran yang cocok dengan filter" : "Belum ada setoran"}
@@ -143,8 +171,8 @@ export default function Halaman() {
           </div>
         ) : (
           <>
-            <TabelSetoran baris={tampil} />
-            <Paginasi halaman={halaman} totalHalaman={totalHalaman} onUbah={setHalaman} />
+            <TabelSetoran baris={daftar} />
+            <Paginasi halaman={halaman} totalHalaman={totalHalaman} onUbah={gantiHalaman} nonaktif={memuat} />
           </>
         )}
       </div>
