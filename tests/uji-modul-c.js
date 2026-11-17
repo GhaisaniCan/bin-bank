@@ -572,6 +572,27 @@ async function main() {
     await new Promise((selesaiTutup) => server.close(selesaiTutup));
   }
 
+  console.log("\nDetail setoran yang dibatalkan");
+
+  await cek("detail setoran dibatalkan memuat nama admin pembatal saja", async () => {
+    const adminBatal = await User.create({ nama: "Admin Pembatal", email: "pembatal@mail.com", password: "hash", role: "admin" });
+    const { setoran } = await setoranService.catatSetoran({
+      nasabah: nasabah._id,
+      petugas: petugas._id,
+      rincian: [{ jenisSampah: pet._id, berat: 1 }],
+    });
+    await setoranService.batalkanSetoran(setoran._id, "Salah timbang", adminBatal._id);
+
+    const hasil = (await setoranService.detailSetoran(setoran._id, { role: "admin" })).toObject();
+    harus(hasil.status === "DIBATALKAN", `status ${hasil.status} bukan DIBATALKAN`);
+    harus(hasil.dibatalkanOleh && hasil.dibatalkanOleh.nama === "Admin Pembatal", "dibatalkanOleh tidak dipopulasi");
+    harus(Object.keys(hasil.dibatalkanOleh).sort().join(",") === "_id,nama", `field berlebih: ${Object.keys(hasil.dibatalkanOleh)}`);
+    harus(hasil.alasanBatal === "Salah timbang" && hasil.dibatalkanPada, "alasan atau waktu batal hilang");
+
+    const tercatat = await setoranService.detailSetoran(setoranPertama._id, { role: "admin" });
+    harus(!tercatat.dibatalkanOleh, "setoran TERCATAT memiliki dibatalkanOleh");
+  });
+
   console.log(`\nHasil: ${lulus} lulus, ${gagal} gagal\n`);
 
   await mongoose.disconnect();
