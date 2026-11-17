@@ -273,3 +273,6 @@ Untuk menjaga konsistensi dan keteraturan proses pengembangan, setiap anggota ke
 
 ## Link Web App
 [BinBank](https://binbank-gamma.vercel.app/)
+
+## Link Video Demo
+[Video Demo](https://drive.google.com/file/d/1wX3tjqiVlUIIksm0PzB90A3fToddFiw6/view?usp=sharing)
