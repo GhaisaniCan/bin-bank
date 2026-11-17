@@ -2,10 +2,11 @@
 
 import { useCallback, useEffect, useState } from "react"
 import Link from "next/link"
-import { MagnifyingGlass, WarningOctagon } from "@phosphor-icons/react"
+import { MagnifyingGlass, UsersThree, WarningOctagon } from "@phosphor-icons/react"
 import { useParams } from "next/navigation"
 import { formatRupiah } from "@/lib/format"
 import { api } from "@/lib/api"
+import { ambilPeran } from "@/lib/auth"
 import TabelMutasi, { SkeletonMutasi } from "@/components/TabelMutasi"
 import Paginasi from "@/components/Paginasi"
 import PesanInline from "@/components/PesanInline"
@@ -62,6 +63,7 @@ function GalatMuat({ onCobaLagi, className = "" }) {
 
 export default function Halaman() {
   const { id } = useParams()
+  const admin = ambilPeran() === "admin"
   const [halaman, setHalaman] = useState(1)
   const [putaran, setPutaran] = useState(0)
   const [hasil, setHasil] = useState(HASIL_AWAL)
@@ -112,10 +114,17 @@ export default function Halaman() {
       <main className="pb-6">
         <h1 className="text-h1 font-bold text-forest-900">Nasabah tidak ditemukan</h1>
         <p className="mt-2 text-body text-ink-700">Periksa kembali, atau cari nasabah lain.</p>
-        <Link href="/petugas/setoran/baru" className={`${kelasTombolNavigasi} mt-4`}>
-          <MagnifyingGlass size={20} weight="regular" aria-hidden="true" className="shrink-0" />
-          Cari nasabah
-        </Link>
+        {admin ? (
+          <Link href="/admin/kelola/pengguna" className={`${kelasTombolNavigasi} mt-4`}>
+            <UsersThree size={20} weight="regular" aria-hidden="true" className="shrink-0" />
+            Kelola pengguna
+          </Link>
+        ) : (
+          <Link href="/petugas/setoran/baru" className={`${kelasTombolNavigasi} mt-4`}>
+            <MagnifyingGlass size={20} weight="regular" aria-hidden="true" className="shrink-0" />
+            Cari nasabah
+          </Link>
+        )}
       </main>
     )
   }
@@ -143,12 +152,14 @@ export default function Halaman() {
     <main className="pb-6">
       <h1 className="text-h1 font-bold text-forest-900">{nasabah.nama}</h1>
       <p className="mt-2 text-small text-ink-700">{nasabah.email}</p>
-      <Link
-        href={`/petugas/setoran/baru?nasabah=${id}`}
-        className="mt-4 inline-flex h-7 w-full min-w-[96px] items-center justify-center rounded-2 bg-olive-700 px-4 text-body font-bold text-putih hover:bg-olive-800 active:bg-olive-800 hover-tombol min-[600px]:w-auto"
-      >
-        Catat setoran untuk nasabah ini
-      </Link>
+      {!admin && (
+        <Link
+          href={`/petugas/setoran/baru?nasabah=${id}`}
+          className="mt-4 inline-flex h-7 w-full min-w-[96px] items-center justify-center rounded-2 bg-olive-700 px-4 text-body font-bold text-putih hover:bg-olive-800 active:bg-olive-800 hover-tombol min-[600px]:w-auto"
+        >
+          Catat setoran untuk nasabah ini
+        </Link>
+      )}
 
       <section
         aria-labelledby="judul-saldo"

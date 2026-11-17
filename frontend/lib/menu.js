@@ -12,5 +12,5 @@ export const MENU_ADMIN = [
   { label: "Setoran", href: "/petugas/setoran", ikon: Receipt },
   { label: "Penarikan", href: "/petugas/penarikan", ikon: Money },
   { label: "Laporan", href: "/admin/laporan", ikon: ChartBar },
-  { label: "Kelola", href: "/admin/kelola", ikon: Gear },
+  { label: "Kelola", href: "/admin/kelola", ikon: Gear, awalanLain: ["/petugas/nasabah/"] },
 ]

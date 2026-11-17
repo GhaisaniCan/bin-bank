@@ -2,7 +2,8 @@
 
 import { useCallback, useEffect, useState } from "react"
 import Link from "next/link"
-import { CheckCircle, MagnifyingGlass, Prohibit, WarningOctagon, WifiSlash } from "@phosphor-icons/react"
+import { useRouter } from "next/navigation"
+import { CheckCircle, IdentificationCard, MagnifyingGlass, Prohibit, WarningOctagon, WifiSlash } from "@phosphor-icons/react"
 import { api } from "@/lib/api"
 import { ambilUser } from "@/lib/auth"
 import { useDaring } from "@/lib/koneksi"
@@ -39,6 +40,7 @@ function rapikan(user) {
 
 // Aksi baris
 function AksiBaris({ user, diriSendiri, daring, onReset, onStatus }) {
+  const router = useRouter()
   return (
     <div className="flex items-center justify-end gap-2">
       <Tombol varian="sekunder" ukuran="ringkas" disabled={!daring} onClick={() => onReset(user)}>
@@ -51,6 +53,15 @@ function AksiBaris({ user, diriSendiri, daring, onReset, onStatus }) {
           label={`Aksi lainnya untuk ${user.nama}`}
           disabled={!daring}
           item={[
+            ...(user.role === "nasabah"
+              ? [
+                  {
+                    label: "Lihat profil dan saldo",
+                    ikon: IdentificationCard,
+                    onPilih: () => router.push(`/petugas/nasabah/${user.id}`),
+                  },
+                ]
+              : []),
             user.aktif
               ? { label: "Nonaktifkan", ikon: Prohibit, bahaya: true, onPilih: () => onStatus(user) }
               : { label: "Aktifkan", ikon: CheckCircle, onPilih: () => onStatus(user) },
@@ -65,7 +76,16 @@ function NamaAkun({ user, diriSendiri }) {
   return (
     <>
       <span className="block font-bold break-words">
-        {user.nama}
+        {user.role === "nasabah" ? (
+          <Link
+            href={`/petugas/nasabah/${user.id}`}
+            className="font-bold text-olive-700 underline decoration-1 hover:text-olive-800"
+          >
+            {user.nama}
+          </Link>
+        ) : (
+          user.nama
+        )}
         {diriSendiri && <span className="font-normal text-ink-700"> (Anda)</span>}
       </span>
       <span className="block text-small text-ink-700 break-all">{user.email}</span>

@@ -5,6 +5,7 @@ import Link from "next/link"
 import { usePathname } from "next/navigation"
 
 function cocok(pathname, item, daftar) {
+  if (item.awalanLain?.some((awalan) => pathname.startsWith(awalan))) return true
   const beranda = daftar.some((lain) => lain !== item && lain.href.startsWith(item.href + "/"))
   if (beranda) return pathname === item.href
   return pathname === item.href || pathname.startsWith(item.href + "/")
