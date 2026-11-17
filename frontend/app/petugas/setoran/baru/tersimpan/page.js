@@ -1,17 +1,38 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useEffect, useMemo, useSyncExternalStore } from "react"
 import Link from "next/link"
-import { ArrowRight, MagnifyingGlass } from "@phosphor-icons/react"
+import { useRouter } from "next/navigation"
 import CapStatus from "@/components/CapStatus"
 import LembarSetoran from "@/components/LembarSetoran"
-import { kelasTombol } from "@/components/Tombol"
 import { ambilUser } from "@/lib/auth"
 import { formatRupiah } from "@/lib/format"
 
+const KUNCI_DRAF = "binbank_draf_setoran"
 const KUNCI_HASIL = "binbank_hasil_setoran"
 
-const kelasTombolNavigasi = `${kelasTombol({ varian: "sekunder", ukuran: "ringkas", tebal: "font-normal" })} gap-2 hover:bg-olive-50 active:bg-olive-50`
+function petakan(hasil) {
+  const data = hasil?.setoran
+  if (!data?._id || !Array.isArray(data.rincian) || !Number.isFinite(hasil.saldoTerkini)) return null
+  return {
+    nasabahId: String(data.nasabah?._id ?? data.nasabah ?? ""),
+    saldoTerkini: hasil.saldoTerkini,
+    setoran: {
+      nasabah: { nama: data.nasabah?.nama ?? "", email: hasil.emailNasabah ?? "" },
+      petugas: { nama: data.petugas?.nama ?? ambilUser()?.nama ?? "" },
+      tanggal: data.tanggal,
+      rincian: data.rincian.map((r) => ({
+        nama: r.namaSampah,
+        harga: r.hargaPerKg,
+        berat: r.berat,
+        subtotal: r.subtotal,
+      })),
+      totalBerat: data.totalBerat,
+      totalNilai: data.totalNilai,
+      status: data.status,
+    },
+  }
+}
 
 const kelasUtama =
   "inline-flex h-7 w-full min-w-[96px] items-center justify-center rounded-2 bg-olive-700 px-4 text-body font-bold text-putih hover:bg-olive-800 active:bg-olive-800 hover-tombol min-[600px]:w-auto"
@@ -19,48 +40,52 @@ const kelasUtama =
 const kelasSekunder =
   "inline-flex h-7 w-full min-w-[96px] items-center justify-center rounded-2 border border-line-500 bg-putih px-4 text-body font-bold text-ink-900 hover:bg-olive-50 active:bg-olive-50 hover-tombol min-[600px]:w-auto"
 
+function tanpaLangganan() {
+  return () => {}
+}
+
+function hasilSesi() {
+  try {
+    return sessionStorage.getItem(KUNCI_HASIL)
+  } catch {
+    return null
+  }
+}
+
+function hasilServer() {
+  return undefined
+}
+
 export default function Halaman() {
-  const [hasil, setHasil] = useState(undefined)
-
-  useEffect(() => {
+  const router = useRouter()
+  const mentah = useSyncExternalStore(tanpaLangganan, hasilSesi, hasilServer)
+  const hasil = useMemo(() => {
+    if (mentah === undefined) return undefined
     try {
-      setHasil(JSON.parse(sessionStorage.getItem(KUNCI_HASIL)))
+      return petakan(JSON.parse(mentah))
     } catch {
-      setHasil(null)
+      return null
     }
-  }, [])
+  }, [mentah])
 
-  if (hasil === undefined) return null
+  // Bersihkan draf
+  useEffect(() => {
+    if (hasil === undefined) return
+    try {
+      sessionStorage.removeItem(KUNCI_DRAF)
+    } catch {}
+    if (!hasil) router.replace("/petugas/setoran/baru")
+  }, [hasil, router])
 
-  if (!hasil) {
-    return (
-      <main className="pb-6">
-        <h1 className="text-h1 font-bold text-forest-900">Tidak ada setoran yang baru disimpan</h1>
-        <div className="mt-4 flex flex-wrap items-center gap-3">
-          <Link href="/petugas/setoran/baru" className={kelasTombolNavigasi}>
-            <MagnifyingGlass size={20} weight="regular" aria-hidden="true" className="shrink-0" />
-            Cari nasabah
-          </Link>
-          <Link href="/petugas/setoran" className={kelasTombolNavigasi}>
-            Lihat daftar setoran
-            <ArrowRight size={20} weight="regular" aria-hidden="true" className="shrink-0" />
-          </Link>
-        </div>
-      </main>
-    )
-  }
+  if (!hasil) return null
 
-  const setoran = {
-    ...hasil,
-    petugas: { nama: ambilUser()?.nama ?? "Petugas" },
-    status: "TERCATAT",
-  }
+  const { setoran } = hasil
 
   return (
     <main className="pb-6">
       <div className="flex flex-wrap items-center gap-3">
         <h1 className="text-h1 font-bold text-forest-900">Setoran tersimpan</h1>
-        <CapStatus status="TERCATAT" />
+        <CapStatus status={setoran.status ?? "TERCATAT"} />
       </div>
 
       <div className="mt-6">
@@ -71,8 +96,8 @@ export default function Halaman() {
         aria-label="Saldo baru nasabah"
         className="mt-4 rounded-2 border border-line-300 bg-putih p-4 min-[600px]:p-5"
       >
-        <p className="text-body text-ink-700">Saldo baru {hasil.nasabah.nama}</p>
-        <p className="mt-1 text-display font-bold tabular-nums">{formatRupiah(hasil.saldoBaru)}</p>
+        <p className="text-body text-ink-700">Saldo baru {setoran.nasabah.nama}</p>
+        <p className="mt-1 text-display font-bold tabular-nums">{formatRupiah(hasil.saldoTerkini)}</p>
       </section>
 
       <div className="mt-5 flex flex-col gap-4 min-[600px]:flex-row">
@@ -83,7 +108,7 @@ export default function Halaman() {
         >
           Catat setoran berikutnya
         </Link>
-        <Link href={`/petugas/nasabah/${hasil.nasabahId}`} className={kelasSekunder}>
+        <Link href={`/petugas/nasabah/${encodeURIComponent(hasil.nasabahId)}`} className={kelasSekunder}>
           Lihat riwayat nasabah
         </Link>
       </div>
