@@ -27,6 +27,15 @@ const kelasBentuk = {
   bulat: "rounded-full",
 }
 
+export function kelasTombol({ varian = "utama", ukuran = "biasa", bentuk = "biasa", tebal, nonaktif = false } = {}) {
+  const kelas = nonaktif ? kelasNonaktif[varian] : kelasVarian[varian]
+  const lebarMin = ukuran === "biasa" && varian !== "teks" ? "min-w-[96px]" : ""
+  const sudut = kelasBentuk[ukuran === "biasa" ? bentuk : "bulat"]
+  const padding = varian === "teks" ? "px-2" : ukuran === "pil" ? "px-5" : "px-4"
+  const bobot = tebal ?? (varian === "sukses" || varian === "bahaya" ? "font-medium" : "font-bold")
+  return `inline-flex shrink-0 items-center justify-center text-body ${bobot} ${kelasUkuran[ukuran]} ${sudut} ${lebarMin} ${padding} ${kelas} ${varian === "teks" ? "" : "hover-tombol"}`
+}
+
 export default function Tombol({
   varian = "utama",
   ukuran = "biasa",
@@ -39,19 +48,14 @@ export default function Tombol({
   children,
   ...rest
 }) {
-  const tampilNonaktif = disabled && !memproses
-  const kelas = tampilNonaktif ? kelasNonaktif[varian] : kelasVarian[varian]
-  const lebarMin = ukuran === "biasa" && varian !== "teks" ? "min-w-[96px]" : ""
-  const sudut = kelasBentuk[ukuran === "biasa" ? bentuk : "bulat"]
-  const padding = varian === "teks" ? "px-2" : ukuran === "pil" ? "px-5" : "px-4"
-  const tebal = varian === "sukses" || varian === "bahaya" ? "font-medium" : "font-bold"
+  const nonaktif = disabled && !memproses
 
   return (
     <button
       type={type}
       disabled={disabled || memproses}
       aria-busy={memproses || undefined}
-      className={`inline-flex shrink-0 items-center justify-center text-body ${tebal} ${kelasUkuran[ukuran]} ${sudut} ${lebarMin} ${padding} ${kelas} ${varian === "teks" ? "" : "hover-tombol"} ${className}`}
+      className={`${kelasTombol({ varian, ukuran, bentuk, nonaktif })} ${className}`}
       {...rest}
     >
       {memproses ? teksMemproses : children}

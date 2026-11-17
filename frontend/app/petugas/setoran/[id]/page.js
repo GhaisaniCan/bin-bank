@@ -4,12 +4,12 @@ import { useParams } from "next/navigation"
 import Link from "next/link"
 import CapStatus from "@/components/CapStatus"
 import LembarSetoran from "@/components/LembarSetoran"
-import { Prohibit } from "@phosphor-icons/react"
+import { ArrowLeft, Prohibit } from "@phosphor-icons/react"
 import PesanInline from "@/components/PesanInline"
+import { kelasTombol } from "@/components/Tombol"
 import { formatJam, formatTanggal } from "@/lib/format"
 
-const kelasTautan =
-  "inline-flex min-h-7 items-center text-body text-olive-700 underline decoration-1 hover:decoration-2"
+const kelasTombolKembali = `${kelasTombol({ varian: "sekunder", ukuran: "ringkas", tebal: "font-normal" })} w-full gap-2 hover:bg-olive-50 active:bg-olive-50 min-[600px]:w-auto`
 
 function contoh(id) {
   if (!/^s([1-9]|1[0-2])$/.test(id)) return null
@@ -40,7 +40,8 @@ export default function Halaman() {
     return (
       <main className="pb-6">
         <h1 className="text-h1 font-bold text-forest-900">Setoran tidak ditemukan</h1>
-        <Link href="/petugas/setoran" className={`${kelasTautan} mt-4`}>
+        <Link href="/petugas/setoran" className={`${kelasTombolKembali} mt-4`}>
+          <ArrowLeft size={20} weight="regular" aria-hidden="true" className="shrink-0" />
           Kembali ke daftar setoran
         </Link>
       </main>
@@ -65,7 +66,8 @@ export default function Halaman() {
       <div className="mt-6">
         <LembarSetoran setoran={setoran} />
       </div>
-      <Link href="/petugas/setoran" className={`${kelasTautan} mt-4`}>
+      <Link href="/petugas/setoran" className={`${kelasTombolKembali} mt-4`}>
+        <ArrowLeft size={20} weight="regular" aria-hidden="true" className="shrink-0" />
         Kembali ke daftar setoran
       </Link>
     </main>

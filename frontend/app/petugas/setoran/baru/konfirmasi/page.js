@@ -3,17 +3,16 @@
 import { useEffect, useState } from "react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
-import { Warning } from "@phosphor-icons/react"
+import { MagnifyingGlass, Warning } from "@phosphor-icons/react"
 import PesanInline from "@/components/PesanInline"
-import Tombol from "@/components/Tombol"
+import Tombol, { kelasTombol } from "@/components/Tombol"
 import { formatBerat } from "@/components/TabelSetoran"
 import { formatRupiah } from "@/lib/format"
 
 const KUNCI_DRAF = "binbank_draf_setoran"
 const KUNCI_HASIL = "binbank_hasil_setoran"
 
-const kelasTautan =
-  "inline-flex min-h-7 items-center text-body text-olive-700 underline decoration-1 hover:decoration-2"
+const kelasTombolNavigasi = `${kelasTombol({ varian: "sekunder", ukuran: "ringkas", tebal: "font-normal" })} gap-2 hover:bg-olive-50 active:bg-olive-50`
 
 export default function Halaman() {
   const router = useRouter()
@@ -35,7 +34,8 @@ export default function Halaman() {
       <main className="pb-6">
         <h1 className="text-h1 font-bold text-forest-900">Tidak ada setoran yang sedang disiapkan</h1>
         <p className="mt-2 text-body text-ink-700">Mulai dari memilih nasabah.</p>
-        <Link href="/petugas/cari-nasabah" className={`${kelasTautan} mt-4`}>
+        <Link href="/petugas/setoran/baru" className={`${kelasTombolNavigasi} mt-4`}>
+          <MagnifyingGlass size={20} weight="regular" aria-hidden="true" className="shrink-0" />
           Cari nasabah
         </Link>
       </main>

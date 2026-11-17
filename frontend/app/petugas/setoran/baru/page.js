@@ -2,10 +2,13 @@
 
 import { Suspense, useEffect, useRef, useState } from "react"
 import Link from "next/link"
+import { MagnifyingGlass, UserSwitch } from "@phosphor-icons/react"
 import { useRouter, useSearchParams } from "next/navigation"
 import { formatRupiah } from "@/lib/format"
 import { formatBerat } from "@/components/TabelSetoran"
-import Tombol from "@/components/Tombol"
+import Tombol, { kelasTombol } from "@/components/Tombol"
+import PencarianNasabah from "@/components/PencarianNasabah"
+import { api } from "@/lib/api"
 
 const NASABAH_CONTOH = {
   1: { nama: "Sari Wulandari", email: "sari@contoh.com" },
@@ -14,18 +17,17 @@ const NASABAH_CONTOH = {
   4: { nama: "Joko Prasetyo", email: "joko@contoh.com" },
 }
 
-const JENIS_CONTOH = [
-  { id: "j1", nama: "Botol plastik", hargaPerKg: 2500 },
-  { id: "j2", nama: "Kardus", hargaPerKg: 2000 },
-  { id: "j3", nama: "Kaleng", hargaPerKg: 5000 },
-  { id: "j4", nama: "Kertas", hargaPerKg: 1500 },
-  { id: "j5", nama: "Botol kaca", hargaPerKg: 1000 },
-]
+function siapkanJenis(data) {
+  return data
+    .filter((j) => j.aktif !== false)
+    .map((j) => ({ id: String(j._id), nama: j.nama, hargaPerKg: j.hargaPerKg ?? j.harga_per_kg }))
+    .filter((j) => Number.isFinite(j.hargaPerKg))
+    .sort((a, b) => a.nama.localeCompare(b.nama, "id"))
+}
 
 const KUNCI_DRAF = "binbank_draf_setoran"
 
-const kelasTautan =
-  "inline-flex min-h-7 items-center text-body text-olive-700 underline decoration-1 hover:decoration-2"
+const kelasTombolNavigasi = `${kelasTombol({ varian: "sekunder", ukuran: "ringkas", tebal: "font-normal" })} gap-2 hover:bg-olive-50 active:bg-olive-50`
 
 function kelasKotak(salah) {
   return salah ? "border-2 border-bata-700" : "border border-line-500"
@@ -46,9 +48,9 @@ function ambilBerat(teks) {
   return Math.round(Number(t.replace(",", ".")) * 100) / 100
 }
 
-function hitung(baris) {
+function hitung(baris, daftarJenis) {
   const rincian = baris.map((b) => {
-    const jenis = JENIS_CONTOH.find((j) => j.id === b.jenisId)
+    const jenis = daftarJenis.find((j) => j.id === b.jenisId)
     const berat = ambilBerat(b.berat)
     const sah = jenis && berat !== null && berat > 0
     return {
@@ -71,6 +73,35 @@ function FormSetoran() {
   const kunci = useRef(1)
   const [baris, setBaris] = useState([{ kunci: 0, jenisId: "", berat: "" }])
   const [galat, setGalat] = useState({})
+  const [daftarJenis, setDaftarJenis] = useState([])
+  const [memuatJenis, setMemuatJenis] = useState(true)
+  const [galatJenis, setGalatJenis] = useState(false)
+  const [putaranJenis, setPutaranJenis] = useState(0)
+
+  useEffect(() => {
+    if (!nasabahId) return
+    let aktif = true
+    api("/jenis-sampah", { galatInline: true })
+      .then((hasil) => {
+        if (!aktif) return
+        setDaftarJenis(siapkanJenis(hasil.data ?? []))
+        setGalatJenis(false)
+      })
+      .catch(() => {
+        if (aktif) setGalatJenis(true)
+      })
+      .finally(() => {
+        if (aktif) setMemuatJenis(false)
+      })
+    return () => {
+      aktif = false
+    }
+  }, [nasabahId, putaranJenis])
+
+  function muatUlangJenis() {
+    setMemuatJenis(true)
+    setPutaranJenis((n) => n + 1)
+  }
 
   useEffect(() => {
     try {
@@ -81,7 +112,7 @@ function FormSetoran() {
     } catch {}
   }, [nasabahId])
 
-  const { rincian, totalBerat, totalNilai } = hitung(baris)
+  const { rincian, totalBerat, totalNilai } = hitung(baris, daftarJenis)
 
   function ubah(kunciBaris, medan, nilai) {
     setBaris((lama) => lama.map((b) => (b.kunci === kunciBaris ? { ...b, [medan]: nilai } : b)))
@@ -145,11 +176,14 @@ function FormSetoran() {
   if (!nasabahId) {
     return (
       <main className="pb-6">
-        <h1 className="text-h1 font-bold text-forest-900">Setoran untuk siapa?</h1>
-        <p className="mt-2 text-body text-ink-700">Pilih nasabah dulu sebelum mencatat setoran.</p>
-        <Link href="/petugas/cari-nasabah" className={`${kelasTautan} mt-4`}>
-          Cari nasabah
-        </Link>
+        <h1 className="text-h1 font-bold text-forest-900">Catat Setoran</h1>
+        <p className="mt-2 text-body text-ink-700">Cari nasabah, lalu catat setorannya.</p>
+        <div className="mt-5 max-w-[640px]">
+          <PencarianNasabah
+            hrefPilih={(id) => `/petugas/setoran/baru?nasabah=${id}`}
+            hrefProfil={(id) => `/petugas/nasabah/${id}`}
+          />
+        </div>
       </main>
     )
   }
@@ -158,7 +192,8 @@ function FormSetoran() {
     return (
       <main className="pb-6">
         <h1 className="text-h1 font-bold text-forest-900">Nasabah tidak ditemukan</h1>
-        <Link href="/petugas/cari-nasabah" className={`${kelasTautan} mt-4`}>
+        <Link href="/petugas/setoran/baru" className={`${kelasTombolNavigasi} mt-4`}>
+          <MagnifyingGlass size={20} weight="regular" aria-hidden="true" className="shrink-0" />
           Cari nasabah
         </Link>
       </main>
@@ -174,10 +209,20 @@ function FormSetoran() {
           <p className="text-body font-bold">{nasabah.nama}</p>
           <p className="text-small text-ink-700">{nasabah.email}</p>
         </div>
-        <Link href="/petugas/cari-nasabah" className={kelasTautan}>
+        <Link href="/petugas/setoran/baru" className={`${kelasTombolNavigasi} ml-auto`}>
+          <UserSwitch size={20} weight="regular" aria-hidden="true" className="shrink-0" />
           Ganti
         </Link>
       </div>
+
+      {galatJenis && (
+        <div role="alert" className="mt-4 flex flex-wrap items-center gap-x-3 gap-y-1">
+          <p className="text-small font-bold text-bata-700">Daftar jenis sampah belum bisa dimuat</p>
+          <Tombol varian="teks" onClick={muatUlangJenis}>
+            Coba lagi
+          </Tombol>
+        </div>
+      )}
 
       <ul className="mt-4 flex flex-col gap-4">
         {baris.map((b, i) => {
@@ -192,12 +237,13 @@ function FormSetoran() {
                 id={`jenis-${b.kunci}`}
                 value={b.jenisId}
                 onChange={(ev) => ubah(b.kunci, "jenisId", ev.target.value)}
+                disabled={memuatJenis}
                 aria-invalid={e.jenis ? "true" : "false"}
                 aria-describedby={e.jenis ? `galat-jenis-${b.kunci}` : undefined}
                 className={`mt-2 h-7 w-full rounded-2 bg-putih px-3 text-body ${kelasKotak(e.jenis)}`}
               >
-                <option value="">Pilih jenis sampah</option>
-                {JENIS_CONTOH.map((j) => (
+                <option value="">{memuatJenis ? "Memuat jenis sampah..." : "Pilih jenis sampah"}</option>
+                {daftarJenis.map((j) => (
                   <option key={j.id} value={j.id}>
                     {j.nama}, {formatRupiah(j.hargaPerKg)} per kg
                   </option>
