@@ -40,6 +40,7 @@ export default function Tombol({
   varian = "utama",
   ukuran = "biasa",
   bentuk = "biasa",
+  tebal,
   type = "button",
   memproses = false,
   teksMemproses = "Memproses...",
@@ -55,7 +56,7 @@ export default function Tombol({
       type={type}
       disabled={disabled || memproses}
       aria-busy={memproses || undefined}
-      className={`${kelasTombol({ varian, ukuran, bentuk, nonaktif })} ${className}`}
+      className={`${kelasTombol({ varian, ukuran, bentuk, tebal, nonaktif })} ${className}`}
       {...rest}
     >
       {memproses ? teksMemproses : children}

@@ -251,7 +251,8 @@ async function detailSetoran(setoranId, pengguna) {
 
   const setoran = await Setoran.findById(setoranId)
     .populate("nasabah", "nama email")
-    .populate("petugas", "nama");
+    .populate("petugas", "nama")
+    .populate("dibatalkanOleh", "nama");
 
   if (!setoran) {
     throw new AppError("Setoran tidak ditemukan", 404);

@@ -207,7 +207,7 @@ Buku besar mutasi keuangan (ACID Transaction) yang tidak bisa dihapus.
 | ------ | --------------------- | ------------------------------------------------------------------------------------------ | --------------------------------------------- |
 | POST   | `/setoran`            | Mencatat setoran nasabah baru (tanggal diisi otomatis oleh server)                         | **Petugas**                                   |
 | GET    | `/setoran`            | Daftar riwayat setoran (filter `nasabah`, `cari` nama atau email nasabah, `dari`, `sampai`, `status`, `halaman`, `limit`; `dari` tidak boleh setelah `sampai`) | **Petugas**, **Admin** |
-| GET    | `/setoran/:id`        | Melihat detail rincian satu setoran                                                        | **Petugas**, **Admin**, **Nasabah** (miliknya)|
+| GET    | `/setoran/:id`        | Melihat detail rincian satu setoran; memuat `nasabah` (nama, email), `petugas` (nama), dan `dibatalkanOleh` (nama) bila dibatalkan | **Petugas**, **Admin**, **Nasabah** (miliknya)|
 | PATCH  | `/setoran/:id/batal`  | Membatalkan setoran dengan `alasan`; saldo nasabah dikoreksi lewat buku besar              | **Admin**                                     |
 
 ### Modul D (Saldo & Penarikan)

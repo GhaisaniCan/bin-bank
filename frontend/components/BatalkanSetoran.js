@@ -21,9 +21,10 @@ function formatBerat(kg) {
 }
 
 // Dialog
-export function DialogBatalkanSetoran({ setoran, onTutup, onDibatalkan }) {
+export function DialogBatalkanSetoran({ setoran, onTutup, onDibatalkan, onBelumPasti }) {
   const daring = useDaring()
   const refAlasan = useRef(null)
+  const refMengirim = useRef(false)
   const [saldo, setSaldo] = useState(null)
   const [galatSaldo, setGalatSaldo] = useState(null)
   const [alasan, setAlasan] = useState("")
@@ -42,6 +43,7 @@ export function DialogBatalkanSetoran({ setoran, onTutup, onDibatalkan }) {
 
   async function kirim(e) {
     e.preventDefault()
+    if (refMengirim.current) return
     if (!alasan.trim()) {
       setGalatAlasan("Alasan pembatalan wajib diisi")
       refAlasan.current?.focus()
@@ -49,22 +51,25 @@ export function DialogBatalkanSetoran({ setoran, onTutup, onDibatalkan }) {
     }
     setGalatAlasan("")
     setGalat(null)
+    refMengirim.current = true
     setMenyimpan(true)
     try {
       const hasil = await api(`/setoran/${setoran._id}/batal`, {
         method: "PATCH",
         body: { alasan: alasan.trim() },
         galatInline: true,
+        aksesInline: true,
       })
       tampilkanToast("Setoran dibatalkan")
       onDibatalkan(hasil.data)
     } catch (err) {
-      setGalat(
-        err.status
-          ? err.message
-          : "Belum dipastikan tersimpan. Muat ulang rincian setoran sebelum mencoba lagi."
-      )
+      refMengirim.current = false
       setMenyimpan(false)
+      if (!err.status || err.status >= 500) {
+        onBelumPasti?.()
+        return
+      }
+      setGalat(err.status === 404 ? "Setoran tidak ditemukan" : err.message)
     }
   }
 
@@ -169,7 +174,7 @@ export function DialogBatalkanSetoran({ setoran, onTutup, onDibatalkan }) {
 }
 
 // Tombol
-export default function TombolBatalkanSetoran({ setoran, onDibatalkan, className = "" }) {
+export default function TombolBatalkanSetoran({ setoran, onDibatalkan, onBelumPasti, className = "" }) {
   const daring = useDaring()
   const [buka, setBuka] = useState(false)
 
@@ -177,7 +182,7 @@ export default function TombolBatalkanSetoran({ setoran, onDibatalkan, className
 
   return (
     <>
-      <Tombol varian="merusak" disabled={!daring} onClick={() => setBuka(true)} className={className}>
+      <Tombol varian="bahaya" tebal="font-normal" disabled={!daring} onClick={() => setBuka(true)} className={className}>
         <Prohibit size={20} weight="regular" aria-hidden="true" className="mr-1" />
         Batalkan setoran
       </Tombol>
@@ -188,6 +193,10 @@ export default function TombolBatalkanSetoran({ setoran, onDibatalkan, className
           onDibatalkan={(data) => {
             setBuka(false)
             onDibatalkan?.(data)
+          }}
+          onBelumPasti={() => {
+            setBuka(false)
+            onBelumPasti?.()
           }}
         />
       )}

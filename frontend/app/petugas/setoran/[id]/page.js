@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useState } from "react"
 import { useParams } from "next/navigation"
 import Link from "next/link"
+import TombolBatalkanSetoran from "@/components/BatalkanSetoran"
 import CapStatus from "@/components/CapStatus"
 import LembarSetoran from "@/components/LembarSetoran"
 import { ArrowLeft, Prohibit, WarningOctagon } from "@phosphor-icons/react"
@@ -17,7 +18,8 @@ const STATUS_TIDAK_DITEMUKAN = [400, 403, 404]
 
 function petakan(data) {
   return {
-    nasabah: { nama: data.nasabah?.nama ?? "", email: data.nasabah?.email ?? "" },
+    _id: data._id,
+    nasabah: { _id: data.nasabah?._id ?? null, nama: data.nasabah?.nama ?? "", email: data.nasabah?.email ?? "" },
     petugas: { nama: data.petugas?.nama ?? "" },
     tanggal: data.tanggal,
     rincian: (data.rincian ?? []).map((r) => ({
@@ -39,6 +41,7 @@ export default function Halaman() {
   const { id } = useParams()
   const [putaran, setPutaran] = useState(0)
   const [hasil, setHasil] = useState({ id: null, putaran: -1, setoran: null, tidakDitemukan: false, galat: false })
+  const [belumPasti, setBelumPasti] = useState(false)
 
   const terkini = hasil.id === id
   const memuat = !terkini || hasil.putaran !== putaran
@@ -121,8 +124,34 @@ export default function Halaman() {
           )}
         </PesanInline>
       )}
+      {belumPasti && setoran.status === "TERCATAT" && (
+        <PesanInline
+          varian="galat"
+          ikon={WarningOctagon}
+          isi="Belum dipastikan tersimpan. Muat ulang rincian untuk memeriksa status."
+          className="mt-4"
+        >
+          <Tombol varian="sekunder" disabled={memuat} onClick={muatUlang}>
+            Muat ulang rincian
+          </Tombol>
+        </PesanInline>
+      )}
       <div className="mt-6">
         <LembarSetoran setoran={setoran} />
+      </div>
+      <div>
+        <TombolBatalkanSetoran
+          setoran={setoran}
+          onDibatalkan={() => {
+            setBelumPasti(false)
+            muatUlang()
+          }}
+          onBelumPasti={() => {
+            setBelumPasti(true)
+            muatUlang()
+          }}
+          className="mt-4 w-full min-[600px]:w-auto"
+        />
       </div>
       {tautanKembali}
     </main>
