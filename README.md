@@ -274,5 +274,16 @@ Untuk menjaga konsistensi dan keteraturan proses pengembangan, setiap anggota ke
 ## Link Web App
 [BinBank](https://binbank-gamma.vercel.app/)
 
+### Login ke Binbank (Web App)
+- Sebagai admin:
+   - email: violin@binbank.com
+   - password: VioBINBANK123
+- Sebagai petugas:
+   - email: petugasvio@binbank.com
+   - password: PetugasVioBINBANK123
+- Sebagai nasabah:
+   - email: nasabahvio@binbank.com
+   - password: NasabahVioBINBANK123
 ## Link Video Demo
 [Video Demo](https://drive.google.com/file/d/1wX3tjqiVlUIIksm0PzB90A3fToddFiw6/view?usp=sharing)
+
